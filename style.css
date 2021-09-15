@@ -856,7 +856,7 @@ a:focus-visible {
   width:200px;
   border-radius:3px;
   display:inline-flex;
-  border-color:#C0C8D1;
+  border-color:#796262;
   padding-bottom:5px;
   text-align:center
 }
@@ -869,7 +869,7 @@ a:focus-visible {
   -webkit-appearance:none;
   appearance:none;
   background-color:#fff;
-  color:#C0C8D1;
+  color:#796262;
   border-radius:4px;
   border:none;
   cursor:pointer;

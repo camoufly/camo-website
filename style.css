@@ -856,7 +856,7 @@ a:focus-visible {
   width:200px;
   border-radius:3px;
   display:inline-flex;
-  border-color:#796262;
+  border-color:#d9d9d9;
   padding-bottom:5px;
   text-align:center
 }
@@ -868,12 +868,12 @@ a:focus-visible {
   padding:1em 2em;
   -webkit-appearance:none;
   appearance:none;
-  background-color:#fff;
-  color:#796262;
+  background-color:#ffffff;
+  color:#000000;
   border-radius:4px;
   border:none;
   cursor:pointer;
-  transition:transform ease-in .1s,box-shadow ease-in .25s;box-shadow:0 2px 25px #cfaaaa
+  transition:transform ease-in .1s,box-shadow ease-in .25s;box-shadow:0 2px 12px #878787
 }
 
 .button:focus{

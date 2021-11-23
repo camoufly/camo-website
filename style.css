@@ -861,6 +861,20 @@ a:focus-visible {
   text-align:center
 }
 
+.el img {
+-moz-transition: all 0.3s;
+-webkit-transition: all 0.3s;
+transition: all 0.3s;
+}
+
+.el img:hover {
+-webkit-transform: scale(0.96);
+-moz-transform: scale(0.96);
+-o-transform: scale(0.96);
+-ms-transform: scale(0.96);
+transform: scale(0.96);
+}
+
 .button{
   font-family:Helvetica,Arial,sans-serif;
   display:inline-flex;

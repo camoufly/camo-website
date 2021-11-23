@@ -840,6 +840,13 @@ a:focus-visible {
   max-width:80vw
 }
 
+.vinylimg{
+  display:block;
+  margin:0 auto;
+  max-height:100%;
+  max-width:80vw
+}
+
 .item{
   font-family: bely-display, sans-serif;
   font-size: 18px;

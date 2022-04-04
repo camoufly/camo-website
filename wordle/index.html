@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en" translate="no">
+    <head>
+        <script>
+            let queryParams = new URLSearchParams(window.location.search);
+            queryParams.set('word', "bozws");
+            queryParams.set("title", "SZN3");
+            queryParams.set("noBar", "y");
+            history.replaceState(null, null, "?" + queryParams.toString());
+
+            for(var animateButton=function(t){t.preventDefault,t.target.classList.remove("animate"),t.target.classList.add("animate"),setTimeout(function(){t.target.classList.remove("animate")},700)},buttons=document.getElementsByClassName("button"),i=0;i<buttons.length;i++)buttons[i].addEventListener("click",animateButton,!1);function addToMailingList(){if(mail=document.getElementById("mailbox_input_wordle").value,""!=mail&&null!=mail){var t=new XMLHttpRequest;t.open("POST","https://camoufly-mailing-list.mrwnwttk.xyz/add_to_mailing_list?email="+mail),t.onload=function(){200==t.status?document.getElementsByClassName("mlbutton")[0].innerHTML="Success!":400==t.status&&(document.getElementsByClassName("mlbutton")[0].innerHTML="An Error occurred!")},t.send()}}
+        </script>
+        <script defer="defer" src="./main.js"></script>
+        <link href="./button.css" rel="stylesheet"> 
+        <link href="./main.css" rel="stylesheet">
+    </head>
+    <body>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <div id="root"></div>
+    </body>
+</html>

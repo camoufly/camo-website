@@ -104,13 +104,14 @@
             <div class="container">
             <br>
          <div class="item">Password:</div>
-          <br>
+          <!-- <br> -->
         <div class="mailbox-item">
-          <input id="secret_password" class="mailbox">
+          <input id="secret_password" maxlength='4'>
         </div>
         <button class="button" onclick="submitSecretPassword()" type="text/javascript">Submit</button>
       </div>
       <div style="text-align: center;">
+        <div id="secret_dialog" style="display: none; padding-top: 20px;"></div>
    <br><p>
    <br>
    <br>
@@ -137,6 +138,14 @@
  document.addEventListener('DOMContentLoaded', function () {
  cookieconsent.run({"notice_banner_type":"simple","consent_type":"express","palette":"dark","language":"en","page_load_consent_levels":["strictly-necessary"],"notice_banner_reject_button_hide":false,"preferences_center_close_button_hide":false,"page_refresh_confirmation_buttons":false,"website_name":"camoufly.me","website_privacy_policy_url":"https://camoufly.me/privacy"});
  });
+ </script>
+
+ <script type="text/javascript" charset="UTF-8">
+  document.getElementById('secret_password').addEventListener('keyup', function(e) {
+  if(this.value.length === 4) {
+      submitSecretPassword();
+  }
+  });
  </script>
 
  <noscript>Cookie Consent by <a href="https://www.freeprivacypolicy.com/" rel="noopener">Free Privacy Policy Generator</a></noscript>

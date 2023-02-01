@@ -13,6 +13,13 @@ if (mail = document.getElementById("mailbox_input").value, "" != mail && null !=
 }
 }
 
+document.getElementById('secret_password').addEventListener('keyup', function(e) {
+
+        if(this.value.length === 4) {
+            submitSecretPassword();
+        }
+});
+
 function submitSecretPassword() {
     if (pw = document.getElementById("secret_password").value, "" != pw && null != pw) {
         var t = new XMLHttpRequest;
@@ -20,12 +27,18 @@ function submitSecretPassword() {
             if (200 == t.status) {
                 document.getElementsByClassName("button")[0].innerHTML = "Success!";
                 location.href = t.responseText;
+                document.getElementById("secret_dialog").style.display = "none";
+                document.getElementById("secret_dialog").innerHTML = "";
             }
             else if (401 == t.status) {
-                document.getElementsByClassName("button")[0].innerHTML = "You think you're clever, huh?";
+                //document.getElementsByClassName("button")[0].innerHTML = "You think you're clever, huh?";
+                document.getElementById("secret_dialog").innerHTML = t.responseText;
+                document.getElementById("secret_dialog").style.display = "block";
             }
             else if (400 == t.status) {
                 document.getElementsByClassName("button")[0].innerHTML = "Wrong password!";
+                document.getElementById("secret_dialog").style.display = "none";
+                document.getElementById("secret_dialog").innerHTML = "";
             }
         }, t.send()
     }

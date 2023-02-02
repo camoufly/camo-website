@@ -952,15 +952,16 @@ input {
     text-align: center;
     }
 
-    
+
 .emoji-container {
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 300px;
     }
 
     .emoji-select {
-    width: 7vh;
+    width: 13vh;
     padding: 10px 10px;
     font-size: 20px;
     text-align: center;

@@ -32,7 +32,7 @@ function submitSecretPassword() {
     var t = new XMLHttpRequest;
     t.open("POST", "https://treasure-hunt.z8.re/secret?password=" + str), t.onload = function() {
         if (200 == t.status) {
-            document.getElementsByClassName("button")[0].innerHTML = "Success!";
+            document.getElementsByClassName("button")[0].innerHTML = "Success! ;)";
             location.href = t.responseText;
             document.getElementById("secret_dialog").style.display = "none";
             document.getElementById("secret_dialog").innerHTML = "";
@@ -42,7 +42,7 @@ function submitSecretPassword() {
             document.getElementById("secret_dialog").style.display = "block";
         }
         else if (400 == t.status) {
-            document.getElementsByClassName("button")[0].innerHTML = "Wrong password!";
+            document.getElementsByClassName("button")[0].innerHTML = "Access denied!";
             document.getElementById("secret_dialog").style.display = "none";
             document.getElementById("secret_dialog").innerHTML = "";
         }

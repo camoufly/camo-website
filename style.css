@@ -5,6 +5,7 @@ body{
   background-color:#ffcdcd
 }
 
+
 *,
 *::after,
 *::before {
@@ -945,3 +946,24 @@ transform: scale(0.96);
   width:auto;
   overflow-y:scroll;
 }
+
+
+input {
+    text-align: center;
+    }
+
+    
+.emoji-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+    }
+
+    .emoji-select {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    text-align: center;
+    margin: 10px;
+    }

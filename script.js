@@ -30,6 +30,7 @@ function submitSecretPassword() {
     const emoji4 = document.querySelector("#emoji4").value;
     const str = emoji1 + emoji2 + emoji3 + emoji4;
     var t = new XMLHttpRequest;
+    document.getElementsByClassName("button")[0].innerHTML = "Trying...";
     t.open("POST", "https://treasure-hunt.z8.re/secret?password=" + str), t.onload = function() {
         if (200 == t.status) {
             document.getElementsByClassName("button")[0].innerHTML = "Success! ;)";

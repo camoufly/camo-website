@@ -13,12 +13,15 @@ if (mail = document.getElementById("mailbox_input").value, "" != mail && null !=
 }
 }
 
-document.getElementById('secret_password').addEventListener('keyup', function(e) {
+function visibleLength(str) {
+    return [...new Intl.Segmenter().segment(str)].length
+}
 
-        if(this.value.length === 4) {
-            submitSecretPassword();
-        }
-});
+function limitKeypress(event, value, maxLength) {
+    if (value != undefined && visibleLength(value.toString()) >= maxLength) {
+        event.preventDefault();
+    }
+}
 
 function submitSecretPassword() {
     if (pw = document.getElementById("secret_password").value, "" != pw && null != pw) {

@@ -103,10 +103,9 @@
         <p>
             <div class="container">
             <br>
-         <div class="item">Password:</div>
           <!-- <br> -->
         <div class="mailbox-item">
-          <input id="secret_password" maxlength='4'>
+          <input id="secret_password" onkeypress="limitKeypress(event,this.value,4)">
         </div>
         <button class="button" onclick="submitSecretPassword()" type="text/javascript">Submit</button>
       </div>

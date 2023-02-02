@@ -957,12 +957,11 @@ input {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 50px;
     }
 
     .emoji-select {
-    width: 50px;
-    height: 50px;
+    width: 7vh;
+    padding: 10px 10px;
     font-size: 20px;
     text-align: center;
     margin: 10px;

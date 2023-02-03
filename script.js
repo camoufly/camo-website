@@ -47,5 +47,10 @@ function submitSecretPassword() {
             document.getElementById("secret_dialog").style.display = "none";
             document.getElementById("secret_dialog").innerHTML = "";
         }
+        else if (429 == t.status) {
+            document.getElementsByClassName("button")[0].innerHTML = "You're doing that too often...";
+            document.getElementById("secret_dialog").style.display = "none";
+            document.getElementById("secret_dialog").innerHTML = "";
+        }
     }, t.send()
     }

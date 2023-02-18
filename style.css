@@ -945,3 +945,10 @@ transform: scale(0.96);
   width:auto;
   overflow-y:scroll;
 }
+
+#countdown {
+    font-size: 1.5em;
+    font-family: bely-display, sans-serif;
+    text-align: center;
+
+  }

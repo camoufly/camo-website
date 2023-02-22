@@ -90,33 +90,7 @@
     <meta name="msapplication-tap-highlight" content="no"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>camoufly</title>
-    <script>
-      function updateCountdown() {
-        var now = new Date();
-        var target = new Date("February 22, 2023 00:00:00");
-        var diff = target.getTime() - now.getTime();
-
-        var seconds = Math.floor(diff / 1000);
-        var minutes = Math.floor(seconds / 60);
-        var hours = Math.floor(minutes / 60);
-        var days = Math.floor(hours / 24);
-
-        hours %= 24;
-        minutes %= 60;
-        seconds %= 60;
-
-        document.getElementById("days").textContent = padNumber(days);
-        document.getElementById("hours").textContent = padNumber(hours);
-        document.getElementById("minutes").textContent = padNumber(minutes);
-        document.getElementById("seconds").textContent = padNumber(seconds);
-      }
-
-      function padNumber(num) {
-        return num.toString().padStart(2, '0');
-      }
-
-      setInterval(updateCountdown, 1000);
-    </script>
+    
   </head>
   <body>
 
@@ -129,9 +103,7 @@
         <div style="align-items: center; max-width: 80%; margin-left: auto; margin-right: auto;">
         <p>
           </div>
-          <div id="countdown">
-            <span id="days"></span>:<span id="hours"></span>:<span id="minutes"></span>:<span id="seconds"></span>
-          </div><p>
+          <br><p>
           <a href="https://lnk.fu.ga/camoufly_inplainsight" class="link link--metis">PRE-SAVE MY NEXT EP</a>
           <p>
           <a href="https://lnk.fu.ga/camoufly_earthbound" class="link link--metis">STREAM EARTHBOUND</a>

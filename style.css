@@ -964,3 +964,19 @@ transform: scale(0.96);
     text-align: center;
 
   }
+
+/* Scrollable container for tour gigs */
+.gig-container {
+    max-width: 600px;
+    height: 300px;
+    margin: 0 auto;
+    overflow-y: auto;
+}
+
+.gig-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: bely-display, sans-serif;
+    margin-bottom: 0.5em;
+}

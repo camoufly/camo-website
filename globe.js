@@ -27,6 +27,7 @@ container.appendChild(renderer.domElement);
 
 // Create globe
 const globe = new ThreeGlobe()
+  .globeImageUrl('') // Prevent default texture (fixes WebGL error)
   .showAtmosphere(false)
   .showGraticules(false)
   .pointsData(events)
@@ -36,7 +37,7 @@ const globe = new ThreeGlobe()
   .pointRadius(0.4)
   .pointColor(() => '#ff4081');
 
-// Force globe to be pure white (no texture noise)
+// Force pure white globe
 globe.globeMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff }));
 
 scene.add(globe);
@@ -47,16 +48,39 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
 dirLight.position.set(1, 1, 1);
 scene.add(dirLight);
 
-// Load country outlines
-fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
+// Load country borders (black outline only)
+fetch('https://app.unpkg.com/world-atlas@2/countries-110m.json')
   .then(res => res.json())
   .then(countries => {
     const globeData = topojson.feature(countries, countries.objects.countries).features;
+
+    // Transparent fill polygons
     globe
       .hexPolygonsData(globeData)
       .hexPolygonResolution(3)
       .hexPolygonMargin(0.3)
-      .hexPolygonColor(() => 'rgba(180,180,180,0.7)'); // grey outlines
+      .hexPolygonColor(() => 'rgba(0,0,0,0)'); // no fill
+
+    // Draw black borders
+    const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    globeData.forEach(feature => {
+      const coords = feature.geometry.coordinates;
+      coords.forEach(polygon => {
+        const points = polygon[0].map(([lng, lat]) => {
+          const phi = (90 - lat) * (Math.PI / 180);
+          const theta = (lng + 180) * (Math.PI / 180);
+          const radius = 100; // matches globe radius
+          return new THREE.Vector3(
+            -radius * Math.sin(phi) * Math.cos(theta),
+            radius * Math.cos(phi),
+            radius * Math.sin(phi) * Math.sin(theta)
+          );
+        });
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.LineLoop(geometry, borderMaterial);
+        globe.add(line);
+      });
+    });
   })
   .catch(err => console.error("Error loading country data:", err));
 

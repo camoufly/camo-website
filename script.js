@@ -8,10 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
     e.target.classList.add("animate");
     setTimeout(() => e.target.classList.remove("animate"), 700);
   };
-  const buttons = document.getElementsByClassName("button");
-  for (let btn of buttons) {
-    btn.addEventListener("click", animateButton, false);
-  }
+  document.querySelectorAll(".button").forEach(btn =>
+    btn.addEventListener("click", animateButton)
+  );
 
   /* =========================
      Drag-and-drop functionality
@@ -27,16 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  ["dragenter", "dragover"].forEach(eventName => {
-    dropArea.addEventListener(eventName, () => dropArea.classList.add("active"));
-  });
-
-  ["dragleave", "drop"].forEach(eventName => {
-    dropArea.addEventListener(eventName, () => dropArea.classList.remove("active"));
-  });
+  ["dragenter", "dragover"].forEach(() => dropArea.classList.add("active"));
+  ["dragleave", "drop"].forEach(() => dropArea.classList.remove("active"));
 
   dropArea.addEventListener("drop", (e) => {
     const files = e.dataTransfer.files;
+    if (files.length > 5) {
+      uploadStatus.textContent = "⚠️ You can only upload a maximum of 5 files.";
+      return;
+    }
     if (files.length) {
       fileInput.files = files;
       fileInput.dispatchEvent(new Event("change", { bubbles: true }));
@@ -44,42 +42,51 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* =========================
-     File select update
+     File select update + max 5
   ========================= */
   fileInput?.addEventListener("change", () => {
+    if (fileInput.files.length > 5) {
+      uploadStatus.textContent = "⚠️ You can only upload a maximum of 5 files.";
+      fileInput.value = ""; // Clear selection
+      return;
+    }
     if (fileInput.files.length > 0) {
-      uploadStatus.textContent = fileInput.files.length === 1
-        ? `📁 File selected: ${fileInput.files[0].name}`
-        : `📁 ${fileInput.files.length} files selected.`;
+      uploadStatus.textContent =
+        fileInput.files.length === 1
+          ? `📁 File selected: ${fileInput.files[0].name}`
+          : `📁 ${fileInput.files.length} files selected.`;
     } else {
       uploadStatus.textContent = "";
     }
   });
 
   /* =========================
-     Music Upload to Dropbox (auto-switch + % progress)
+     Music Upload to Dropbox
   ========================= */
   const musicForm = document.getElementById("musicForm");
   const artistNameInput = document.getElementById("artistName");
-  const songTitleInput = document.getElementById("songTitle");
   const emailInput = document.getElementById("email");
 
-  const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB per chunk for Pro plan
-  const MAX_DIRECT_UPLOAD = 100 * 1024 * 1024; // 100MB direct upload limit
+  const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB for Vercel Pro
+  const MAX_DIRECT_UPLOAD = 100 * 1024 * 1024; // 100MB for direct
 
   async function uploadSingleFile(file, index, totalFiles) {
-    // Date folder YYYY-MM-DD
     const now = new Date();
     const dateFolder = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     const folderPath = `/MusicUploads/${dateFolder}`;
+
+    // Preserve original extension
     const extension = file.name.split('.').pop();
-    const baseFileName = `${artistNameInput.value.trim()} - ${songTitleInput.value.trim()} (${emailInput.value.trim()})`;
+    const originalNameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+
+    // Format: [artist] - [originalFilename] ([email]).ext
+    const baseFileName = `${artistNameInput.value.trim()} - ${originalNameWithoutExt} (${emailInput.value.trim()})`;
     const dropboxPath = `${folderPath}/${baseFileName}.${extension}`;
 
     try {
       if (file.size <= MAX_DIRECT_UPLOAD) {
-        /* ==== Direct upload mode ==== */
-        uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading (direct): ${file.name}... 0%`;
+        /* Direct upload */
+        uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading: ${file.name}... 0%`;
 
         const tokenRes = await fetch("/api/getToken");
         const tokenData = await tokenRes.json();
@@ -100,19 +107,19 @@ document.addEventListener("DOMContentLoaded", () => {
           xhr.upload.onprogress = (e) => {
             if (e.lengthComputable) {
               const percent = Math.round((e.loaded / e.total) * 100);
-              uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading (direct): ${file.name}... ${percent}%`;
+              uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading: ${file.name}... ${percent}%`;
             }
           };
 
-          xhr.onload = () => xhr.status === 200 ? resolve() : reject(new Error(`Direct upload failed: ${xhr.responseText}`));
+          xhr.onload = () => xhr.status === 200 ? resolve() : reject(new Error(xhr.responseText));
           xhr.onerror = () => reject(new Error("Network error"));
           xhr.send(file);
         });
 
         uploadStatus.textContent = `✅ [${index + 1}/${totalFiles}] Finished: ${file.name}`;
       } else {
-        /* ==== Chunked upload mode ==== */
-        uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Starting chunked upload: ${file.name}...`;
+        /* Chunked upload */
+        uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Starting chunked upload: ${file.name}`;
 
         const startRes = await fetch("/api/startUpload", { method: "POST" });
         const startData = await startRes.json();
@@ -138,8 +145,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
           offset += CHUNK_SIZE;
           chunkIndex++;
-          const percent = Math.min(100, Math.round((chunkIndex / totalChunks) * 100));
-          uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading (chunked): ${file.name}... ${percent}%`;
+          const percent = Math.round((chunkIndex / totalChunks) * 100);
+          uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading: ${file.name}... ${percent}%`;
         }
 
         const finishRes = await fetch("/api/finishUpload", {
@@ -158,14 +165,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (musicForm) {
-    musicForm.addEventListener("submit", async function (event) {
+    musicForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       if (!fileInput.files.length) {
         uploadStatus.textContent = "⚠️ Please select a file.";
         return;
       }
-      if (!artistNameInput.value.trim() || !songTitleInput.value.trim() || !emailInput.value.trim()) {
+      if (fileInput.files.length > 5) {
+        uploadStatus.textContent = "⚠️ You can only upload a maximum of 5 files.";
+        return;
+      }
+      if (!artistNameInput.value.trim() || !emailInput.value.trim()) {
         uploadStatus.textContent = "⚠️ Please fill out all fields.";
         return;
       }
@@ -177,7 +188,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       fileInput.value = "";
       artistNameInput.value = "";
-      songTitleInput.value = "";
       emailInput.value = "";
       uploadStatus.textContent += " 🎉 All uploads completed!";
     });

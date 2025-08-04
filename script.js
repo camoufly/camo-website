@@ -2,123 +2,112 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =========================
      Button click animation
   ========================= */
-  const animateButton = (t) => {
-    t.preventDefault();
-    t.target.classList.remove("animate");
-    t.target.classList.add("animate");
+  const animateButton = function (e) {
+    e.preventDefault();
+    e.target.classList.remove("animate");
+    e.target.classList.add("animate");
     setTimeout(() => {
-      t.target.classList.remove("animate");
+      e.target.classList.remove("animate");
     }, 700);
   };
-
   const buttons = document.getElementsByClassName("button");
   for (let i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener("click", animateButton, false);
   }
 
   /* =========================
-     Mailing list subscription
-  ========================= */
-  window.addToMailingList = function () {
-    const mail = document.getElementById("mailbox_input")?.value;
-    if (mail && mail.trim() !== "") {
-      const t = new XMLHttpRequest();
-      t.open(
-        "POST",
-        "https://camoufly-mailing-list.z8.re/add_to_mailing_list?email=" + encodeURIComponent(mail)
-      );
-      t.onload = function () {
-        if (t.status === 200) {
-          document.getElementsByClassName("button")[0].innerHTML = "Success!";
-        } else if (t.status === 400) {
-          document.getElementsByClassName("button")[0].innerHTML = "An Error occurred!";
-        }
-      };
-      t.send();
-    }
-  };
-
-  /* =========================
-     Show selected file in upload status
-  ========================= */
-  const fileInput = document.getElementById("input-file");
-  const uploadStatus = document.getElementById("uploadStatus");
-  if (fileInput && uploadStatus) {
-    fileInput.addEventListener("change", () => {
-      if (fileInput.files.length > 0) {
-        uploadStatus.textContent = `📁 File selected: ${fileInput.files[0].name}`;
-      } else {
-        uploadStatus.textContent = "";
-      }
-    });
-  }
-
-  /* =========================
-     Music Upload Direct to Dropbox (via Vercel getToken)
+     Music Upload to Dropbox (chunked)
   ========================= */
   const musicForm = document.getElementById("musicForm");
+  const fileInput = document.getElementById("input-file");
+  const artistNameInput = document.getElementById("artistName");
+  const songTitleInput = document.getElementById("songTitle");
+  const emailInput = document.getElementById("email");
+  const uploadStatus = document.getElementById("uploadStatus");
+
+  const CHUNK_SIZE = 8 * 1024 * 1024; // 8MB
+
+  // Show selected file name
+  fileInput?.addEventListener("change", () => {
+    if (fileInput.files.length > 0) {
+      uploadStatus.textContent = `📁 File selected: ${fileInput.files[0].name}`;
+    } else {
+      uploadStatus.textContent = "";
+    }
+  });
+
   if (musicForm) {
     musicForm.addEventListener("submit", async function (event) {
       event.preventDefault();
 
-      const artistName = document.getElementById("artistName").value.trim();
-      const songTitle = document.getElementById("songTitle").value.trim();
-      const email = document.getElementById("email").value.trim();
-
-      // Basic form validation
+      // Basic validation
       if (!fileInput.files.length) {
         uploadStatus.textContent = "⚠️ Please select a file.";
         return;
       }
-      if (!artistName || !songTitle || !email) {
+      if (!artistNameInput.value.trim() || !songTitleInput.value.trim() || !emailInput.value.trim()) {
         uploadStatus.textContent = "⚠️ Please fill out all fields.";
         return;
       }
 
       const file = fileInput.files[0];
-      const dropboxPath = `/MusicUploads/${artistName} - ${songTitle} (${email}) - ${file.name}`;
+      const dropboxPath = `/MusicUploads/${artistNameInput.value.trim()} - ${songTitleInput.value.trim()} (${emailInput.value.trim()}) - ${file.name}`;
 
       try {
-        // 1️⃣ Get a token from Vercel backend
-        uploadStatus.textContent = "Requesting upload permission...";
-        const tokenRes = await fetch("/api/getToken");
-        const tokenData = await tokenRes.json();
-        if (!tokenRes.ok || !tokenData.token) {
-          throw new Error(tokenData.error || "Token request failed");
+        // 1️⃣ Start upload session
+        uploadStatus.textContent = "⏳ Starting upload session...";
+        const startRes = await fetch("/api/startUpload", { method: "POST" });
+        const startData = await startRes.json();
+        if (!startRes.ok || !startData.session_id) {
+          throw new Error(startData.error || "Failed to start upload session");
         }
-        const uploadToken = tokenData.token;
+        const sessionId = startData.session_id;
 
-        // 2️⃣ Upload directly to Dropbox
-        uploadStatus.textContent = "⏳ Uploading to Dropbox...";
-        const uploadRes = await fetch("https://content.dropboxapi.com/2/files/upload", {
+        // 2️⃣ Upload chunks
+        let offset = 0;
+        let chunkIndex = 1;
+        while (offset < file.size) {
+          const chunk = file.slice(offset, offset + CHUNK_SIZE);
+          uploadStatus.textContent = `⏳ Uploading chunk ${chunkIndex} of ${Math.ceil(file.size / CHUNK_SIZE)}...`;
+
+          const appendRes = await fetch("/api/appendUpload", {
+            method: "POST",
+            headers: {
+              "x-dropbox-session-id": sessionId,
+              "x-dropbox-offset": offset
+            },
+            body: chunk
+          });
+
+          if (!appendRes.ok) {
+            throw new Error(`Failed to upload chunk ${chunkIndex}`);
+          }
+
+          offset += CHUNK_SIZE;
+          chunkIndex++;
+        }
+
+        // 3️⃣ Finish upload
+        uploadStatus.textContent = "⏳ Finalizing upload...";
+        const finishRes = await fetch("/api/finishUpload", {
           method: "POST",
-          headers: {
-            "Authorization": `Bearer ${uploadToken}`,
-            "Dropbox-API-Arg": JSON.stringify({
-              path: dropboxPath,
-              mode: "add",
-              autorename: true,
-              mute: false
-            }),
-            "Content-Type": "application/octet-stream"
-          },
-          body: file
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId, offset: file.size, dropboxPath })
         });
 
-        if (uploadRes.ok) {
-          uploadStatus.textContent = "✅ Upload successful!";
-          // Reset form
-          fileInput.value = "";
-          document.getElementById("artistName").value = "";
-          document.getElementById("songTitle").value = "";
-          document.getElementById("email").value = "";
-        } else {
-          const err = await uploadRes.json();
-          uploadStatus.textContent = `❌ Upload failed: ${err.error_summary || "Unknown error"}`;
+        if (!finishRes.ok) {
+          const errText = await finishRes.text();
+          throw new Error(errText || "Failed to finish upload");
         }
-      } catch (error) {
-        console.error(error);
-        uploadStatus.textContent = "❌ Error uploading file.";
+
+        uploadStatus.textContent = "✅ Upload successful!";
+        fileInput.value = "";
+        artistNameInput.value = "";
+        songTitleInput.value = "";
+        emailInput.value = "";
+      } catch (err) {
+        console.error(err);
+        uploadStatus.textContent = "❌ Upload failed: " + err.message;
       }
     });
   }

@@ -977,87 +977,84 @@ transform: scale(0.96);
   padding: 20px;
 }
 
-#drop-area {
-  width: 500px;
-  height: 300px;
-  padding: 30px;
-  background: #1a1a1a;
-  text-align: center;
-  border-radius: 20px;
-  border: 3px dashed rgba(255, 255, 255, 0.3);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+#drop-area{
+    width: 500px;
+    height: 300px;
+    padding: 30px;
+    background: #f5f5f5;
+    text-align: center;
+    border-radius: 20px;
 }
 
-#drop-area:hover {
-  border-color: #ff2ba1;
-  box-shadow: 0 0 30px rgba(255, 43, 161, 0.7);
+#img-view{
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    border: 2px dashed #fafafa;
+    background: #f1f1f1;
 }
 
+#img-view img{
+    width: 100px;
+    margin-top: 25px;
+}
+
+#img-view span{
+    display: block;
+    font-size: 12;
+    color: #777;
+    margin-top: 15px;
+}
+
+/* Highlight drop area when file is dragged over */
 #drop-area.active {
-  border-color: #00e5ff;
-  box-shadow: 0 0 40px rgba(0, 229, 255, 0.9);
-  background: #111;
-}
-
-#img-view {
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: #ccc;
-  font-size: 14px;
-  transition: color 0.3s ease;
+  background: #e9f5ff; /* Light blue background */
+  border: 2px dashed #2196f3; /* Blue dashed border */
+  box-shadow: 0 0 12px rgba(33, 150, 243, 0.4); /* Subtle glow */
+  transition: all 0.2s ease-in-out;
 }
 
 #drop-area.active #img-view {
-  color: #00e5ff;
+  border-color: #2196f3;
+  background: #f0f8ff; /* Slightly lighter inner background */
 }
 
-#img-view img {
-  width: 100px;
-  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
-  transition: transform 0.3s ease;
+#drop-area.active p,
+#drop-area.active span {
+  color: #2196f3;
 }
 
-#drop-area:hover #img-view img {
-  transform: scale(1.05);
+
+.form-group {
+  width: 100%;
+  text-align: left;
 }
 
-#img-view span {
+.form-group label {
+  font-weight: bold;
   display: block;
-  margin-top: 10px;
-  color: #999;
-  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 .upload-button {
   margin-top: 15px;
-  padding: 12px 40px;
-  background: linear-gradient(135deg, #ff2ba1, #6f00ff);
+  padding: 10px 30px;
+  background-color: #333;
   color: white;
   border: none;
-  border-radius: 50px;
-  font-weight: bold;
-  font-size: 1rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-weight: bold;
 }
 
 .upload-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(255, 43, 161, 0.7);
-}
-
-/* Upload status text */
-#uploadStatus {
-  margin-top: 15px;
-  font-size: 14px;
-  color: white;
-  min-height: 20px;
+  background-color: #555;
 }

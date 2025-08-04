@@ -49,7 +49,7 @@ dirLight.position.set(1, 1, 1);
 scene.add(dirLight);
 
 // Load country borders (black outline only)
-fetch('https://app.unpkg.com/world-atlas@2/countries-110m.json')
+fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
   .then(res => res.json())
   .then(countries => {
     const globeData = topojson.feature(countries, countries.objects.countries).features;

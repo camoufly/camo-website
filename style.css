@@ -958,6 +958,7 @@ transform: scale(0.96);
   overflow-y:scroll;
 }
 
+
 #countdown {
     font-size: 1.5em;
     font-family: bely-display, sans-serif;
@@ -979,4 +980,83 @@ transform: scale(0.96);
     align-items: center;
     font-family: bely-display, sans-serif;
     margin-bottom: 0.5em;
+}
+
+
+/* Music Submit Form */
+
+/* ==== MUSIC FORM STYLING ==== */
+#musicForm {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed #ccc;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+#musicForm.dragover {
+  border-color: #000; /* highlight on drag */
+  background: #fafafa;
+}
+
+#musicForm input[type="text"],
+#musicForm input[type="email"],
+#musicForm textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+#musicForm input[type="file"] {
+  display: block;
+  margin: 15px auto;
+  padding: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#musicForm button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  background: black;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#musicForm button:hover {
+  background: #333;
+}
+
+#musicForm textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Progress / status messages */
+.upload-status {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  #musicForm {
+    margin: 20px;
+    padding: 20px;
+  }
 }

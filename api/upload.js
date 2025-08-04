@@ -1,15 +1,16 @@
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
-  // Enable CORS
-  res.setHeader("Access-Control-Allow-Origin", "https://camoufly.me");
+  // --- Always send CORS headers ---
+  res.setHeader("Access-Control-Allow-Origin", "*"); // for testing, later you can change to "https://camoufly.me"
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Handle OPTIONS method (CORS preflight)
+  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
+
 
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });

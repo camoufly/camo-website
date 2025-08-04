@@ -77,6 +77,28 @@ if (musicForm) {
       }
     };
 
+// =========================
+// Music upload form highlight
+// =========================
+
+
+const musicFormEl = document.getElementById("musicForm");
+if (musicFormEl) {
+  musicFormEl.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    musicFormEl.classList.add("dragover");
+  });
+
+  musicFormEl.addEventListener("dragleave", () => {
+    musicFormEl.classList.remove("dragover");
+  });
+
+  musicFormEl.addEventListener("drop", () => {
+    musicFormEl.classList.remove("dragover");
+  });
+}
+
+
     reader.readAsDataURL(file);
   });
 }

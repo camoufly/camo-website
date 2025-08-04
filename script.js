@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
         uploadStatus.textContent = "⏳ Uploading…";
         console.log("🚀 Sending request to /api/upload…");
 
-        const res = await fetch("/api/upload", {
+        const res = await fetch("https://camo-website.vercel.app/api/upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

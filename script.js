@@ -151,7 +151,3 @@ document.addEventListener("DOMContentLoaded", () => {
     reader.readAsDataURL(file);
   });
 });
-
-    reader.readAsDataURL(file);
-  });
-});

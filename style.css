@@ -988,18 +988,33 @@ transform: scale(0.96);
 /* ==== MUSIC FORM STYLING ==== */
 #musicForm {
   max-width: 500px;
-  margin: 40px auto;
+  margin: 60px auto; /* pushes it down and centers it */
   padding: 30px;
   background: white;
   border-radius: 12px;
   border: 2px dashed #ccc;
   text-align: center;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  font-family: inherit;
 }
 
 #musicForm.dragover {
-  border-color: #000; /* highlight on drag */
+  border-color: #000;
   background: #fafafa;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+}
+
+#musicForm h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+#musicForm p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
 }
 
 #musicForm input[type="text"],
@@ -1056,7 +1071,7 @@ transform: scale(0.96);
 /* Mobile responsiveness */
 @media (max-width: 600px) {
   #musicForm {
-    margin: 20px;
+    margin: 40px 15px;
     padding: 20px;
   }
 }

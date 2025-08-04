@@ -22,9 +22,9 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 container.appendChild(renderer.domElement);
 
-// Create ThreeGlobe for pins
+// Create globe
 const globe = new ThreeGlobe()
-  .globeImageUrl('') // don't load texture
+  .globeImageUrl('') // stop loading a default texture
   .showAtmosphere(false)
   .showGraticules(false)
   .pointsData(events)
@@ -34,15 +34,17 @@ const globe = new ThreeGlobe()
   .pointRadius(0.5)
   .pointColor(() => '#ff4081');
 
-// Add a SOLID white sphere under the pins
-const globeRadius = 100;
-const whiteSphere = new THREE.Mesh(
-  new THREE.SphereGeometry(globeRadius, 64, 64),
-  new THREE.MeshBasicMaterial({ color: 0xffffff })
-);
-globe.add(whiteSphere); // attaches sphere inside globe object so it rotates with pins
+// Make the globe solid white
+globe.globeMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff }));
 
 scene.add(globe);
+
+// Add a thin black wireframe outline around the globe
+const outlineGeometry = new THREE.SphereGeometry(100, 64, 64);
+const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
+const sphereOutline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+sphereOutline.scale.set(1.01, 1.01, 1.01);
+scene.add(sphereOutline);
 
 // Lights
 scene.add(new THREE.AmbientLight(0xffffff, 1.2));
@@ -50,20 +52,28 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
 dirLight.position.set(1, 1, 1);
 scene.add(dirLight);
 
-// Load borders
+// Country borders
 fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
   .then(res => res.json())
   .then(countries => {
     const globeData = topojson.feature(countries, countries.objects.countries).features;
 
-    const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    // Draw countries with transparent fill so pins are clickable
+    globe
+      .hexPolygonsData(globeData)
+      .hexPolygonResolution(3)
+      .hexPolygonMargin(0.3)
+      .hexPolygonColor(() => 'rgba(0,0,0,0)'); // no fill
+
+    // Add grey border lines for country outlines
+    const borderMaterial = new THREE.LineBasicMaterial({ color: 0x808080 });
     globeData.forEach(feature => {
       const coords = feature.geometry.coordinates;
       coords.forEach(polygon => {
         const points = polygon[0].map(([lng, lat]) => {
           const phi = (90 - lat) * (Math.PI / 180);
           const theta = (lng + 180) * (Math.PI / 180);
-          const radius = globeRadius + 0.2; // slightly above sphere
+          const radius = 100.1; // just above globe surface
           return new THREE.Vector3(
             -radius * Math.sin(phi) * Math.cos(theta),
             radius * Math.cos(phi),
@@ -72,12 +82,12 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         });
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const line = new THREE.LineLoop(geometry, borderMaterial);
-        globe.add(line);
+        scene.add(line);
       });
     });
   });
 
-// Tooltip + rotation
+// Tooltip + hover rotation
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let targetRotationX = 0;
@@ -104,7 +114,19 @@ document.addEventListener('mousemove', (event) => {
   }
 });
 
-// Animate
+// Open event link in a new tab when clicking a pin
+document.addEventListener('click', (event) => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
+  if (intersects.length > 0) {
+    const data = intersects[0].object.__data;
+    window.open(data.link, '_blank');
+  }
+});
+
+// Animation
 function animate() {
   requestAnimationFrame(animate);
   globe.rotation.y += (targetRotationY - globe.rotation.y) * 0.05;

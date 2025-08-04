@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   /* =========================
-     Button click animation
+     Button click animation.
   ========================= */
   const animateButton = function (e) {
     e.preventDefault();

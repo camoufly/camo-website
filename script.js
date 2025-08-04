@@ -2,17 +2,17 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =========================
      Button click animation
   ========================= */
-  var animateButton = function (t) {
+  const animateButton = (t) => {
     t.preventDefault();
     t.target.classList.remove("animate");
     t.target.classList.add("animate");
-    setTimeout(function () {
+    setTimeout(() => {
       t.target.classList.remove("animate");
     }, 700);
   };
 
-  var buttons = document.getElementsByClassName("button");
-  for (var i = 0; i < buttons.length; i++) {
+  const buttons = document.getElementsByClassName("button");
+  for (let i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener("click", animateButton, false);
   }
 
@@ -20,19 +20,18 @@ document.addEventListener("DOMContentLoaded", () => {
      Mailing list subscription
   ========================= */
   window.addToMailingList = function () {
-    var mail = document.getElementById("mailbox_input")?.value;
+    const mail = document.getElementById("mailbox_input")?.value;
     if (mail && mail.trim() !== "") {
-      var t = new XMLHttpRequest();
+      const t = new XMLHttpRequest();
       t.open(
         "POST",
-        "https://camoufly-mailing-list.z8.re/add_to_mailing_list?email=" + mail
+        "https://camoufly-mailing-list.z8.re/add_to_mailing_list?email=" + encodeURIComponent(mail)
       );
       t.onload = function () {
-        if (t.status == 200) {
+        if (t.status === 200) {
           document.getElementsByClassName("button")[0].innerHTML = "Success!";
-        } else if (t.status == 400) {
-          document.getElementsByClassName("button")[0].innerHTML =
-            "An Error occurred!";
+        } else if (t.status === 400) {
+          document.getElementsByClassName("button")[0].innerHTML = "An Error occurred!";
         }
       };
       t.send();
@@ -40,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   /* =========================
-     Music Upload Direct to Dropbox
+     Music Upload Direct to Dropbox (via Vercel getToken)
   ========================= */
   const musicForm = document.getElementById("musicForm");
   if (musicForm) {
@@ -53,8 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = document.getElementById("email").value.trim();
       const uploadStatus = document.getElementById("uploadStatus");
 
+      // Basic form validation
       if (!fileInput.files.length) {
         uploadStatus.textContent = "⚠️ Please select a file.";
+        return;
+      }
+      if (!artistName || !songTitle || !email) {
+        uploadStatus.textContent = "⚠️ Please fill out all fields.";
         return;
       }
 
@@ -62,19 +66,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const dropboxPath = `/MusicUploads/${artistName} - ${songTitle} (${email}) - ${file.name}`;
 
       try {
-        // 1️⃣ Get a short-lived token from Vercel
+        // 1️⃣ Get a token from Vercel backend
         uploadStatus.textContent = "Requesting upload permission...";
-        const tokenRes = await fetch("https://camo-website.vercel.app/api/getToken");
+        const tokenRes = await fetch("/api/getToken");
         const tokenData = await tokenRes.json();
-        if (!tokenRes.ok) throw new Error(tokenData.error || "Token request failed");
-        const shortLivedToken = tokenData.token;
+        if (!tokenRes.ok || !tokenData.token) {
+          throw new Error(tokenData.error || "Token request failed");
+        }
+        const uploadToken = tokenData.token;
 
         // 2️⃣ Upload directly to Dropbox
         uploadStatus.textContent = "⏳ Uploading to Dropbox...";
         const uploadRes = await fetch("https://content.dropboxapi.com/2/files/upload", {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${shortLivedToken}`,
+            "Authorization": `Bearer ${uploadToken}`,
             "Dropbox-API-Arg": JSON.stringify({
               path: dropboxPath,
               mode: "add",
@@ -88,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (uploadRes.ok) {
           uploadStatus.textContent = "✅ Upload successful!";
+          // Reset form
           fileInput.value = "";
           document.getElementById("artistName").value = "";
           document.getElementById("songTitle").value = "";

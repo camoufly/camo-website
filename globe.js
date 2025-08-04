@@ -13,7 +13,7 @@ const events = [
   { lat: 48.8566, lng: 2.3522, name: 'Les Nuits de la Bomba – Paris', date: 'Sep 20, 2025', link: 'https://dice.fm/event/avgo2d-les-nuits-de-la-bomba-et-leurs-amis-pass-samedi-trabendo-20th-sep' }
 ];
 
-// Scene setup
+// Scene
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 2000);
 camera.position.z = 350;
@@ -22,26 +22,21 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 container.appendChild(renderer.domElement);
 
-// Solid white sphere as base globe
-const globeRadius = 100;
-const sphereGeometry = new THREE.SphereGeometry(globeRadius, 64, 64);
-const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-const baseSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-scene.add(baseSphere);
-
-// Create Three-Globe for pins only
+// Create globe
 const globe = new ThreeGlobe()
-  .globeImageUrl('') // Disable texture loading
+  .globeImageUrl('') // stop loading a default texture
   .showAtmosphere(false)
   .showGraticules(false)
   .pointsData(events)
   .pointLat('lat')
   .pointLng('lng')
   .pointAltitude(0.02)
-  .pointRadius(0.6) // bigger pins
+  .pointRadius(0.5)
   .pointColor(() => '#ff4081');
 
-globe.globeMaterial(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 })); // hide default globe mesh
+// Make the globe solid white
+globe.globeMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff }));
+
 scene.add(globe);
 
 // Lights
@@ -50,12 +45,20 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
 dirLight.position.set(1, 1, 1);
 scene.add(dirLight);
 
-// Load and draw country borders
+// Country borders
 fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
   .then(res => res.json())
   .then(countries => {
     const globeData = topojson.feature(countries, countries.objects.countries).features;
 
+    // Draw countries with transparent fill so pins are clickable
+    globe
+      .hexPolygonsData(globeData)
+      .hexPolygonResolution(3)
+      .hexPolygonMargin(0.3)
+      .hexPolygonColor(() => 'rgba(0,0,0,0)'); // no fill
+
+    // Add thick black border lines
     const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     globeData.forEach(feature => {
       const coords = feature.geometry.coordinates;
@@ -63,20 +66,19 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         const points = polygon[0].map(([lng, lat]) => {
           const phi = (90 - lat) * (Math.PI / 180);
           const theta = (lng + 180) * (Math.PI / 180);
+          const radius = 100.1; // just above globe surface
           return new THREE.Vector3(
-            -globeRadius * Math.sin(phi) * Math.cos(theta),
-            globeRadius * Math.cos(phi),
-            globeRadius * Math.sin(phi) * Math.sin(theta)
+            -radius * Math.sin(phi) * Math.cos(theta),
+            radius * Math.cos(phi),
+            radius * Math.sin(phi) * Math.sin(theta)
           );
         });
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const line = new THREE.LineLoop(geometry, borderMaterial);
-        line.scale.multiplyScalar(1.002); // slightly above sphere surface
         scene.add(line);
       });
     });
-  })
-  .catch(err => console.error("Error loading country data:", err));
+  });
 
 // Tooltip + hover rotation
 const raycaster = new THREE.Raycaster();
@@ -105,18 +107,16 @@ document.addEventListener('mousemove', (event) => {
   }
 });
 
-// Animate
+// Animation
 function animate() {
   requestAnimationFrame(animate);
-  baseSphere.rotation.y += (targetRotationY - baseSphere.rotation.y) * 0.05;
   globe.rotation.y += (targetRotationY - globe.rotation.y) * 0.05;
-  baseSphere.rotation.x += (targetRotationX - baseSphere.rotation.x) * 0.05;
   globe.rotation.x += (targetRotationX - globe.rotation.x) * 0.05;
   renderer.render(scene, camera);
 }
 animate();
 
-// Resize handling
+// Resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();

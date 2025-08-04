@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing file or file data" });
     }
 
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywKjF7aC1X-8YLuE8xCiw_waOIONsgPKOclI18EGSWMeeFHYzg_zJEL309xXItQjqP/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxsrIExtTB850fKULu5bGrp3JkhNePGDnof7HmBN8rQdUr70_4ceSHOEPgimu4aVhMK/exec";
     // Send file to Google Apps Script
     const response = await fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",

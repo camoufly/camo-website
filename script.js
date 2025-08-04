@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ DOM loaded, script running...");
-
   /* =========================
      Button click animation
   ========================= */
@@ -14,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   var buttons = document.getElementsByClassName("button");
-  console.log("🎛 Found buttons:", buttons.length);
   for (var i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener("click", animateButton, false);
   }
@@ -24,8 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
   ========================= */
   window.addToMailingList = function () {
     var mail = document.getElementById("mailbox_input")?.value;
-    console.log("📧 Attempting mailing list signup with:", mail);
-
     if (mail && mail.trim() !== "") {
       var t = new XMLHttpRequest();
       t.open(
@@ -33,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "https://camoufly-mailing-list.z8.re/add_to_mailing_list?email=" + mail
       );
       t.onload = function () {
-        console.log("📬 Mailing list server response:", t.status);
         if (t.status == 200) {
           document.getElementsByClassName("button")[0].innerHTML = "Success!";
         } else if (t.status == 400) {
@@ -51,96 +45,99 @@ document.addEventListener("DOMContentLoaded", () => {
   const musicForm = document.getElementById("musicForm");
   const fileInput = document.getElementById("input-file");
   const dropArea = document.getElementById("drop-area");
-  const uploadStatus = document.getElementById("uploadStatus");
 
-  console.log("🎯 Found upload elements:", { musicForm, fileInput, dropArea, uploadStatus });
+  // Create upload status element if it doesn't exist
+  let uploadStatus = document.getElementById("uploadStatus");
+  if (!uploadStatus) {
+    uploadStatus = document.createElement("div");
+    uploadStatus.id = "uploadStatus";
+    uploadStatus.style.marginTop = "10px";
+    uploadStatus.style.fontSize = "14px";
+    uploadStatus.style.color = "#333";
+    dropArea.parentNode.appendChild(uploadStatus);
+  }
 
   if (dropArea && fileInput) {
     // Click to open file picker
     dropArea.addEventListener("click", () => {
-      console.log("📂 Drop area clicked, opening file picker...");
+      console.log("Drop area clicked");
       fileInput.click();
     });
 
-    // Highlight drop area when dragging file
+    // Highlight on drag over
     dropArea.addEventListener("dragover", (e) => {
       e.preventDefault();
-      console.log("🎯 File dragged over drop area");
       dropArea.classList.add("active");
     });
 
     dropArea.addEventListener("dragleave", () => {
-      console.log("🚫 File left drop area");
       dropArea.classList.remove("active");
     });
 
+    // Handle file drop
     dropArea.addEventListener("drop", (e) => {
       e.preventDefault();
       dropArea.classList.remove("active");
       fileInput.files = e.dataTransfer.files;
-      console.log("📦 File dropped:", fileInput.files);
+      console.log("File dropped:", fileInput.files[0].name);
+      handleFileUpload(fileInput.files[0]);
+    });
+
+    // Handle file picker selection
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files.length > 0) {
+        console.log("File selected:", fileInput.files[0].name);
+        handleFileUpload(fileInput.files[0]);
+      }
     });
   }
 
-  if (musicForm) {
-    musicForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      console.log("🚀 Submit handler triggered");
+  // Main upload function
+  async function handleFileUpload(file) {
+    if (!file) {
+      uploadStatus.textContent = "⚠ Please select a file.";
+      return;
+    }
 
-      const file = fileInput.files[0];
-      console.log("📄 Selected file:", file);
+    uploadStatus.textContent = `Selected: ${file.name} — preparing upload…`;
+    console.log("Preparing upload for:", file.name);
 
-      if (!file) {
-        console.warn("⚠ No file selected");
-        if (uploadStatus) uploadStatus.textContent = "⚠ Please select a file.";
-        return;
-      }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64File = reader.result.split(",")[1];
+      console.log("Base64 file length:", base64File.length);
 
-      // Show uploading message
-      if (uploadStatus) uploadStatus.textContent = "⏳ Uploading…";
+      try {
+        uploadStatus.textContent = "⏳ Uploading…";
+        console.log("Sending request to /api/upload…");
 
-      const reader = new FileReader();
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: "Anonymous",
+            email: "",
+            message: "",
+            fileName: file.name,
+            fileData: base64File
+          }),
+        });
 
-      reader.onload = async () => {
-        console.log("🔍 File read complete");
-        const base64File = reader.result.split(",")[1]; // remove data: prefix
-        console.log("📏 Base64 length:", base64File.length);
+        const data = await res.json();
+        console.log("Response from server:", data);
 
-        try {
-          console.log("📤 Sending to backend /api/upload...");
-          const res = await fetch("/api/upload", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: "Anonymous", // Replace with real inputs if needed
-              email: "",
-              message: "",
-              fileName: file.name,
-              fileData: base64File
-            }),
-          });
-
-          console.log("📥 Backend responded with status:", res.status);
-          const data = await res.json();
-          console.log("📥 Backend response JSON:", data);
-
-          if (uploadStatus) {
-            if (data.success) {
-              uploadStatus.textContent = "✅ Upload successful!";
-            } else {
-              uploadStatus.textContent = "❌ Upload failed: " + (data.error || "Unknown error");
-            }
-          }
-        } catch (err) {
-          console.error("💥 Upload error:", err);
-          if (uploadStatus) uploadStatus.textContent = "❌ Upload failed: " + err.message;
+        if (data.success) {
+          uploadStatus.textContent = "✅ Upload successful!";
+        } else {
+          uploadStatus.textContent =
+            "❌ Upload failed: " + (data.error || "Unknown error");
         }
-      };
+      } catch (err) {
+        console.error("Upload error:", err);
+        uploadStatus.textContent = "❌ Upload failed: " + err.message;
+      }
+    };
 
-      console.log("📖 Reading file as base64...");
-      reader.readAsDataURL(file);
-    });
-  } else {
-    console.warn("⚠ No #musicForm found in DOM");
+    reader.readAsDataURL(file);
   }
 });

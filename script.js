@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =========================
      Music upload form (.hero drag & drop)
   ========================= */
-  const musicForm = document.getElementById("musicForm");
   const fileInput = document.getElementById("input-file");
   const dropArea = document.getElementById("drop-area");
 
@@ -58,12 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (dropArea && fileInput) {
-    // Click to open file picker
-    dropArea.addEventListener("click", () => {
-      console.log("Drop area clicked");
-      fileInput.click();
-    });
-
     // Highlight on drag over
     dropArea.addEventListener("dragover", (e) => {
       e.preventDefault();
@@ -79,11 +72,11 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       dropArea.classList.remove("active");
       fileInput.files = e.dataTransfer.files;
-      console.log("File dropped:", fileInput.files[0].name);
+      console.log("File dropped:", fileInput.files[0]?.name);
       handleFileUpload(fileInput.files[0]);
     });
 
-    // Handle file picker selection
+    // Handle file picker selection (label click triggers this automatically)
     fileInput.addEventListener("change", () => {
       if (fileInput.files.length > 0) {
         console.log("File selected:", fileInput.files[0].name);

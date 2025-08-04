@@ -1,13 +1,10 @@
-// Safety check
 if (typeof THREE === 'undefined') {
   alert('Three.js failed to load — check script order in tour3d.html.');
 }
 
-// DOM references
 const container = document.getElementById('globe-container');
 const tooltip = document.getElementById('tooltip');
 
-// Event data
 const events = [
   { lat: 51.5074, lng: -0.1278, name: 'UKF Invites – London', date: 'Aug 6, 2025', link: 'https://ra.co/events/22180551451883445855686343' },
   { lat: 37.5683, lng: 14.3839, name: 'Mosaico Festival – Piazza Armerina', date: 'Aug 8, 2025', link: 'https://dice.fm/bundles/mosaico-festival-2025-d99o' },
@@ -25,43 +22,40 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 container.appendChild(renderer.domElement);
 
-// Create globe
+// Solid white sphere as base globe
+const globeRadius = 100;
+const sphereGeometry = new THREE.SphereGeometry(globeRadius, 64, 64);
+const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const baseSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+scene.add(baseSphere);
+
+// Create Three-Globe for pins only
 const globe = new ThreeGlobe()
-  .globeImageUrl('') // Prevent default texture (fixes WebGL error)
+  .globeImageUrl('') // Disable texture loading
   .showAtmosphere(false)
   .showGraticules(false)
   .pointsData(events)
   .pointLat('lat')
   .pointLng('lng')
-  .pointAltitude(0.03)
-  .pointRadius(0.4)
+  .pointAltitude(0.02)
+  .pointRadius(0.6) // bigger pins
   .pointColor(() => '#ff4081');
 
-// Force pure white globe
-globe.globeMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff }));
-
+globe.globeMaterial(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 })); // hide default globe mesh
 scene.add(globe);
 
-// Lighting
+// Lights
 scene.add(new THREE.AmbientLight(0xffffff, 1.2));
 const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
 dirLight.position.set(1, 1, 1);
 scene.add(dirLight);
 
-// Load country borders (black outline only)
+// Load and draw country borders
 fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
   .then(res => res.json())
   .then(countries => {
     const globeData = topojson.feature(countries, countries.objects.countries).features;
 
-    // Transparent fill polygons
-    globe
-      .hexPolygonsData(globeData)
-      .hexPolygonResolution(3)
-      .hexPolygonMargin(0.3)
-      .hexPolygonColor(() => 'rgba(0,0,0,0)'); // no fill
-
-    // Draw black borders
     const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     globeData.forEach(feature => {
       const coords = feature.geometry.coordinates;
@@ -69,16 +63,16 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         const points = polygon[0].map(([lng, lat]) => {
           const phi = (90 - lat) * (Math.PI / 180);
           const theta = (lng + 180) * (Math.PI / 180);
-          const radius = 100; // matches globe radius
           return new THREE.Vector3(
-            -radius * Math.sin(phi) * Math.cos(theta),
-            radius * Math.cos(phi),
-            radius * Math.sin(phi) * Math.sin(theta)
+            -globeRadius * Math.sin(phi) * Math.cos(theta),
+            globeRadius * Math.cos(phi),
+            globeRadius * Math.sin(phi) * Math.sin(theta)
           );
         });
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const line = new THREE.LineLoop(geometry, borderMaterial);
-        globe.add(line);
+        line.scale.multiplyScalar(1.002); // slightly above sphere surface
+        scene.add(line);
       });
     });
   })
@@ -94,11 +88,9 @@ document.addEventListener('mousemove', (event) => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  // Rotate based on mouse position
   targetRotationY = mouse.x * 0.5;
   targetRotationX = mouse.y * 0.5;
 
-  // Tooltip detection
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
 
@@ -113,10 +105,12 @@ document.addEventListener('mousemove', (event) => {
   }
 });
 
-// Animation loop
+// Animate
 function animate() {
   requestAnimationFrame(animate);
+  baseSphere.rotation.y += (targetRotationY - baseSphere.rotation.y) * 0.05;
   globe.rotation.y += (targetRotationY - globe.rotation.y) * 0.05;
+  baseSphere.rotation.x += (targetRotationX - baseSphere.rotation.x) * 0.05;
   globe.rotation.x += (targetRotationX - globe.rotation.x) * 0.05;
   renderer.render(scene, camera);
 }

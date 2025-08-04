@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   /* =========================
-     Music Upload to Dropbox
+     Music Upload Direct to Dropbox
   ========================= */
   const musicForm = document.getElementById("musicForm");
   if (musicForm) {
@@ -59,27 +59,42 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const file = fileInput.files[0];
-      const formData = new FormData();
-      const niceName = `${artistName} - ${songTitle} (${email}) - ${file.name}`;
-      formData.append("track", file, niceName);
+      const dropboxPath = `/MusicUploads/${artistName} - ${songTitle} (${email}) - ${file.name}`;
 
       try {
+        // 1️⃣ Get a short-lived token from Vercel
+        uploadStatus.textContent = "Requesting upload permission...";
+        const tokenRes = await fetch("/api/getToken");
+        const tokenData = await tokenRes.json();
+        if (!tokenRes.ok) throw new Error(tokenData.error || "Token request failed");
+        const shortLivedToken = tokenData.token;
+
+        // 2️⃣ Upload directly to Dropbox
         uploadStatus.textContent = "⏳ Uploading to Dropbox...";
-        
-        const response = await fetch("https://camo-website.vercel.app/api/upload", {
+        const uploadRes = await fetch("https://content.dropboxapi.com/2/files/upload", {
           method: "POST",
-          body: formData
+          headers: {
+            "Authorization": `Bearer ${shortLivedToken}`,
+            "Dropbox-API-Arg": JSON.stringify({
+              path: dropboxPath,
+              mode: "add",
+              autorename: true,
+              mute: false
+            }),
+            "Content-Type": "application/octet-stream"
+          },
+          body: file
         });
 
-        if (response.ok) {
+        if (uploadRes.ok) {
           uploadStatus.textContent = "✅ Upload successful!";
           fileInput.value = "";
           document.getElementById("artistName").value = "";
           document.getElementById("songTitle").value = "";
           document.getElementById("email").value = "";
         } else {
-          const err = await response.json();
-          uploadStatus.textContent = `❌ Upload failed: ${err.error}`;
+          const err = await uploadRes.json();
+          uploadStatus.textContent = `❌ Upload failed: ${err.error_summary || "Unknown error"}`;
         }
       } catch (error) {
         console.error(error);

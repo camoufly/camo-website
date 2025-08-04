@@ -46,7 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("input-file");
   const uploadStatus = document.getElementById("uploadStatus");
 
-  musicForm.addEventListener("submit", async (e) => {
+  // Create a hidden iframe to handle form submission response
+  const iframe = document.createElement("iframe");
+  iframe.name = "upload_iframe";
+  iframe.style.display = "none";
+  document.body.appendChild(iframe);
+
+  musicForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
     // Validate inputs
@@ -84,43 +90,67 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const reader = new FileReader();
 
-    reader.onload = async () => {
+    reader.onload = () => {
       const base64File = reader.result.split(",")[1];
+
+      // Add hidden inputs for base64 data and filename
+      let base64Input = musicForm.querySelector("input[name='fileData']");
+      if (!base64Input) {
+        base64Input = document.createElement("input");
+        base64Input.type = "hidden";
+        base64Input.name = "fileData";
+        musicForm.appendChild(base64Input);
+      }
+      base64Input.value = base64File;
+
+      let fileNameInput = musicForm.querySelector("input[name='fileName']");
+      if (!fileNameInput) {
+        fileNameInput = document.createElement("input");
+        fileNameInput.type = "hidden";
+        fileNameInput.name = "fileName";
+        musicForm.appendChild(fileNameInput);
+      }
+      fileNameInput.value = file.name;
+
+      // Set form attributes to submit to Google Apps Script via iframe
+      musicForm.target = "upload_iframe";
+      musicForm.action = "https://script.google.com/macros/s/AKfycbwEFBHMf9K3lIeaVqXAO_Cxub_hOcoz5ix13Ac7uegIkf4rxkWSj3Mx55gUqqZ3plpf/exec";
+      musicForm.method = "POST";
 
       uploadStatus.textContent = "⏳ Uploading...";
 
-      try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbwEFBHMf9K3lIeaVqXAO_Cxub_hOcoz5ix13Ac7uegIkf4rxkWSj3Mx55gUqqZ3plpf/exec", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            artistName: musicForm.artistName.value.trim(),
-            songTitle: musicForm.songTitle.value.trim(),
-            email: musicForm.email.value.trim(),
-            fileName: file.name,
-            fileData: base64File,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          uploadStatus.textContent = "✅ Upload successful!";
-          musicForm.reset();
-          setTimeout(() => {
-            uploadStatus.textContent = "";
-          }, 5000);
-        } else {
-          uploadStatus.textContent = `❌ Upload failed: ${data.error || "Unknown error"}`;
+      // Listen for iframe load event to catch response
+      iframe.onload = () => {
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          const responseText = iframeDoc.body.innerText || iframeDoc.body.textContent;
+          const data = JSON.parse(responseText);
+          if (data.success) {
+            uploadStatus.textContent = "✅ Upload successful!";
+            musicForm.reset();
+            base64Input.remove();
+            fileNameInput.remove();
+            setTimeout(() => {
+              uploadStatus.textContent = "";
+            }, 5000);
+          } else {
+            uploadStatus.textContent = `❌ Upload failed: ${data.error || "Unknown error"}`;
+          }
+        } catch (err) {
+          uploadStatus.textContent = "❌ Upload failed: Could not parse server response.";
         }
-      } catch (err) {
-        uploadStatus.textContent = `❌ Upload failed: ${err.message}`;
-      }
+      };
+
+      musicForm.submit();
     };
 
     reader.onerror = () => {
       uploadStatus.textContent = "❌ Error reading file.";
     };
+
+    reader.readAsDataURL(file);
+  });
+});
 
     reader.readAsDataURL(file);
   });

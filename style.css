@@ -1065,6 +1065,7 @@ transform: scale(0.96);
   width: 100vw;
   height: 100vh;
   position: relative;
+  background: white;
 }
 
 /* Tooltip */

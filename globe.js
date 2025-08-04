@@ -31,7 +31,6 @@ const globe = new ThreeGlobe()
   .pointRadius(0.4)
   .pointColor(() => '#ff4081');
 
-// Add to scene
 scene.add(globe);
 
 // Lights
@@ -40,18 +39,19 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
 dirLight.position.set(1, 1, 1);
 scene.add(dirLight);
 
-// Load country outlines
+// Load country outlines for white globe with grey borders
 fetch('https://unpkg.com/world-atlas/countries-110m.json')
   .then(res => res.json())
   .then(countries => {
     const globeData = topojson.feature(countries, countries.objects.countries).features;
-    globe.hexPolygonsData(globeData)
+    globe
+      .hexPolygonsData(globeData)
       .hexPolygonResolution(3)
       .hexPolygonMargin(0.3)
-      .hexPolygonColor(() => 'rgba(180,180,180,0.7)'); // grey outlines
+      .hexPolygonColor(() => 'rgba(180,180,180,0.7)'); // light grey outlines
   });
 
-// Tooltip handling
+// Tooltip + hover rotation
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let targetRotationX = 0;
@@ -61,9 +61,11 @@ document.addEventListener('mousemove', (event) => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
+  // Rotate globe based on mouse position
   targetRotationY = mouse.x * 0.5;
   targetRotationX = mouse.y * 0.5;
 
+  // Tooltip detection
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
 

@@ -1,6 +1,16 @@
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
+  // Enable CORS
+  res.setHeader("Access-Control-Allow-Origin", "https://camoufly.me");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle OPTIONS method (CORS preflight)
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -35,7 +45,7 @@ export default async function handler(req, res) {
       throw new Error(`Dropbox upload failed: ${errText}`);
     }
 
-    // Optional: create a shared link (so you get a public URL in email later)
+    // Optional: Create a shared link
     const linkResponse = await fetch("https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings", {
       method: "POST",
       headers: {
@@ -48,7 +58,6 @@ export default async function handler(req, res) {
     const linkData = await linkResponse.json();
     const fileUrl = linkData.url ? linkData.url.replace("?dl=0", "?dl=1") : null;
 
-    // Success response
     res.status(200).json({
       success: true,
       message: "File uploaded successfully!",

@@ -39,6 +39,21 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   /* =========================
+     Show selected file in upload status
+  ========================= */
+  const fileInput = document.getElementById("input-file");
+  const uploadStatus = document.getElementById("uploadStatus");
+  if (fileInput && uploadStatus) {
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files.length > 0) {
+        uploadStatus.textContent = `📁 File selected: ${fileInput.files[0].name}`;
+      } else {
+        uploadStatus.textContent = "";
+      }
+    });
+  }
+
+  /* =========================
      Music Upload Direct to Dropbox (via Vercel getToken)
   ========================= */
   const musicForm = document.getElementById("musicForm");
@@ -46,11 +61,9 @@ document.addEventListener("DOMContentLoaded", () => {
     musicForm.addEventListener("submit", async function (event) {
       event.preventDefault();
 
-      const fileInput = document.getElementById("input-file");
       const artistName = document.getElementById("artistName").value.trim();
       const songTitle = document.getElementById("songTitle").value.trim();
       const email = document.getElementById("email").value.trim();
-      const uploadStatus = document.getElementById("uploadStatus");
 
       // Basic form validation
       if (!fileInput.files.length) {

@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         // 1️⃣ Get a short-lived token from Vercel
         uploadStatus.textContent = "Requesting upload permission...";
-        const tokenRes = await fetch("/api/getToken");
+        const tokenRes = await fetch("https://camo-website.vercel.app/api/getToken");
         const tokenData = await tokenRes.json();
         if (!tokenRes.ok) throw new Error(tokenData.error || "Token request failed");
         const shortLivedToken = tokenData.token;

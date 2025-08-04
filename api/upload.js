@@ -1,16 +1,26 @@
 // /api/upload.js
+import { put } from "@vercel/blob";
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "200mb", // allow large files
+    },
+  },
+};
 
 export default async function handler(req, res) {
-  // Enable CORS
+  // Enable CORS so you can call from https://camoufly.me
   res.setHeader("Access-Control-Allow-Origin", "https://camoufly.me");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Handle OPTIONS method (CORS preflight)
+  // Handle OPTIONS preflight request
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
+  // Only allow POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -22,24 +32,19 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing file or file data" });
     }
 
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywKjF7aC1X-8YLuE8xCiw_waOIONsgPKOclI18EGSWMeeFHYzg_zJEL309xXItQjqP/exec";
-    // Send file to Google Apps Script
-    const response = await fetch(GOOGLE_SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fileName, fileData }),
+    // Decode base64 string to buffer
+    const buffer = Buffer.from(fileData, "base64");
+
+    // Upload to Vercel Blob Storage
+    const blob = await put(fileName, buffer, {
+      access: "public", // makes file accessible via public URL
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to upload file");
-    }
-
+    // Return success response
     res.status(200).json({
       success: true,
       message: "File uploaded successfully!",
-      fileUrl: data.fileUrl || null
+      fileUrl: blob.url, // public URL
     });
 
   } catch (error) {

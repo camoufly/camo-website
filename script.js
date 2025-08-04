@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   musicForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // Validate inputs
     if (!fileInput.files[0]) {
       uploadStatus.textContent = "⚠ Please select a file.";
       return;
@@ -66,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Optional file validation
+    // Validate file type and size
     const file = fileInput.files[0];
     const allowedTypes = ["audio/mpeg", "audio/wav", "audio/flac"];
     if (!allowedTypes.includes(file.type)) {
@@ -89,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       uploadStatus.textContent = "⏳ Uploading...";
 
       try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbxA6NYIbjq3CwQt4Z7__5C3D_E3QB4gArd1rN54soIlqsHMjP0QwY0FSn1c-DQ-rOGs/exec", {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbwEFBHMf9K3lIeaVqXAO_Cxub_hOcoz5ix13Ac7uegIkf4rxkWSj3Mx55gUqqZ3plpf/exec", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -106,6 +107,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.success) {
           uploadStatus.textContent = "✅ Upload successful!";
           musicForm.reset();
+          setTimeout(() => {
+            uploadStatus.textContent = "";
+          }, 5000);
         } else {
           uploadStatus.textContent = `❌ Upload failed: ${data.error || "Unknown error"}`;
         }

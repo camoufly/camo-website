@@ -6,26 +6,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>camoufly – 3D Tour Map</title>
 
+  <!-- Your existing styles -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- Three.js -->
-  <script src="https://unpkg.com/three/build/three.min.js"></script>
-  <!-- OrbitControls -->
-  <script src="https://unpkg.com/three/examples/js/controls/OrbitControls.js"></script>
-  <!-- Three-Globe -->
-  <script src="https://unpkg.com/three-globe"></script>
-  <!-- TopoJSON -->
-  <script src="https://unpkg.com/topojson-client@3"></script>
 </head>
 <body>
 
+  <!-- Logo -->
   <a href="https://camoufly.me/">
     <img src="/images/logo.png" alt="camoufly Logo" class="logo" width="400">
   </a>
 
+  <!-- Globe container -->
   <div id="globe-container"></div>
+  <!-- Tooltip -->
   <div id="tooltip" class="hidden"></div>
 
-  <script type="module" src="globe.js"></script>
+  <!-- Load dependencies in correct order -->
+  <!-- Three.js -->
+  <script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
+
+  <!-- OrbitControls -->
+  <script src="https://unpkg.com/three@0.157.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- three-globe -->
+  <script src="https://unpkg.com/three-globe@2.31.1"></script>
+
+  <!-- TopoJSON client -->
+  <script src="https://unpkg.com/topojson-client@3"></script>
+
+  <!-- Your globe logic -->
+  <script src="globe.js"></script>
 </body>
 </html>

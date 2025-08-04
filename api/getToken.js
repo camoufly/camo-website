@@ -1,6 +1,16 @@
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
+  // ✅ Allow cross-origin requests from your site
+  res.setHeader("Access-Control-Allow-Origin", "https://camoufly.me");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  // Handle preflight requests (OPTIONS method)
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   try {
     const DROPBOX_PERMANENT_TOKEN = process.env.DROPBOX_PERMANENT_TOKEN;
     if (!DROPBOX_PERMANENT_TOKEN) {
@@ -25,10 +35,9 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    // Send the short-lived token to the browser
-    return res.status(200).json({ token: data.access_token, expires_in: data.expires_in });
+    return res.status(200).json({
+      token: data.access_token,
+      expires_in: data.expires_in
+    });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Failed to get short-lived token" });
-  }
-}

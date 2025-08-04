@@ -22,9 +22,9 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 container.appendChild(renderer.domElement);
 
-// Create globe
+// Create ThreeGlobe for pins
 const globe = new ThreeGlobe()
-  .globeImageUrl('') // stop loading a default texture
+  .globeImageUrl('') // don't load texture
   .showAtmosphere(false)
   .showGraticules(false)
   .pointsData(events)
@@ -34,8 +34,13 @@ const globe = new ThreeGlobe()
   .pointRadius(0.5)
   .pointColor(() => '#ff4081');
 
-// Make the globe solid white
-globe.globeMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff }));
+// Add a SOLID white sphere under the pins
+const globeRadius = 100;
+const whiteSphere = new THREE.Mesh(
+  new THREE.SphereGeometry(globeRadius, 64, 64),
+  new THREE.MeshBasicMaterial({ color: 0xffffff })
+);
+globe.add(whiteSphere); // attaches sphere inside globe object so it rotates with pins
 
 scene.add(globe);
 
@@ -45,20 +50,12 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
 dirLight.position.set(1, 1, 1);
 scene.add(dirLight);
 
-// Country borders
+// Load borders
 fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
   .then(res => res.json())
   .then(countries => {
     const globeData = topojson.feature(countries, countries.objects.countries).features;
 
-    // Draw countries with transparent fill so pins are clickable
-    globe
-      .hexPolygonsData(globeData)
-      .hexPolygonResolution(3)
-      .hexPolygonMargin(0.3)
-      .hexPolygonColor(() => 'rgba(0,0,0,0)'); // no fill
-
-    // Add thick black border lines
     const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     globeData.forEach(feature => {
       const coords = feature.geometry.coordinates;
@@ -66,7 +63,7 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         const points = polygon[0].map(([lng, lat]) => {
           const phi = (90 - lat) * (Math.PI / 180);
           const theta = (lng + 180) * (Math.PI / 180);
-          const radius = 100.1; // just above globe surface
+          const radius = globeRadius + 0.2; // slightly above sphere
           return new THREE.Vector3(
             -radius * Math.sin(phi) * Math.cos(theta),
             radius * Math.cos(phi),
@@ -75,12 +72,12 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         });
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const line = new THREE.LineLoop(geometry, borderMaterial);
-        scene.add(line);
+        globe.add(line);
       });
     });
   });
 
-// Tooltip + hover rotation
+// Tooltip + rotation
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let targetRotationX = 0;
@@ -107,7 +104,7 @@ document.addEventListener('mousemove', (event) => {
   }
 });
 
-// Animation
+// Animate
 function animate() {
   requestAnimationFrame(animate);
   globe.rotation.y += (targetRotationY - globe.rotation.y) * 0.05;

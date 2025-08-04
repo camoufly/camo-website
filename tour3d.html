@@ -6,35 +6,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>camoufly – 3D Tour Map</title>
 
-  <!-- Your existing site styles -->
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Europa|Bely+Display" rel="stylesheet">
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <!-- Logo -->
-  <a href="https://camoufly.me/">
-    <img src="/images/logo.png" alt="camoufly Logo" class="logo" width="400">
-  </a>
+  <header style="position:absolute; top:20px; left:20px; z-index:20;">
+    <a href="https://camoufly.me/">
+      <img src="/images/logo.png" alt="camoufly Logo" class="logo" width="300">
+    </a>
+  </header>
 
   <!-- Globe container -->
   <div id="globe-container"></div>
   <!-- Tooltip -->
   <div id="tooltip" class="hidden"></div>
 
-  <!-- Dependencies in correct order -->
-  <!-- Three.js -->
+  <!-- Analytics & cookie consent -->
+  <script src="//www.freeprivacypolicy.com/public/cookie-consent/4.0.0/cookie-consent.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      cookieconsent.run({
+        notice_banner_type: "simple",
+        consent_type: "implied",
+        palette: "light",
+        language: "en",
+        page_load_consent_levels: ["strictly-necessary", "functionality", "tracking", "targeting"],
+        notice_banner_reject_button_hide: false,
+        preferences_center_close_button_hide: false,
+        page_refresh_confirmation_buttons: false
+      });
+    });
+  </script>
+
+  <!-- TikTok Pixel -->
+  <script>
+    !function (w, d, t) {
+      w.TiktokAnalyticsObject = t;
+      var ttq = w[t] = w[t] || [];
+      ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie"];
+      ttq.setAndDefer = function (t, e) { t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } };
+      for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);
+      ttq.instance = function (t) { var e = ttq._i[t] || []; return e };
+      ttq.load = function (e, n) {
+        var i = "https://analytics.tiktok.com/i18n/pixel/events.js";
+        ttq._i = ttq._i || {};
+        ttq._i[e] = [];
+        ttq._i[e]._u = i;
+        ttq._t = ttq._t || {};
+        ttq._t[e] = +new Date;
+        var o = document.createElement("script");
+        o.type = "text/javascript";
+        o.async = !0;
+        o.src = i + "?sdkid=" + e + "&lib=" + t;
+        var a = document.getElementsByTagName("script")[0];
+        a.parentNode.insertBefore(o, a);
+      };
+      ttq.load('YOUR_PIXEL_ID'); // Replace with your real Pixel ID
+      ttq.page();
+    }(window, document, 'ttq');
+  </script>
+
+  <!-- Dependencies -->
   <script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
-
-  <!-- OrbitControls (optional if you want manual rotation control later) -->
   <script src="https://unpkg.com/three@0.157.0/examples/js/controls/OrbitControls.js"></script>
-
-  <!-- Three-Globe -->
   <script src="https://unpkg.com/three-globe@2.31.1"></script>
-
-  <!-- TopoJSON client -->
   <script src="https://unpkg.com/topojson-client@3"></script>
 
-  <!-- Your globe logic -->
+  <!-- Globe logic -->
   <script src="globe.js"></script>
 </body>
 </html>

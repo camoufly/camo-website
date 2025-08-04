@@ -1059,16 +1059,12 @@ transform: scale(0.96);
   background-color: #555;
 }
 
-
-/* Globe container */
 #globe-container {
   width: 100vw;
   height: 100vh;
-  position: relative;
   background: white;
+  overflow: hidden;
 }
-
-/* Tooltip */
 #tooltip {
   position: absolute;
   background: rgba(255, 255, 255, 0.95);
@@ -1078,20 +1074,8 @@ transform: scale(0.96);
   font-size: 14px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   pointer-events: none;
-  max-width: 220px;
-  transition: opacity 0.2s ease;
   z-index: 10;
 }
-
 .hidden {
   display: none;
-}
-
-#tooltip a {
-  color: #ff4081;
-  text-decoration: none;
-}
-
-#tooltip a:hover {
-  text-decoration: underline;
 }

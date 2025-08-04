@@ -966,18 +966,12 @@ transform: scale(0.96);
 
   }
 
-/* Scrollable container for tour gigs */
-.gig-container {
-    max-width: 600px;
-    height: 300px;
-    margin: 0 auto;
-    overflow-y: auto;
-}
-
-.gig-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: bely-display, sans-serif;
-    margin-bottom: 0.5em;
+/* Send music box */
+.hero{
+	width: 100%;
+	min-height: 100vh;
+	background: linear-gradient(#e7baff, #c2b6d9);
+	display: flex;
+	align-content: center;
+	justify-content: center;
 }

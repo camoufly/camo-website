@@ -1,6 +1,6 @@
-// =========================
-// Button click animation
-// =========================
+/* =========================
+   Button click animation
+========================= */
 var animateButton = function (t) {
   t.preventDefault();
   t.target.classList.remove("animate");
@@ -15,12 +15,12 @@ for (var i = 0; i < buttons.length; i++) {
   buttons[i].addEventListener("click", animateButton, false);
 }
 
-// =========================
-// Mailing list subscription
-// =========================
+/* =========================
+   Mailing list subscription
+========================= */
 function addToMailingList() {
-  var mail = document.getElementById("mailbox_input").value;
-  if (mail !== "" && mail !== null) {
+  var mail = document.getElementById("mailbox_input")?.value;
+  if (mail && mail.trim() !== "") {
     var t = new XMLHttpRequest();
     t.open(
       "POST",
@@ -38,20 +38,47 @@ function addToMailingList() {
   }
 }
 
-// =========================
-// Music upload form
-// =========================
+/* =========================
+   Music upload form (.hero drag & drop)
+========================= */
 const musicForm = document.getElementById("musicForm");
+const fileInput = document.getElementById("input-file");
+const dropArea = document.getElementById("drop-area");
+const uploadStatus = document.getElementById("uploadStatus");
+
+if (dropArea && fileInput) {
+  // Highlight drop area when dragging file
+  dropArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropArea.classList.add("active");
+  });
+
+  dropArea.addEventListener("dragleave", () => {
+    dropArea.classList.remove("active");
+  });
+
+  dropArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropArea.classList.remove("active");
+    fileInput.files = e.dataTransfer.files;
+  });
+
+  // Click to open file picker
+  dropArea.addEventListener("click", () => fileInput.click());
+}
+
 if (musicForm) {
   musicForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const fileInput = document.querySelector('input[name="track"]');
     const file = fileInput.files[0];
     if (!file) {
-      alert("Please choose a file.");
+      if (uploadStatus) uploadStatus.textContent = "⚠ Please select a file.";
       return;
     }
+
+    // Show uploading message
+    if (uploadStatus) uploadStatus.textContent = "⏳ Uploading…";
 
     const reader = new FileReader();
     reader.onload = async () => {
@@ -62,42 +89,26 @@ if (musicForm) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: e.target.name.value,
-            email: e.target.email.value,
-            message: e.target.message.value,
+            name: "Anonymous", // Optional: replace with actual form fields
+            email: "",
+            message: "",
             fileName: file.name,
-            fileData: base64File,
+            fileData: base64File
           }),
         });
 
         const data = await res.json();
-        alert(data.message || data.error);
+        if (uploadStatus) {
+          if (data.success) {
+            uploadStatus.textContent = "✅ Upload successful!";
+          } else {
+            uploadStatus.textContent = "❌ Upload failed: " + (data.error || "Unknown error");
+          }
+        }
       } catch (err) {
-        alert("Upload failed: " + err.message);
+        if (uploadStatus) uploadStatus.textContent = "❌ Upload failed: " + err.message;
       }
     };
-
-// =========================
-// Music upload form highlight
-// =========================
-
-
-const musicFormEl = document.getElementById("musicForm");
-if (musicFormEl) {
-  musicFormEl.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    musicFormEl.classList.add("dragover");
-  });
-
-  musicFormEl.addEventListener("dragleave", () => {
-    musicFormEl.classList.remove("dragover");
-  });
-
-  musicFormEl.addEventListener("drop", () => {
-    musicFormEl.classList.remove("dragover");
-  });
-}
-
 
     reader.readAsDataURL(file);
   });

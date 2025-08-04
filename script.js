@@ -2,17 +2,15 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =========================
      Button click animation
   ========================= */
-  const animateButton = function (e) {
+  const animateButton = (e) => {
     e.preventDefault();
     e.target.classList.remove("animate");
     e.target.classList.add("animate");
-    setTimeout(() => {
-      e.target.classList.remove("animate");
-    }, 700);
+    setTimeout(() => e.target.classList.remove("animate"), 700);
   };
   const buttons = document.getElementsByClassName("button");
-  for (let i = 0; i < buttons.length; i++) {
-    buttons[i].addEventListener("click", animateButton, false);
+  for (let btn of buttons) {
+    btn.addEventListener("click", animateButton, false);
   }
 
   /* =========================
@@ -22,35 +20,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("input-file");
   const uploadStatus = document.getElementById("uploadStatus");
 
-  // Prevent default browser behavior for drag events
   ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
     dropArea.addEventListener(eventName, (e) => {
       e.preventDefault();
       e.stopPropagation();
-    }, false);
+    });
   });
 
-  // Highlight when dragging over
   ["dragenter", "dragover"].forEach(eventName => {
-    dropArea.addEventListener(eventName, () => {
-      dropArea.classList.add("active");
-    }, false);
+    dropArea.addEventListener(eventName, () => dropArea.classList.add("active"));
   });
 
-  // Remove highlight when leaving or dropping
   ["dragleave", "drop"].forEach(eventName => {
-    dropArea.addEventListener(eventName, () => {
-      dropArea.classList.remove("active");
-    }, false);
+    dropArea.addEventListener(eventName, () => dropArea.classList.remove("active"));
   });
 
-  // Handle dropped files
   dropArea.addEventListener("drop", (e) => {
     const files = e.dataTransfer.files;
     if (files.length) {
-      fileInput.files = files; // Assign dropped files to input
-      const event = new Event("change", { bubbles: true });
-      fileInput.dispatchEvent(event); // Trigger change event for status update
+      fileInput.files = files;
+      fileInput.dispatchEvent(new Event("change", { bubbles: true }));
     }
   });
 
@@ -59,99 +48,109 @@ document.addEventListener("DOMContentLoaded", () => {
   ========================= */
   fileInput?.addEventListener("change", () => {
     if (fileInput.files.length > 0) {
-      if (fileInput.files.length === 1) {
-        uploadStatus.textContent = `📁 File selected: ${fileInput.files[0].name}`;
-      } else {
-        uploadStatus.textContent = `📁 ${fileInput.files.length} files selected.`;
-      }
+      uploadStatus.textContent = fileInput.files.length === 1
+        ? `📁 File selected: ${fileInput.files[0].name}`
+        : `📁 ${fileInput.files.length} files selected.`;
     } else {
       uploadStatus.textContent = "";
     }
   });
 
   /* =========================
-     Music Upload to Dropbox (multiple files + chunked + date folder + %)
+     Music Upload to Dropbox (auto-switch + % progress)
   ========================= */
   const musicForm = document.getElementById("musicForm");
   const artistNameInput = document.getElementById("artistName");
   const songTitleInput = document.getElementById("songTitle");
   const emailInput = document.getElementById("email");
 
-  const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB safe for Vercel Free
+  const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB per chunk for Pro plan
+  const MAX_DIRECT_UPLOAD = 100 * 1024 * 1024; // 100MB direct upload limit
 
   async function uploadSingleFile(file, index, totalFiles) {
-    // Date-based single folder format: YYYY-MM-DD
+    // Date folder YYYY-MM-DD
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const dateFolder = `${year}-${month}-${day}`;
+    const dateFolder = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     const folderPath = `/MusicUploads/${dateFolder}`;
-
-    // Preserve original file extension
     const extension = file.name.split('.').pop();
     const baseFileName = `${artistNameInput.value.trim()} - ${songTitleInput.value.trim()} (${emailInput.value.trim()})`;
     const dropboxPath = `${folderPath}/${baseFileName}.${extension}`;
 
     try {
-      uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Starting upload: ${file.name}`;
+      if (file.size <= MAX_DIRECT_UPLOAD) {
+        /* ==== Direct upload mode ==== */
+        uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading (direct): ${file.name}... 0%`;
 
-      // 1️⃣ Start upload session
-      const startRes = await fetch("/api/startUpload", { method: "POST" });
-      const startData = await startRes.json();
-      if (!startRes.ok || !startData.session_id) {
-        throw new Error(startData.error || "Failed to start upload session");
-      }
-      const sessionId = startData.session_id;
+        const tokenRes = await fetch("/api/getToken");
+        const tokenData = await tokenRes.json();
+        if (!tokenRes.ok || !tokenData.token) throw new Error("Token request failed");
 
-      // 2️⃣ Upload chunks
-      let offset = 0;
-      let chunkIndex = 0;
-      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+        await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", "https://content.dropboxapi.com/2/files/upload");
+          xhr.setRequestHeader("Authorization", `Bearer ${tokenData.token}`);
+          xhr.setRequestHeader("Dropbox-API-Arg", JSON.stringify({
+            path: dropboxPath,
+            mode: "add",
+            autorename: true,
+            mute: false
+          }));
+          xhr.setRequestHeader("Content-Type", "application/octet-stream");
 
-      while (offset < file.size) {
-        const chunk = file.slice(offset, offset + CHUNK_SIZE);
-        const appendRes = await fetch("/api/appendUpload", {
-          method: "POST",
-          headers: {
-            "x-dropbox-session-id": sessionId,
-            "x-dropbox-offset": offset
-          },
-          body: chunk
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+              const percent = Math.round((e.loaded / e.total) * 100);
+              uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading (direct): ${file.name}... ${percent}%`;
+            }
+          };
+
+          xhr.onload = () => xhr.status === 200 ? resolve() : reject(new Error(`Direct upload failed: ${xhr.responseText}`));
+          xhr.onerror = () => reject(new Error("Network error"));
+          xhr.send(file);
         });
 
-        if (appendRes.status === 413) {
-          throw new Error(`Chunk too large for server: Reduce CHUNK_SIZE`);
+        uploadStatus.textContent = `✅ [${index + 1}/${totalFiles}] Finished: ${file.name}`;
+      } else {
+        /* ==== Chunked upload mode ==== */
+        uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Starting chunked upload: ${file.name}...`;
+
+        const startRes = await fetch("/api/startUpload", { method: "POST" });
+        const startData = await startRes.json();
+        if (!startRes.ok || !startData.session_id) throw new Error("Failed to start upload session");
+
+        const sessionId = startData.session_id;
+        let offset = 0;
+        let chunkIndex = 0;
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+        while (offset < file.size) {
+          const chunk = file.slice(offset, offset + CHUNK_SIZE);
+          const appendRes = await fetch("/api/appendUpload", {
+            method: "POST",
+            headers: {
+              "x-dropbox-session-id": sessionId,
+              "x-dropbox-offset": offset
+            },
+            body: chunk
+          });
+
+          if (!appendRes.ok) throw new Error(`Failed chunk ${chunkIndex + 1}`);
+
+          offset += CHUNK_SIZE;
+          chunkIndex++;
+          const percent = Math.min(100, Math.round((chunkIndex / totalChunks) * 100));
+          uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading (chunked): ${file.name}... ${percent}%`;
         }
-        if (!appendRes.ok) {
-          throw new Error(`Failed to upload chunk ${chunkIndex + 1}`);
-        }
 
-        offset += CHUNK_SIZE;
-        chunkIndex++;
+        const finishRes = await fetch("/api/finishUpload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId, offset: file.size, dropboxPath })
+        });
+        if (!finishRes.ok) throw new Error("Failed to finish upload");
 
-        // Show percent progress
-        const percent = Math.min(100, Math.round((chunkIndex / totalChunks) * 100));
-        uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading ${file.name}... ${percent}%`;
+        uploadStatus.textContent = `✅ [${index + 1}/${totalFiles}] Finished: ${file.name}`;
       }
-
-      // 3️⃣ Finalize
-      const finishRes = await fetch("/api/finishUpload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          session_id: sessionId,
-          offset: file.size,
-          dropboxPath
-        })
-      });
-
-      if (!finishRes.ok) {
-        const errText = await finishRes.text();
-        throw new Error(errText || "Failed to finish upload");
-      }
-
-      uploadStatus.textContent = `✅ [${index + 1}/${totalFiles}] Finished: ${file.name}`;
     } catch (err) {
       console.error(err);
       uploadStatus.textContent = `❌ [${index + 1}/${totalFiles}] Failed: ${file.name} — ${err.message}`;
@@ -162,7 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
     musicForm.addEventListener("submit", async function (event) {
       event.preventDefault();
 
-      // Validation
       if (!fileInput.files.length) {
         uploadStatus.textContent = "⚠️ Please select a file.";
         return;
@@ -173,13 +171,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const files = Array.from(fileInput.files);
-
-      // Sequential upload
       for (let i = 0; i < files.length; i++) {
         await uploadSingleFile(files[i], i, files.length);
       }
 
-      // Clear form after all files are done
       fileInput.value = "";
       artistNameInput.value = "";
       songTitleInput.value = "";

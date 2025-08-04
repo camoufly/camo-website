@@ -969,10 +969,17 @@ transform: scale(0.96);
 /* Send music box */
 .hero{
   width: 100%;
-  padding: 40px 0; /* Gives nice breathing room */
-	display: flex;
-	align-content: center;
-	justify-content: center;
+  /* Remove full screen lock */
+  min-height: auto; /* Overrides old 100vh if cached */
+  height: auto;     /* Ensures content height only */
+  
+  /* Keep nice spacing */
+  padding: 40px 0;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
 }
 
 #drop-area{
@@ -1021,3 +1028,4 @@ transform: scale(0.96);
 #drop-area.active span {
   color: #2196f3;
 }
+

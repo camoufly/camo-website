@@ -115,4 +115,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     reader.onerror = () => {
-      uploadStatus.textCo
+      uploadStatus.textContent = "❌ Error reading file.";
+    };
+
+    reader.readAsDataURL(file);
+  });
+});

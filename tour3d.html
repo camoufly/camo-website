@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="CAMOUFLY — 3D TOUR MAP">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>camoufly – 3D Tour Map</title>
+  
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Three.js -->
+  <script src="https://unpkg.com/three/build/three.min.js"></script>
+  <!-- OrbitControls -->
+  <script src="https://unpkg.com/three/examples/js/controls/OrbitControls.js"></script>
+  <!-- Three-Globe -->
+  <script src="https://unpkg.com/three-globe"></script>
+</head>
+<body>
+
+  <a href="https://camoufly.me/">
+    <img src="/images/logo.png" alt="camoufly Logo" class="logo" width="400">
+  </a>
+  
+  <div id="globe-container"></div>
+  <div id="tooltip" class="hidden"></div>
+
+  <script type="module" src="globe.js"></script>
+
+</body>
+</html>

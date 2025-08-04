@@ -1,10 +1,8 @@
 export const config = {
   api: {
-    bodyParser: false // We'll handle raw data
+    bodyParser: false // We handle raw body ourselves
   }
 };
-
-import { IncomingMessage } from "http";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -23,14 +21,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing session_id or offset" });
   }
 
-  // Read raw request body into a buffer
-  const chunks = [];
-  for await (const chunk of req) {
-    chunks.push(chunk);
-  }
-  const fileBuffer = Buffer.concat(chunks);
-
   try {
+    // Read raw body into buffer
+    const chunks = [];
+    for await (const chunk of req) {
+      chunks.push(chunk);
+    }
+    const fileBuffer = Buffer.concat(chunks);
+
+    // Safety check for Vercel Free limit (~4.5MB)
+    if (fileBuffer.length > 4.2 * 1024 * 1024) {
+      return res.status(413).json({ error: "Chunk too large for Vercel Free plan" });
+    }
+
     const appendRes = await fetch("https://content.dropboxapi.com/2/files/upload_session/append_v2", {
       method: "POST",
       headers: {

@@ -1,6 +1,8 @@
+import fetch from "node-fetch";
+
 export const config = {
   api: {
-    bodyParser: false // We handle raw body ourselves
+    bodyParser: false // We are streaming binary data
   }
 };
 
@@ -9,52 +11,40 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const DROPBOX_TOKEN = process.env.DROPBOX_PERMANENT_TOKEN;
-  if (!DROPBOX_TOKEN) {
-    return res.status(500).json({ error: "Dropbox token not configured" });
-  }
-
-  const sessionId = req.headers["x-dropbox-session-id"];
-  const offset = parseInt(req.headers["x-dropbox-offset"], 10);
-
-  if (!sessionId || isNaN(offset)) {
-    return res.status(400).json({ error: "Missing session_id or offset" });
-  }
-
   try {
-    // Read raw body into buffer
-    const chunks = [];
-    for await (const chunk of req) {
-      chunks.push(chunk);
+    const DROPBOX_PERMANENT_TOKEN = process.env.DROPBOX_PERMANENT_TOKEN;
+    if (!DROPBOX_PERMANENT_TOKEN) {
+      throw new Error("Dropbox permanent token not configured.");
     }
-    const fileBuffer = Buffer.concat(chunks);
 
-    // Safety check for Vercel Free limit (~4.5MB)
-    if (fileBuffer.length > 4.2 * 1024 * 1024) {
-      return res.status(413).json({ error: "Chunk too large for Vercel Free plan" });
+    const sessionId = req.headers["x-dropbox-session-id"];
+    const offset = parseInt(req.headers["x-dropbox-offset"], 10);
+
+    if (!sessionId || isNaN(offset)) {
+      throw new Error("Missing required headers: x-dropbox-session-id and x-dropbox-offset");
     }
 
     const appendRes = await fetch("https://content.dropboxapi.com/2/files/upload_session/append_v2", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${DROPBOX_TOKEN}`,
+        Authorization: `Bearer ${DROPBOX_PERMANENT_TOKEN}`,
         "Dropbox-API-Arg": JSON.stringify({
           cursor: { session_id: sessionId, offset },
           close: false
         }),
         "Content-Type": "application/octet-stream"
       },
-      body: fileBuffer
+      body: req // Pass binary directly
     });
 
     if (!appendRes.ok) {
-      const errorData = await appendRes.text();
-      return res.status(appendRes.status).send(errorData);
+      const errText = await appendRes.text();
+      throw new Error(`Dropbox append failed: ${errText}`);
     }
 
     res.status(200).json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to append chunk" });
+  } catch (error) {
+    console.error("appendUpload error:", error);
+    res.status(500).json({ error: error.message });
   }
 }

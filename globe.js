@@ -1,6 +1,6 @@
 // Safety check
 if (typeof THREE === 'undefined') {
-  alert('Three.js failed to load — check script order and network access.');
+  alert('Three.js failed to load — check script order in tour3d.html.');
 }
 
 // DOM references
@@ -25,12 +25,6 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 container.appendChild(renderer.domElement);
 
-// Base white sphere
-const sphereGeometry = new THREE.SphereGeometry(100, 64, 64);
-const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-const baseSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-scene.add(baseSphere);
-
 // Create globe
 const globe = new ThreeGlobe()
   .showAtmosphere(false)
@@ -41,6 +35,10 @@ const globe = new ThreeGlobe()
   .pointAltitude(0.03)
   .pointRadius(0.4)
   .pointColor(() => '#ff4081');
+
+// Force globe to be pure white (no texture noise)
+globe.globeMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff }));
+
 scene.add(globe);
 
 // Lighting
@@ -72,9 +70,11 @@ document.addEventListener('mousemove', (event) => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
+  // Rotate based on mouse position
   targetRotationY = mouse.x * 0.5;
   targetRotationX = mouse.y * 0.5;
 
+  // Tooltip detection
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
 

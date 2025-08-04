@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =========================
-     Music Upload to Dropbox (chunked with percentage progress)
+     Music Upload to Dropbox (chunked + dated folders + % + extension)
   ========================= */
   const musicForm = document.getElementById("musicForm");
   const fileInput = document.getElementById("input-file");
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const emailInput = document.getElementById("email");
   const uploadStatus = document.getElementById("uploadStatus");
 
-  const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB safe for Vercel Free
+  const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB for Vercel Free plan
 
   fileInput?.addEventListener("change", () => {
     if (fileInput.files.length > 0) {
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
     musicForm.addEventListener("submit", async function (event) {
       event.preventDefault();
 
-      // Validate inputs
+      // Validation
       if (!fileInput.files.length) {
         uploadStatus.textContent = "⚠️ Please select a file.";
         return;
@@ -50,7 +50,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const file = fileInput.files[0];
-      const dropboxPath = `/MusicUploads/${artistNameInput.value.trim()} - ${songTitleInput.value.trim()} (${emailInput.value.trim()}) - ${file.name}`;
+
+      // Date-based folder structure
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      const folderPath = `/MusicUploads/${year}/${month}/${day}`;
+
+      // Preserve original file extension
+      const extension = file.name.split('.').pop();
+      const baseFileName = `${artistNameInput.value.trim()} - ${songTitleInput.value.trim()} (${emailInput.value.trim()})`;
+      const dropboxPath = `${folderPath}/${baseFileName}.${extension}`;
 
       try {
         // 1️⃣ Start upload session
@@ -62,14 +73,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const sessionId = startData.session_id;
 
-        // 2️⃣ Upload chunks with percentage progress
+        // 2️⃣ Upload chunks
         let offset = 0;
         let chunkIndex = 0;
         const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 
         while (offset < file.size) {
           const chunk = file.slice(offset, offset + CHUNK_SIZE);
-
           const appendRes = await fetch("/api/appendUpload", {
             method: "POST",
             headers: {
@@ -89,17 +99,21 @@ document.addEventListener("DOMContentLoaded", () => {
           offset += CHUNK_SIZE;
           chunkIndex++;
 
-          // Update percentage
+          // Show percent progress
           const percent = Math.min(100, Math.round((chunkIndex / totalChunks) * 100));
           uploadStatus.textContent = `⏳ Uploading... ${percent}%`;
         }
 
-        // 3️⃣ Finish upload
+        // 3️⃣ Finalize
         uploadStatus.textContent = "⏳ Finalizing upload...";
         const finishRes = await fetch("/api/finishUpload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ session_id: sessionId, offset: file.size, dropboxPath })
+          body: JSON.stringify({
+            session_id: sessionId,
+            offset: file.size,
+            dropboxPath
+          })
         });
 
         if (!finishRes.ok) {

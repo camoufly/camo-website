@@ -1,4 +1,3 @@
-// /api/upload.js
 import { put } from "@vercel/blob";
 
 export const config = {
@@ -10,18 +9,20 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  // Enable CORS so you can call from https://camoufly.me
-  res.setHeader("Access-Control-Allow-Origin", "https://camoufly.me");
+  console.log("🟢 Request received:", req.method, req.url);
+
+  // CORS headers for debugging, allow all origins temporarily
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Handle OPTIONS preflight request
   if (req.method === "OPTIONS") {
+    console.log("⚙️ Handling OPTIONS preflight request");
     return res.status(200).end();
   }
 
-  // Only allow POST
   if (req.method !== "POST") {
+    console.warn(`⚠️ Method not allowed: ${req.method}`);
     return res.status(405).json({ error: "Method not allowed" });
   }
 
@@ -29,26 +30,30 @@ export default async function handler(req, res) {
     const { fileName, fileData } = req.body;
 
     if (!fileName || !fileData) {
+      console.error("❌ Missing fileName or fileData in request body");
       return res.status(400).json({ error: "Missing file or file data" });
     }
 
+    console.log(`📦 Preparing to upload file: ${fileName}`);
+
     // Decode base64 string to buffer
     const buffer = Buffer.from(fileData, "base64");
+    console.log(`📏 File buffer size: ${buffer.length} bytes`);
 
     // Upload to Vercel Blob Storage
     const blob = await put(fileName, buffer, {
-      access: "public", // makes file accessible via public URL
+      access: "public", // public access to file URL
     });
+    console.log("🚀 Upload successful:", blob.url);
 
-    // Return success response
     res.status(200).json({
       success: true,
       message: "File uploaded successfully!",
-      fileUrl: blob.url, // public URL
+      fileUrl: blob.url,
     });
 
   } catch (error) {
-    console.error("Upload error:", error);
+    console.error("🔥 Upload error caught:", error);
     res.status(500).json({ error: error.message });
   }
 }

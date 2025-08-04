@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =========================
-     Music Upload to Dropbox (chunked)
+     Music Upload to Dropbox (chunked with percentage progress)
   ========================= */
   const musicForm = document.getElementById("musicForm");
   const fileInput = document.getElementById("input-file");
@@ -25,8 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const emailInput = document.getElementById("email");
   const uploadStatus = document.getElementById("uploadStatus");
 
-  // Safe for Vercel Free plan (~4.5MB max body size)
-  const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB
+  const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB safe for Vercel Free
 
   fileInput?.addEventListener("change", () => {
     if (fileInput.files.length > 0) {
@@ -63,14 +62,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const sessionId = startData.session_id;
 
-        // 2️⃣ Upload chunks
+        // 2️⃣ Upload chunks with percentage progress
         let offset = 0;
-        let chunkIndex = 1;
+        let chunkIndex = 0;
         const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 
         while (offset < file.size) {
           const chunk = file.slice(offset, offset + CHUNK_SIZE);
-          uploadStatus.textContent = `⏳ Uploading chunk ${chunkIndex} of ${totalChunks}...`;
 
           const appendRes = await fetch("/api/appendUpload", {
             method: "POST",
@@ -85,11 +83,15 @@ document.addEventListener("DOMContentLoaded", () => {
             throw new Error(`Chunk too large for server: Reduce CHUNK_SIZE`);
           }
           if (!appendRes.ok) {
-            throw new Error(`Failed to upload chunk ${chunkIndex}`);
+            throw new Error(`Failed to upload chunk ${chunkIndex + 1}`);
           }
 
           offset += CHUNK_SIZE;
           chunkIndex++;
+
+          // Update percentage
+          const percent = Math.min(100, Math.round((chunkIndex / totalChunks) * 100));
+          uploadStatus.textContent = `⏳ Uploading... ${percent}%`;
         }
 
         // 3️⃣ Finish upload

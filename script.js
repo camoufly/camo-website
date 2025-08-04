@@ -109,17 +109,14 @@ document.addEventListener("DOMContentLoaded", () => {
         uploadStatus.textContent = "⏳ Uploading…";
         console.log("🚀 Sending request to /api/upload…");
 
-        const res = await fetch("https://camo-website.vercel.app/api/upload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: "Anonymous",
-            email: "",
-            message: "",
-            fileName: file.name,
-            fileData: base64File
-          }),
-        });
+      const res = await fetch("https://camo-website.vercel.app/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileData: base64File
+        }),
+      });
 
         const data = await res.json();
         console.log("✅ Response from server:", data);

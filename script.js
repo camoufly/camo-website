@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =========================
-     Music Upload to Dropbox (chunked + dated folders + % + extension)
+     Music Upload to Dropbox (chunked + single date folder + % + extension)
   ========================= */
   const musicForm = document.getElementById("musicForm");
   const fileInput = document.getElementById("input-file");
@@ -51,12 +51,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const file = fileInput.files[0];
 
-      // Date-based folder structure
+      // Date-based single folder format: YYYY-MM-DD
       const now = new Date();
       const year = now.getFullYear();
       const month = String(now.getMonth() + 1).padStart(2, "0");
       const day = String(now.getDate()).padStart(2, "0");
-      const folderPath = `/MusicUploads/${year}/${month}/${day}`;
+      const dateFolder = `${year}-${month}-${day}`;
+      const folderPath = `/MusicUploads/${dateFolder}`;
 
       // Preserve original file extension
       const extension = file.name.split('.').pop();

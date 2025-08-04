@@ -80,24 +80,38 @@
     <a href="https://camoufly.me"><img src="logo.png" alt="camoufly Logo" width="400" height="auto" class="logo"/></a>
 
     <!-- Upload form -->
-    <form id="musicForm">
-      <div class="hero">
-        <!-- Label triggers file picker once automatically -->
-        <label for="input-file" id="drop-area">
-          <input type="file" name="track" accept=".wav, .mp3, .flac" id="input-file" hidden>
+    <form id="musicForm" class="hero">
+      <div id="drop-area">
+        <label for="input-file" style="cursor:pointer;">
+          <input type="file" name="track" accept=".wav,.mp3,.flac" id="input-file" hidden />
           <div id="img-view">
-            <img src="upload.png" alt="Upload Icon">
+            <img src="upload.png" alt="Upload Icon" />
             <p>Drag and drop or click here to upload a music file.</p>
             <span>Accepted formats: mp3, wav, flac.</span>
           </div>
         </label>
       </div>
+
+      <div class="form-group">
+        <input type="text" id="artistName" name="artistName" placeholder="Your artist name" required />
+      </div>
+
+      <div class="form-group">
+        <input type="text" id="songTitle" name="songTitle" placeholder="Song title" required />
+      </div>
+
+      <div class="form-group">
+        <input type="email" id="email" name="email" placeholder="Your email address" required />
+      </div>
+
+      <button type="submit" class="upload-button">Upload</button>
+
+      <div id="uploadStatus"></div>
     </form>
 
-    <!-- Upload status -->
-    <div id="uploadStatus" style="margin-top:10px; font-size:14px; color:#555;"></div>
 <p></p>
     <!-- Social icons -->
+     <div class="social-icons" style="margin-top: 30px; text-align: center;">
     <span style="font-family: Verdana, Geneva, sans-serif;">
       <a href="https://audius.co/camouflybeats" target="_blank"><img src="/images/audius.png" width="32" height="32"></a>
       <a href="https://camouflybeats.bandcamp.com" target="_blank"><img src="/images/bandcamp.png" width="32" height="32"></a>
@@ -110,6 +124,7 @@
       <a href="https://www.youtube.com/c/camoufly" target="_blank"><img src="/images/youtube.png" width="32" height="32"></a>
       <a href="mailto:keiran@ctrlfrk.co.uk" target="_blank"><img src="/images/mail.png" width="32" height="32"></a>
     </span>
+  </div>
 <p></p>
     <br>
     <a href="https://camoufly.me/privacy"><u style="color:black;">privacy</u></a> //
@@ -132,7 +147,7 @@
 
     <!-- Preferences link -->
     <a href="#" id="open_preferences_center"><u style="color:black;">update cookies preferences</u></a>
-
+<p><p><br>
     <!-- Load script LAST so it runs after page is ready -->
     <script src="script.js?v=4"></script>
 </body>

@@ -967,19 +967,14 @@ transform: scale(0.96);
   }
 
 /* Send music box */
-.hero{
-  width: 100%;
-  /* Remove full screen lock */
-  min-height: auto; /* Overrides old 100vh if cached */
-  height: auto;     /* Ensures content height only */
-  
-  /* Keep nice spacing */
-  padding: 40px 0;
-  
+.hero {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-
+  gap: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 #drop-area{
@@ -1029,3 +1024,37 @@ transform: scale(0.96);
   color: #2196f3;
 }
 
+
+.form-group {
+  width: 100%;
+  text-align: left;
+}
+
+.form-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.upload-button {
+  margin-top: 15px;
+  padding: 10px 30px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.upload-button:hover {
+  background-color: #555;
+}

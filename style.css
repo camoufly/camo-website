@@ -968,8 +968,8 @@ transform: scale(0.96);
 
 /* Send music box */
 .hero{
-	width: 100%;
-	min-height: 100vh;
+  width: 100%;
+  padding: 40px 0; /* Gives nice breathing room */
 	display: flex;
 	align-content: center;
 	justify-content: center;

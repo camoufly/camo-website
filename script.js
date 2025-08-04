@@ -25,9 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const emailInput = document.getElementById("email");
   const uploadStatus = document.getElementById("uploadStatus");
 
-  const CHUNK_SIZE = 8 * 1024 * 1024; // 8MB
+  // Safe for Vercel Free plan (~4.5MB max body size)
+  const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB
 
-  // Show selected file name
   fileInput?.addEventListener("change", () => {
     if (fileInput.files.length > 0) {
       uploadStatus.textContent = `📁 File selected: ${fileInput.files[0].name}`;
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     musicForm.addEventListener("submit", async function (event) {
       event.preventDefault();
 
-      // Basic validation
+      // Validate inputs
       if (!fileInput.files.length) {
         uploadStatus.textContent = "⚠️ Please select a file.";
         return;
@@ -66,9 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // 2️⃣ Upload chunks
         let offset = 0;
         let chunkIndex = 1;
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
         while (offset < file.size) {
           const chunk = file.slice(offset, offset + CHUNK_SIZE);
-          uploadStatus.textContent = `⏳ Uploading chunk ${chunkIndex} of ${Math.ceil(file.size / CHUNK_SIZE)}...`;
+          uploadStatus.textContent = `⏳ Uploading chunk ${chunkIndex} of ${totalChunks}...`;
 
           const appendRes = await fetch("/api/appendUpload", {
             method: "POST",
@@ -79,6 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
             body: chunk
           });
 
+          if (appendRes.status === 413) {
+            throw new Error(`Chunk too large for server: Reduce CHUNK_SIZE`);
+          }
           if (!appendRes.ok) {
             throw new Error(`Failed to upload chunk ${chunkIndex}`);
           }

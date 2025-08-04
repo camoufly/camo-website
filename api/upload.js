@@ -1,4 +1,4 @@
-import { put } from "@vercel/blob";
+import { put, get } from "@vercel/blob";
 
 export const config = {
   api: {
@@ -8,52 +8,80 @@ export const config = {
   },
 };
 
-export default async function handler(req, res) {
-  console.log("🟢 Request received:", req.method, req.url);
+const EMAILS_FILE = "emails.txt";
 
-  // CORS headers for debugging, allow all origins temporarily
-  res.setHeader("Access-Control-Allow-Origin", "*");
+export default async function handler(req, res) {
+  // CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "https://camoufly.me");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
-    console.log("⚙️ Handling OPTIONS preflight request");
     return res.status(200).end();
   }
-
   if (req.method !== "POST") {
-    console.warn(`⚠️ Method not allowed: ${req.method}`);
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { fileName, fileData } = req.body;
+    const { artistName, songTitle, email, fileName, fileData } = req.body;
 
-    if (!fileName || !fileData) {
-      console.error("❌ Missing fileName or fileData in request body");
-      return res.status(400).json({ error: "Missing file or file data" });
+    if (!artistName || !songTitle || !email || !fileName || !fileData) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
-    console.log(`📦 Preparing to upload file: ${fileName}`);
+    // Sanitize inputs (basic: remove special chars, trim)
+    const safeArtist = artistName.trim().replace(/[\/\\:*?"<>|]/g, "");
+    const safeTitle = songTitle.trim().replace(/[\/\\:*?"<>|]/g, "");
+    const safeEmail = email.trim().toLowerCase();
 
-    // Decode base64 string to buffer
+    // Get original extension
+    const extMatch = fileName.match(/\.[^\.]+$/);
+    const extension = extMatch ? extMatch[0] : "";
+
+    // Construct new filename
+    const newFileName = `${safeArtist} - ${safeTitle}${extension}`;
+
+    // Decode base64 to buffer
     const buffer = Buffer.from(fileData, "base64");
-    console.log(`📏 File buffer size: ${buffer.length} bytes`);
 
-    // Upload to Vercel Blob Storage
-    const blob = await put(fileName, buffer, {
-      access: "public", // public access to file URL
+    // Upload renamed file to Vercel Blob Storage
+    const blob = await put(newFileName, buffer, {
+      access: "public",
     });
-    console.log("🚀 Upload successful:", blob.url);
 
+    // --- Handle emails.txt storage ---
+    let existingEmails = "";
+
+    try {
+      const emailsBlob = await get(EMAILS_FILE);
+      existingEmails = new TextDecoder().decode(await emailsBlob.arrayBuffer());
+    } catch {
+      // file might not exist yet — ignore error
+    }
+
+    const emailsList = existingEmails
+      .split("\n")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (!emailsList.includes(safeEmail)) {
+      emailsList.push(safeEmail);
+      const updatedEmails = emailsList.join("\n");
+      const emailsBuffer = Buffer.from(updatedEmails, "utf-8");
+
+      await put(EMAILS_FILE, emailsBuffer, { access: "private" });
+      // You may want private so no one can download emails.txt publicly
+    }
+
+    // Response with uploaded file URL
     res.status(200).json({
       success: true,
-      message: "File uploaded successfully!",
+      message: "File uploaded and email recorded!",
       fileUrl: blob.url,
     });
-
   } catch (error) {
-    console.error("🔥 Upload error caught:", error);
+    console.error("Upload error:", error);
     res.status(500).json({ error: error.message });
   }
 }

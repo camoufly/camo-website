@@ -11,8 +11,15 @@ export const config = {
 const EMAILS_FILE = "emails.txt";
 
 export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader("Access-Control-Allow-Origin", *);
+  // Adjust CORS: Replace * with your domain to avoid errors
+  const allowedOrigin = "https://camoufly.me"; // Change if needed
+  const origin = req.headers.origin;
+  if (origin === allowedOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "null"); // Block unknown origins
+  }
+
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -30,22 +37,24 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Sanitize inputs (basic: remove special chars, trim)
+    // Sanitize inputs
     const safeArtist = artistName.trim().replace(/[\/\\:*?"<>|]/g, "");
     const safeTitle = songTitle.trim().replace(/[\/\\:*?"<>|]/g, "");
     const safeEmail = email.trim().toLowerCase();
 
-    // Get original extension
+    // Get file extension (including the dot)
     const extMatch = fileName.match(/\.[^\.]+$/);
     const extension = extMatch ? extMatch[0] : "";
 
-    // Construct new filename
+    // New filename format: Artist Name - Song Title.ext
     const newFileName = `${safeArtist} - ${safeTitle}${extension}`;
 
-    // Decode base64 to buffer
+    // Decode base64 file data to Buffer
     const buffer = Buffer.from(fileData, "base64");
 
-    // Upload renamed file to Vercel Blob Storage
+    console.log(`[upload.js] Uploading file as: ${newFileName}`);
+
+    // Upload renamed file with public access
     const blob = await put(newFileName, buffer, {
       access: "public",
     });
@@ -56,10 +65,12 @@ export default async function handler(req, res) {
     try {
       const emailsBlob = await get(EMAILS_FILE);
       existingEmails = new TextDecoder().decode(await emailsBlob.arrayBuffer());
-    } catch {
-      // file might not exist yet — ignore error
+      console.log("[upload.js] Loaded existing emails.txt");
+    } catch (err) {
+      console.log("[upload.js] emails.txt not found, creating new.");
     }
 
+    // Normalize and split emails
     const emailsList = existingEmails
       .split("\n")
       .map((e) => e.trim().toLowerCase())
@@ -70,18 +81,21 @@ export default async function handler(req, res) {
       const updatedEmails = emailsList.join("\n");
       const emailsBuffer = Buffer.from(updatedEmails, "utf-8");
 
+      // Save updated emails.txt privately so no public access
       await put(EMAILS_FILE, emailsBuffer, { access: "private" });
-      // You may want private so no one can download emails.txt publicly
+      console.log(`[upload.js] Added new email: ${safeEmail}`);
+    } else {
+      console.log(`[upload.js] Email already exists: ${safeEmail}`);
     }
 
-    // Response with uploaded file URL
+    // Success response
     res.status(200).json({
       success: true,
       message: "File uploaded and email recorded!",
       fileUrl: blob.url,
     });
   } catch (error) {
-    console.error("Upload error:", error);
+    console.error("[upload.js] Upload error:", error);
     res.status(500).json({ error: error.message });
   }
 }

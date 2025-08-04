@@ -1,13 +1,12 @@
 {
-  "name": "camo-website",
+  "name": "camoufly-upload",
   "version": "1.0.0",
-  "private": true,
+  "main": "index.js",
+  "license": "MIT",
   "scripts": {
-    "dev": "vercel dev",
-    "start": "vercel dev",
-    "build": ""
+    "start": "vercel dev"
   },
-  "dependencies": {
-    "@vercel/blob": "latest"
+  "engines": {
+    "node": "18.x"
   }
 }

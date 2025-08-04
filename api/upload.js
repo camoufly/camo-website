@@ -8,13 +8,19 @@ export default async function handler(req, res) {
   try {
     const { name, email, message, fileName, fileData } = req.body;
 
+    if (!fileName || !fileData) {
+      return res.status(400).json({ error: "Missing file or file data" });
+    }
+
     // Upload to Dropbox
-    await fetch("https://content.dropboxapi.com/2/files/upload", {
+    const dropboxPath = `/music_submissions/${Date.now()}-${fileName}`;
+
+    const uploadResponse = await fetch("https://content.dropboxapi.com/2/files/upload", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.DROPBOX_ACCESS_TOKEN}`,
         "Dropbox-API-Arg": JSON.stringify({
-          path: `/music_submissions/${Date.now()}-${fileName}`,
+          path: dropboxPath,
           mode: "add",
           autorename: true,
           mute: false
@@ -24,7 +30,31 @@ export default async function handler(req, res) {
       body: Buffer.from(fileData, "base64")
     });
 
-    res.status(200).json({ success: true, message: "File uploaded to Dropbox!" });
+    if (!uploadResponse.ok) {
+      const errText = await uploadResponse.text();
+      throw new Error(`Dropbox upload failed: ${errText}`);
+    }
+
+    // Optional: create a shared link (so you get a public URL in email later)
+    const linkResponse = await fetch("https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.DROPBOX_ACCESS_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ path: dropboxPath })
+    });
+
+    const linkData = await linkResponse.json();
+    const fileUrl = linkData.url ? linkData.url.replace("?dl=0", "?dl=1") : null;
+
+    // Success response
+    res.status(200).json({
+      success: true,
+      message: "File uploaded successfully!",
+      link: fileUrl
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

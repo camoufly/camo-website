@@ -1,8 +1,8 @@
-// DOM elements
+// DOM
 const container = document.getElementById('globe-container');
 const tooltip = document.getElementById('tooltip');
 
-// Event data
+// Your events
 const events = [
   { lat: 51.5074, lng: -0.1278, name: 'UKF Invites – London', date: 'Aug 6, 2025', link: 'https://ra.co/events/22180551451883445855686343' },
   { lat: 37.5683, lng: 14.3839, name: 'Mosaico Festival – Piazza Armerina', date: 'Aug 8, 2025', link: 'https://dice.fm/bundles/mosaico-festival-2025-d99o' },
@@ -20,7 +20,13 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 container.appendChild(renderer.domElement);
 
-// Create globe
+// Base white sphere (so globe is visible immediately)
+const sphereGeometry = new THREE.SphereGeometry(100, 64, 64);
+const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const baseSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+scene.add(baseSphere);
+
+// Create Three-Globe instance
 const globe = new ThreeGlobe()
   .showAtmosphere(false)
   .showGraticules(false)
@@ -39,19 +45,21 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
 dirLight.position.set(1, 1, 1);
 scene.add(dirLight);
 
-// Load country outlines for white globe with grey borders
+// Load country outlines
 fetch('https://unpkg.com/world-atlas/countries-110m.json')
   .then(res => res.json())
   .then(countries => {
+    console.log("Loaded country data", countries);
     const globeData = topojson.feature(countries, countries.objects.countries).features;
     globe
       .hexPolygonsData(globeData)
       .hexPolygonResolution(3)
       .hexPolygonMargin(0.3)
-      .hexPolygonColor(() => 'rgba(180,180,180,0.7)'); // light grey outlines
-  });
+      .hexPolygonColor(() => 'rgba(180,180,180,0.7)');
+  })
+  .catch(err => console.error("Error loading country data", err));
 
-// Tooltip + hover rotation
+// Tooltip + rotation
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let targetRotationX = 0;
@@ -61,11 +69,9 @@ document.addEventListener('mousemove', (event) => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  // Rotate globe based on mouse position
   targetRotationY = mouse.x * 0.5;
   targetRotationX = mouse.y * 0.5;
 
-  // Tooltip detection
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
 
@@ -89,7 +95,7 @@ function animate() {
 }
 animate();
 
-// Resize handling
+// Resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();

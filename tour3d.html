@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>camoufly – 3D Tour Map</title>
 
-  <!-- Your existing style.css -->
   <link rel="stylesheet" href="style.css">
 
   <!-- Three.js -->
@@ -15,23 +14,18 @@
   <script src="https://unpkg.com/three/examples/js/controls/OrbitControls.js"></script>
   <!-- Three-Globe -->
   <script src="https://unpkg.com/three-globe"></script>
-  <!-- TopoJSON for country outlines -->
+  <!-- TopoJSON -->
   <script src="https://unpkg.com/topojson-client@3"></script>
 </head>
 <body>
 
-  <!-- Logo (links back to homepage) -->
   <a href="https://camoufly.me/">
     <img src="/images/logo.png" alt="camoufly Logo" class="logo" width="400">
   </a>
 
-  <!-- Globe -->
   <div id="globe-container"></div>
-  <!-- Tooltip -->
   <div id="tooltip" class="hidden"></div>
 
-  <!-- Your globe script -->
   <script type="module" src="globe.js"></script>
-
 </body>
 </html>

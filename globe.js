@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import ThreeGlobe from "three-globe";
 import * as topojson from "topojson-client";
 
-// === Event Data ===
+// === Event Data (actual links) ===
 const events = [
   { lat: 51.5074, lng: -0.1278, country: 'United Kingdom', name: 'UKF Invites – London', date: 'Aug 6, 2025', link: 'https://ra.co/events/22180551451883445855686343' },
   { lat: 37.5683, lng: 14.3839, country: 'Italy', name: 'Mosaico Festival – Piazza Armerina', date: 'Aug 8, 2025', link: 'https://dice.fm/bundles/mosaico-festival-2025-d99o' },
@@ -30,24 +30,13 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.minDistance = 160; 
-controls.maxDistance = 400;
+controls.minDistance = 250;
+controls.maxDistance = 600;
 controls.rotateSpeed = 0.7;
-
-// === Lat/Lng to Vector3 ===
-function latLngToVector3(lat, lng, radius = 100.2) {
-  const phi = (90 - lat) * Math.PI / 180;
-  const theta = lng * Math.PI / 180; // FIX: removed +180
-  return new THREE.Vector3(
-    -radius * Math.sin(phi) * Math.cos(theta), // keep minus sign for correct orientation
-    radius * Math.cos(phi),
-    radius * Math.sin(phi) * Math.sin(theta)
-  );
-}
 
 // === Globe ===
 const globe = new ThreeGlobe()
-  .globeImageUrl('') 
+  .globeImageUrl('') // white globe
   .showAtmosphere(false)
   .showGraticules(false)
   .pointsData(events)
@@ -66,16 +55,21 @@ const dl = new THREE.DirectionalLight(0xffffff, 0.6);
 dl.position.set(1, 1, 1);
 scene.add(dl);
 
-// === Borders ===
+// === Borders + Fill ===
 fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
   .then(res => res.json())
   .then(worldData => {
     const rawFeatures = topojson.feature(worldData, worldData.objects.countries).features;
 
+    // Filter only valid polygons
     const countries = rawFeatures.filter(f =>
       f.geometry &&
-      (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
+      (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon') &&
+      Array.isArray(f.geometry.coordinates) &&
+      f.geometry.coordinates.length > 0
     );
+
+    console.log(`Filtered countries: ${countries.length} valid out of ${rawFeatures.length}`);
 
     const eventCountries = new Set(events.map(e => e.country));
 
@@ -88,42 +82,34 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         return eventCountries.has(name) ? '#e0e0e0' : 'rgba(0,0,0,0)';
       });
 
+    // Outline
     const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     countries.forEach(feature => {
       const coords = feature.geometry.coordinates;
       (feature.geometry.type === 'MultiPolygon' ? coords : [coords]).forEach(polygon => {
         polygon.forEach(ring => {
-          const points = ring.map(([lng, lat]) => latLngToVector3(lat, lng));
+          const points = ring.map(([lng, lat]) => {
+            const phi = (90 - lat) * Math.PI / 180;
+            const theta = (lng + 180) * Math.PI / 180;
+            const r = 100.2;
+            return new THREE.Vector3(
+              -r * Math.sin(phi) * Math.cos(theta),
+               r * Math.cos(phi),
+               r * Math.sin(phi) * Math.sin(theta)
+            );
+          });
           const geometry = new THREE.BufferGeometry().setFromPoints(points);
-          globe.add(new THREE.LineLoop(geometry, borderMaterial));
+          const line = new THREE.LineLoop(geometry, borderMaterial);
+          globe.add(line);
         });
       });
     });
   });
 
-// === Hover State Management ===
+// === Tooltip + Clicks ===
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-let currentHoveredEvent = null;
-let isHovering = false;
 
-function startHover(ev) {
-  if (!isHovering) {
-    isHovering = true;
-    currentHoveredEvent = ev;
-    focusOnEvent(ev, true);
-  }
-}
-
-function endHover() {
-  if (isHovering) {
-    isHovering = false;
-    currentHoveredEvent = null;
-    resetCameraPosition();
-  }
-}
-
-// === Mouse Hover on Globe ===
 document.addEventListener('mousemove', e => {
   mouse.x = (e.clientX / container.clientWidth) * 2 - 1;
   mouse.y = -(e.clientY / container.clientHeight) * 2 + 1;
@@ -138,34 +124,34 @@ document.addEventListener('mousemove', e => {
     tooltip.style.top = e.clientY + 15 + 'px';
     tooltip.classList.remove('hidden');
     container.style.cursor = 'pointer';
-    startHover(d);
   } else {
     tooltip.classList.add('hidden');
     container.style.cursor = 'grab';
-    endHover();
   }
 });
 
-// === Click on Globe ===
 document.addEventListener('click', e => {
+  mouse.x = (e.clientX / container.clientWidth) * 2 - 1;
+  mouse.y = -(e.clientY / container.clientHeight) * 2 + 1;
+
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
+
   if (intersects.length > 0) {
     const d = intersects[0].object.__data;
     if (d.link) window.open(d.link, '_blank');
   }
 });
 
-// === Hover on List ===
+// === Event list hover + click ===
 if (eventList) {
   eventList.innerHTML = events.map((e, i) => `<li data-index="${i}">${e.date} — ${e.name}</li>`).join('');
   eventList.addEventListener('mouseover', e => {
     const li = e.target.closest('li');
     if (!li) return;
     const ev = events[li.dataset.index];
-    startHover(ev);
+    focusOnEvent(ev);
   });
-  eventList.addEventListener('mouseleave', endHover);
   eventList.addEventListener('click', e => {
     const li = e.target.closest('li');
     if (!li) return;
@@ -174,30 +160,15 @@ if (eventList) {
   });
 }
 
-// === Camera Animation ===
-function focusOnEvent(ev, closeUp = false) {
+function focusOnEvent(ev) {
   const phi = (90 - ev.lat) * Math.PI / 180;
-  const theta = ev.lng * Math.PI / 180; // FIX: removed +180
-  const radius = closeUp ? 180 : 300;
-  const x = -radius * Math.sin(phi) * Math.cos(theta);
+  const theta = (ev.lng + 180) * Math.PI / 180;
+  const radius = 300;
+  const x = radius * Math.sin(phi) * Math.cos(theta);
   const y = radius * Math.cos(phi);
   const z = radius * Math.sin(phi) * Math.sin(theta);
 
-  gsap.to(camera.position, {
-    x, y, z,
-    duration: 1.2,
-    ease: "power2.out",
-    onUpdate: () => camera.lookAt(0, 0, 0)
-  });
-}
-
-function resetCameraPosition() {
-  gsap.to(camera.position, {
-    x: 0, y: 0, z: 350,
-    duration: 1.5,
-    ease: "power2.out",
-    onUpdate: () => camera.lookAt(0, 0, 0)
-  });
+  gsap.to(camera.position, { x, y, z, duration: 1.2, onUpdate: () => camera.lookAt(0, 0, 0) });
 }
 
 // === Animate ===

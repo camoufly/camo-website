@@ -22,7 +22,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 container.appendChild(renderer.domElement);
 
 // OrbitControls for drag rotation
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.minDistance = 200;
@@ -67,8 +67,12 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
       .hexPolygonColor(d => eventCountries.has(d.properties.name) ? '#e0e0e0' : 'rgba(0,0,0,0)');
 
     // Black borders that always draw above globe surface
-    const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000, depthTest: true });
-    countries.forEach(feature => {
+        const borderMaterial = new THREE.LineBasicMaterial({ 
+        color: 0x000000,
+        depthTest: false // <-- force it to render on top
+        });
+        const r = 101; // make sure it’s far enough above the white sphere
+            countries.forEach(feature => {
       const coords = feature.geometry.coordinates;
       (feature.geometry.type === 'MultiPolygon' ? coords : [coords]).forEach(polygon => {
         polygon.forEach(ring => {

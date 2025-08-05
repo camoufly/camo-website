@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import ThreeGlobe from "three-globe";
 import * as topojson from "topojson-client";
 
-// === Event Data (actual links) ===
+// === Event Data ===
 const events = [
   { lat: 51.5074, lng: -0.1278, country: 'United Kingdom', name: 'UKF Invites – London', date: 'Aug 6, 2025', link: 'https://ra.co/events/22180551451883445855686343' },
   { lat: 37.5683, lng: 14.3839, country: 'Italy', name: 'Mosaico Festival – Piazza Armerina', date: 'Aug 8, 2025', link: 'https://dice.fm/bundles/mosaico-festival-2025-d99o' },
@@ -35,8 +35,12 @@ controls.maxDistance = 600;
 controls.rotateSpeed = 0.7;
 
 // === Globe ===
+// Toggle this between '' (white) or an earth texture for debugging
+const debugGlobeTexture = ''; 
+// const debugGlobeTexture = '//unpkg.com/three-globe/example/img/earth-dark.jpg';
+
 const globe = new ThreeGlobe()
-  .globeImageUrl('') // white globe
+  .globeImageUrl(debugGlobeTexture)
   .showAtmosphere(false)
   .showGraticules(false)
   .pointsData(events)
@@ -61,7 +65,7 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
   .then(worldData => {
     const rawFeatures = topojson.feature(worldData, worldData.objects.countries).features;
 
-    // Filter only valid polygons
+    // Filter valid polygons
     const countries = rawFeatures.filter(f =>
       f.geometry &&
       (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon') &&
@@ -82,7 +86,7 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         return eventCountries.has(name) ? '#e0e0e0' : 'rgba(0,0,0,0)';
       });
 
-    // Outline
+    // Outline borders
     const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     countries.forEach(feature => {
       const coords = feature.geometry.coordinates;
@@ -110,12 +114,19 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
+function updateMouseCoords(e) {
+  const rect = container.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+}
+
 document.addEventListener('mousemove', e => {
-  mouse.x = (e.clientX / container.clientWidth) * 2 - 1;
-  mouse.y = -(e.clientY / container.clientHeight) * 2 + 1;
+  updateMouseCoords(e);
 
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
+  const intersects = raycaster.intersectObjects(
+    globe.pointsData().map(p => p.__threeObj).filter(Boolean)
+  );
 
   if (intersects.length > 0) {
     const d = intersects[0].object.__data;
@@ -131,11 +142,12 @@ document.addEventListener('mousemove', e => {
 });
 
 document.addEventListener('click', e => {
-  mouse.x = (e.clientX / container.clientWidth) * 2 - 1;
-  mouse.y = -(e.clientY / container.clientHeight) * 2 + 1;
+  updateMouseCoords(e);
 
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
+  const intersects = raycaster.intersectObjects(
+    globe.pointsData().map(p => p.__threeObj).filter(Boolean)
+  );
 
   if (intersects.length > 0) {
     const d = intersects[0].object.__data;
@@ -145,13 +157,17 @@ document.addEventListener('click', e => {
 
 // === Event list hover + click ===
 if (eventList) {
-  eventList.innerHTML = events.map((e, i) => `<li data-index="${i}">${e.date} — ${e.name}</li>`).join('');
+  eventList.innerHTML = events
+    .map((e, i) => `<li data-index="${i}">${e.date} — ${e.name}</li>`)
+    .join('');
+
   eventList.addEventListener('mouseover', e => {
     const li = e.target.closest('li');
     if (!li) return;
     const ev = events[li.dataset.index];
     focusOnEvent(ev);
   });
+
   eventList.addEventListener('click', e => {
     const li = e.target.closest('li');
     if (!li) return;
@@ -168,7 +184,11 @@ function focusOnEvent(ev) {
   const y = radius * Math.cos(phi);
   const z = radius * Math.sin(phi) * Math.sin(theta);
 
-  gsap.to(camera.position, { x, y, z, duration: 1.2, onUpdate: () => camera.lookAt(0, 0, 0) });
+  gsap.to(camera.position, {
+    x, y, z,
+    duration: 1.2,
+    onUpdate: () => camera.lookAt(0, 0, 0)
+  });
 }
 
 // === Animate ===

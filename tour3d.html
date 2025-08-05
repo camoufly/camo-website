@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>Camoufly – Tour</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 
+  <!-- Import maps for clean ES module imports -->
   <script type="importmap">
   {
     "imports": {
@@ -16,37 +17,108 @@
     }
   }
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <!-- GSAP for smooth camera animation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
   <style>
-    html, body { margin: 0; padding: 0; background: #fff; }
-    .logo-container { text-align:center; padding:20px; }
-    .globe-container { width:100%; height:60vh; position:relative; }
-    #tooltip { position:absolute; background:rgba(255,255,255,0.95); color:#000;
-               padding:8px 12px; border-radius:8px; font-size:14px;
-               pointer-events:none; box-shadow:0 4px 8px rgba(0,0,0,0.2); display:none; }
-    .event-list { padding:2rem; font-family:europa,sans-serif; text-align:center; }
-    .event-list li { margin:1rem 0; cursor:pointer; transition:color .3s; }
-    .event-list li:hover { color:#1352d1; }
+    body {
+      margin: 0;
+      font-family: europa, sans-serif;
+      background: white;
+      color: #111;
+    }
+
+    /* Logo area */
+    .logo-container {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+    }
+    .logo-container img {
+      max-width: 240px;
+      height: auto;
+    }
+
+    /* Globe section */
+    #globe-wrapper {
+      position: relative;
+      width: 100%;
+      height: 60vh;
+      background: white;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #globe-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      cursor: grab;
+    }
+    #tooltip {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.95);
+      color: #000;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      pointer-events: none;
+      z-index: 10;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .hidden { display: none; }
+
+    /* Event list section */
+    #event-section {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    #event-section h2 {
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    #event-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #event-list li {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #event-list li:hover {
+      background: #f0f0f0;
+      color: #1352d1;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Logo -->
   <div class="logo-container">
-    <a href="https://camoufly.me/"><img src="/images/logo.png" alt="Camoufly Logo" style="max-width:250px;"></a>
+    <a href="/">
+      <img src="images/logo.png" alt="Camoufly Logo" />
+    </a>
   </div>
 
-  <div class="globe-container" id="globe-container">
-    <div id="tooltip"></div>
+  <!-- Globe -->
+  <div id="globe-wrapper">
+    <div id="globe-container"></div>
+    <div id="tooltip" class="hidden"></div>
   </div>
 
-  <ul class="event-list" id="event-list">
-    <li data-index="0">Aug 6, 2025​—UKF Invites – London, UK</li>
-    <li data-index="1">Aug 8, 2025​—Mosaico Festival – Piazza Armerina, IT</li>
-    <li data-index="2">Aug 20, 2025​—Factory Area Festival – Catanzaro, IT</li>
-    <li data-index="3">Aug 31, 2025​—Lava Festival – Berlin, DE</li>
-    <li data-index="4">Sep 20, 2025​—Les Nuits de la Bomba – Paris, FR</li>
-  </ul>
+  <!-- Events -->
+  <section id="event-section">
+    <h2>Upcoming Shows</h2>
+    <ul id="event-list"></ul>
+  </section>
 
-  <script type="module" src="globe.js?v=2"></script>
+  <script type="module" src="globe.js"></script>
 </body>
 </html>

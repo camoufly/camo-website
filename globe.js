@@ -1,6 +1,6 @@
 import * as THREE from 'https://unpkg.com/three@0.157.0/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js';
-import ThreeGlobe from 'https://unpkg.com/three-globe@2.31.1?module';
+import ThreeGlobe from 'https://esm.sh/three-globe@2.31.1?deps=three@0.157.0';
 import * as topojson from 'https://unpkg.com/topojson-client@3?module';
 
 const container = document.getElementById('globe-container');

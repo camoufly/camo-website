@@ -1059,38 +1059,23 @@ transform: scale(0.96);
   background-color: #555;
 }
 
-/* Full-page globe container */
 #globe-container {
   width: 100vw;
   height: 100vh;
-  background: #fff;
+  background: white;
   overflow: hidden;
-  position: relative;
 }
-
-/* Tooltip style */
 #tooltip {
   position: absolute;
-  display: inline-block;
-  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.95);
   color: #000;
-  font-size: 14px;
+  padding: 8px 12px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  pointer-events: none;  /* ignore mouse events (so they pass through to pins) */
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  pointer-events: none;
   z-index: 10;
 }
-
-/* Hide the tooltip by default */
 .hidden {
   display: none;
-}
-
-/* (Optional) Logo styling if a logo is included */
-.logo {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 5;
 }

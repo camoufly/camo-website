@@ -30,16 +30,16 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.minDistance = 160; // updated
+controls.minDistance = 160; 
 controls.maxDistance = 400;
 controls.rotateSpeed = 0.7;
 
-// === Helper: Convert lat/lng to 3D vector (original orientation restored) ===
+// === Lat/Lng to Vector3 ===
 function latLngToVector3(lat, lng, radius = 100.2) {
   const phi = (90 - lat) * Math.PI / 180;
-  const theta = (lng + 180) * Math.PI / 180;
+  const theta = lng * Math.PI / 180; // FIX: removed +180
   return new THREE.Vector3(
-    -radius * Math.sin(phi) * Math.cos(theta), // minus sign restored
+    -radius * Math.sin(phi) * Math.cos(theta), // keep minus sign for correct orientation
     radius * Math.cos(phi),
     radius * Math.sin(phi) * Math.sin(theta)
   );
@@ -47,7 +47,7 @@ function latLngToVector3(lat, lng, radius = 100.2) {
 
 // === Globe ===
 const globe = new ThreeGlobe()
-  .globeImageUrl('') // white globe
+  .globeImageUrl('') 
   .showAtmosphere(false)
   .showGraticules(false)
   .pointsData(events)
@@ -66,7 +66,7 @@ const dl = new THREE.DirectionalLight(0xffffff, 0.6);
 dl.position.set(1, 1, 1);
 scene.add(dl);
 
-// === Borders + Fill ===
+// === Borders ===
 fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
   .then(res => res.json())
   .then(worldData => {
@@ -74,9 +74,7 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
 
     const countries = rawFeatures.filter(f =>
       f.geometry &&
-      (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon') &&
-      Array.isArray(f.geometry.coordinates) &&
-      f.geometry.coordinates.length > 0
+      (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
     );
 
     const eventCountries = new Set(events.map(e => e.country));
@@ -90,7 +88,6 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         return eventCountries.has(name) ? '#e0e0e0' : 'rgba(0,0,0,0)';
       });
 
-    // Outline
     const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     countries.forEach(feature => {
       const coords = feature.geometry.coordinates;
@@ -98,18 +95,35 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         polygon.forEach(ring => {
           const points = ring.map(([lng, lat]) => latLngToVector3(lat, lng));
           const geometry = new THREE.BufferGeometry().setFromPoints(points);
-          const line = new THREE.LineLoop(geometry, borderMaterial);
-          globe.add(line);
+          globe.add(new THREE.LineLoop(geometry, borderMaterial));
         });
       });
     });
   });
 
-// === Tooltip + Hover Logic ===
+// === Hover State Management ===
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let currentHoveredEvent = null;
+let isHovering = false;
 
+function startHover(ev) {
+  if (!isHovering) {
+    isHovering = true;
+    currentHoveredEvent = ev;
+    focusOnEvent(ev, true);
+  }
+}
+
+function endHover() {
+  if (isHovering) {
+    isHovering = false;
+    currentHoveredEvent = null;
+    resetCameraPosition();
+  }
+}
+
+// === Mouse Hover on Globe ===
 document.addEventListener('mousemove', e => {
   mouse.x = (e.clientX / container.clientWidth) * 2 - 1;
   mouse.y = -(e.clientY / container.clientHeight) * 2 + 1;
@@ -124,49 +138,34 @@ document.addEventListener('mousemove', e => {
     tooltip.style.top = e.clientY + 15 + 'px';
     tooltip.classList.remove('hidden');
     container.style.cursor = 'pointer';
-
-    if (currentHoveredEvent !== d) {
-      currentHoveredEvent = d;
-      focusOnEvent(d, true); // zoom IN on hover
-    }
+    startHover(d);
   } else {
     tooltip.classList.add('hidden');
     container.style.cursor = 'grab';
-
-    if (currentHoveredEvent) {
-      currentHoveredEvent = null;
-      resetCameraPosition(); // zoom OUT when leaving
-    }
+    endHover();
   }
 });
 
+// === Click on Globe ===
 document.addEventListener('click', e => {
-  mouse.x = (e.clientX / container.clientWidth) * 2 - 1;
-  mouse.y = -(e.clientY / container.clientHeight) * 2 + 1;
-
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
-
   if (intersects.length > 0) {
     const d = intersects[0].object.__data;
     if (d.link) window.open(d.link, '_blank');
   }
 });
 
-// === Event List Hover + Click ===
+// === Hover on List ===
 if (eventList) {
   eventList.innerHTML = events.map((e, i) => `<li data-index="${i}">${e.date} — ${e.name}</li>`).join('');
   eventList.addEventListener('mouseover', e => {
     const li = e.target.closest('li');
     if (!li) return;
     const ev = events[li.dataset.index];
-    currentHoveredEvent = ev;
-    focusOnEvent(ev, true); // zoom IN
+    startHover(ev);
   });
-  eventList.addEventListener('mouseleave', () => {
-    currentHoveredEvent = null;
-    resetCameraPosition(); // zoom OUT
-  });
+  eventList.addEventListener('mouseleave', endHover);
   eventList.addEventListener('click', e => {
     const li = e.target.closest('li');
     if (!li) return;
@@ -175,11 +174,11 @@ if (eventList) {
   });
 }
 
-// === Camera Animation Helpers ===
+// === Camera Animation ===
 function focusOnEvent(ev, closeUp = false) {
   const phi = (90 - ev.lat) * Math.PI / 180;
-  const theta = (ev.lng + 180) * Math.PI / 180;
-  const radius = closeUp ? 180 : 300; // closeUp = zoom in
+  const theta = ev.lng * Math.PI / 180; // FIX: removed +180
+  const radius = closeUp ? 180 : 300;
   const x = -radius * Math.sin(phi) * Math.cos(theta);
   const y = radius * Math.cos(phi);
   const z = radius * Math.sin(phi) * Math.sin(theta);

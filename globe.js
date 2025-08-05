@@ -30,8 +30,8 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.minDistance = 250;
-controls.maxDistance = 600;
+controls.minDistance = 80;   // updated
+controls.maxDistance = 400;  // updated
 controls.rotateSpeed = 0.7;
 
 // === Globe ===
@@ -82,7 +82,7 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         return eventCountries.has(name) ? '#e0e0e0' : 'rgba(0,0,0,0)';
       });
 
-    // Outline
+    // Outline (fixed alignment)
     const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     countries.forEach(feature => {
       const coords = feature.geometry.coordinates;
@@ -91,11 +91,11 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
           const points = ring.map(([lng, lat]) => {
             const phi = (90 - lat) * Math.PI / 180;
             const theta = (lng + 180) * Math.PI / 180;
-            const r = 100.2;
+            const r = 100.2; // match globe radius
             return new THREE.Vector3(
-              -r * Math.sin(phi) * Math.cos(theta),
-               r * Math.cos(phi),
-               r * Math.sin(phi) * Math.sin(theta)
+              r * Math.sin(phi) * Math.cos(theta), // fixed: removed minus sign
+              r * Math.cos(phi),
+              r * Math.sin(phi) * Math.sin(theta)
             );
           });
           const geometry = new THREE.BufferGeometry().setFromPoints(points);

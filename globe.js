@@ -1,6 +1,7 @@
-if (typeof THREE === 'undefined') {
-  alert('Three.js failed to load — check script order in tour3d.html.');
-}
+import * as THREE from 'https://unpkg.com/three@0.157.0/build/three.module.js';
+import { OrbitControls } from 'https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js';
+import ThreeGlobe from 'https://unpkg.com/three-globe@2.31.1?module';
+import * as topojson from 'https://unpkg.com/topojson-client@3?module';
 
 const container = document.getElementById('globe-container');
 const tooltip   = document.getElementById('tooltip');
@@ -28,7 +29,7 @@ controls.enablePan = false;
 controls.minDistance = 200;
 controls.maxDistance = 500;
 controls.rotateSpeed = 0.5;
-controls.enableZoom = false; // keep zoom fixed
+controls.enableZoom = false;
 
 // Create globe
 const globe = new ThreeGlobe()
@@ -43,7 +44,6 @@ const globe = new ThreeGlobe()
   .pointColor(() => '#ff4081');
 
 globe.globeMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff }));
-
 scene.add(globe);
 
 // Lighting
@@ -66,20 +66,16 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
       .hexPolygonMargin(0.3)
       .hexPolygonColor(d => eventCountries.has(d.properties.name) ? '#e0e0e0' : 'rgba(0,0,0,0)');
 
-    // Black borders that always draw above globe surface
-        const borderMaterial = new THREE.LineBasicMaterial({ 
-        color: 0x000000,
-        depthTest: false // <-- force it to render on top
-        });
-        const r = 101; // make sure it’s far enough above the white sphere
-            countries.forEach(feature => {
+    // Black borders always on top
+    const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000, depthTest: false });
+    countries.forEach(feature => {
       const coords = feature.geometry.coordinates;
       (feature.geometry.type === 'MultiPolygon' ? coords : [coords]).forEach(polygon => {
         polygon.forEach(ring => {
           const points = ring.map(([lng, lat]) => {
             const phi = (90 - lat) * Math.PI / 180;
             const theta = (lng + 180) * Math.PI / 180;
-            const r = 100.5; // sits above globe surface
+            const r = 101; // sits above globe surface
             return new THREE.Vector3(
               -r * Math.sin(phi) * Math.cos(theta),
                r * Math.cos(phi),

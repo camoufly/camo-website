@@ -6,28 +6,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Camoufly – 3D Tour Map</title>
 
-  <!-- Site styles -->
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Center the logo above the globe */
+    .logo-container {
+      position: absolute;
+      top: 20px;
+      width: 100%;
+      text-align: center;
+      z-index: 20;
+    }
+    .logo-container img {
+      max-width: 300px;
+      height: auto;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Logo (optional) -->
-  <a href="https://camoufly.me/">
-    <img src="/images/logo.png" alt="camoufly Logo" width="400" height="auto" class="logo" />
-  </a>
+  <!-- Centered logo -->
+  <div class="logo-container">
+    <a href="https://camoufly.me/">
+      <img src="/images/logo.png" alt="camoufly Logo">
+    </a>
+  </div>
 
   <!-- Globe container -->
   <div id="globe-container"></div>
-  <!-- Tooltip (hidden by default) -->
+  <!-- Tooltip -->
   <div id="tooltip" class="hidden"></div>
 
-  <!-- Three.js library -->
-  <script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
-  <!-- Three-Globe library -->
-  <script src="https://unpkg.com/three-globe@2.31.1"></script>
-  <!-- TopoJSON (for world country data) -->
-  <script src="https://unpkg.com/topojson-client@3"></script>
-  <!-- Globe logic script -->
-  <script src="globe.js"></script>
+  <!-- ES Modules version -->
+  <script type="module" src="globe.js"></script>
 </body>
 </html>

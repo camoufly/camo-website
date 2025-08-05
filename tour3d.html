@@ -2,32 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="description" content="Camoufly Tour – 3D Earth Map" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tour 3D Globe</title>
+  <title>Camoufly – Tour Map</title>
+  <link rel="stylesheet" href="style.css" />
 
   <style>
-    html, body {
+    body, html {
       margin: 0;
       padding: 0;
-      background: white;
-      overflow: hidden;
       height: 100%;
-      font-family: Arial, sans-serif;
+      background: black;
+      overflow: hidden;
     }
-
+    #globe-container {
+      width: 100%;
+      height: 100%;
+    }
     #tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.75);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
       font-size: 14px;
-      line-height: 1.4;
+      pointer-events: none;
+      z-index: 10;
     }
-
-    a {
-      color: #0077ff;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
+    .hidden {
+      display: none;
     }
   </style>
+
   <script type="importmap">
 {
     "imports": {
@@ -38,10 +44,9 @@
 
 </head>
 <body>
+  <div id="globe-container"></div>
+  <div id="tooltip" class="hidden"></div>
 
-  <!-- This is where Three.js will put the canvas -->
-  
-  <!-- Load your globe.js as an ES module -->
-  <script type="module" src="./globe.js"></script>
+  <script type="module" src="globe.js"></script>
 </body>
 </html>

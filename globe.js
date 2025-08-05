@@ -1,127 +1,115 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
+// === Scene & Camera ===
+const container = document.getElementById('globe-container');
+const tooltip = document.getElementById('tooltip');
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xffffff); // white background
-
-const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 1000);
-camera.position.set(0, 0, 4);
+const camera = new THREE.PerspectiveCamera(
+  45,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  2000
+);
+camera.position.set(0, 0, 400);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(innerWidth, innerHeight);
+renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
-document.body.appendChild(renderer.domElement);
+container.appendChild(renderer.domElement);
 
-const orbitCtrl = new OrbitControls(camera, renderer.domElement);
-orbitCtrl.enableDamping = true;
-orbitCtrl.enablePan = false;
-orbitCtrl.minDistance = 2.5;
-orbitCtrl.maxDistance = 10;
-orbitCtrl.autoRotate = false; // no auto rotation
+// === Lighting ===
+scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+dirLight.position.set(5, 3, 5);
+scene.add(dirLight);
 
-const raycaster = new THREE.Raycaster();
-const pointerPos = new THREE.Vector2();
+// === Controls ===
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.enablePan = false;
+controls.minDistance = 200;
+controls.maxDistance = 800;
 
+// === Load Textures for Earth ===
 const textureLoader = new THREE.TextureLoader();
-const colorMap = textureLoader.load("./src/00_earthmap1k.jpg");
-const elevMap = textureLoader.load("./src/01_earthbump1k.jpg");
-const alphaMap = textureLoader.load("./src/02_earthspec1k.jpg");
+const earthTexture = textureLoader.load('https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg');
+const bumpMap = textureLoader.load('https://threejs.org/examples/textures/earthbump1k.jpg');
 
-const globeGroup = new THREE.Group();
-scene.add(globeGroup);
-
-const globeGeo = new THREE.SphereGeometry(1, 64, 64);
-const globeMat = new THREE.MeshPhongMaterial({
-  map: colorMap,
-  bumpMap: elevMap,
-  bumpScale: 0.05,
-  specularMap: alphaMap,
-  specular: new THREE.Color("grey"),
+// === Create Earth Sphere ===
+const earthGeometry = new THREE.SphereGeometry(100, 64, 64);
+const earthMaterial = new THREE.MeshPhongMaterial({
+  map: earthTexture,
+  bumpMap: bumpMap,
+  bumpScale: 0.5
 });
-const globe = new THREE.Mesh(globeGeo, globeMat);
-globeGroup.add(globe);
+const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+scene.add(earthMesh);
 
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x080820, 2);
-scene.add(hemiLight);
-
-// === PINS ===
-const pins = [];
-const pinGeometry = new THREE.SphereGeometry(0.015, 8, 8);
-const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-
-// Example tour data (replace with your real tour data)
-const tourStops = [
-  { city: "Berlin", lat: 52.52, lng: 13.405, date: "2025-09-15", tickets: "https://example.com/berlin" },
-  { city: "London", lat: 51.5074, lng: -0.1278, date: "2025-09-18", tickets: "https://example.com/london" }
+// === Event Data ===
+const events = [
+  { lat: 51.5074, lng: -0.1278, name: 'London', date: 'Aug 6, 2025' },
+  { lat: 37.5683, lng: 14.3839, name: 'Piazza Armerina', date: 'Aug 8, 2025' },
+  { lat: 38.9050, lng: 16.5870, name: 'Catanzaro', date: 'Aug 20, 2025' },
+  { lat: 52.5200, lng: 13.4050, name: 'Berlin', date: 'Aug 31, 2025' },
+  { lat: 48.8566, lng: 2.3522, name: 'Paris', date: 'Sep 20, 2025' }
 ];
 
-// Convert lat/lng to XYZ
-function latLngToVector3(lat, lng, radius = 1) {
+// === Add Pins ===
+const pinGeometry = new THREE.SphereGeometry(1.5, 8, 8);
+const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff4081 });
+
+events.forEach(event => {
+  const { lat, lng } = event;
   const phi = (90 - lat) * (Math.PI / 180);
   const theta = (lng + 180) * (Math.PI / 180);
-  return new THREE.Vector3(
-    -(radius * Math.sin(phi) * Math.cos(theta)),
-    radius * Math.cos(phi),
-    radius * Math.sin(phi) * Math.sin(theta)
-  );
-}
+  const radius = 100;
 
-// Add pins
-tourStops.forEach(stop => {
-  const pos = latLngToVector3(stop.lat, stop.lng, 1.01);
-  const pin = new THREE.Mesh(pinGeometry, pinMaterial);
-  pin.position.copy(pos);
-  pin.userData = {
-    html: `<b>${stop.city}</b><br>${stop.date}<br><a href="${stop.tickets}" target="_blank">Get Tickets</a>`
-  };
-  globeGroup.add(pin);
-  pins.push(pin);
+  const x = radius * Math.sin(phi) * Math.cos(theta);
+  const y = radius * Math.cos(phi);
+  const z = radius * Math.sin(phi) * Math.sin(theta);
+
+  const pinMesh = new THREE.Mesh(pinGeometry, pinMaterial);
+  pinMesh.position.set(x, y, z);
+  pinMesh.userData = event; // store event info for tooltip
+  scene.add(pinMesh);
 });
 
-// === TOOLTIP ===
-const tooltip = document.createElement("div");
-tooltip.style.position = "absolute";
-tooltip.style.background = "#fff";
-tooltip.style.padding = "6px 8px";
-tooltip.style.borderRadius = "6px";
-tooltip.style.boxShadow = "0 2px 8px rgba(0,0,0,0.15)";
-tooltip.style.display = "none";
-tooltip.style.pointerEvents = "none";
-document.body.appendChild(tooltip);
+// === Raycaster for Tooltips ===
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
-function handleRaycast(evt) {
-  raycaster.setFromCamera(pointerPos, camera);
-  const intersects = raycaster.intersectObjects(pins, false);
-  if (intersects.length > 0) {
-    const pin = intersects[0].object;
-    tooltip.innerHTML = pin.userData.html;
-    tooltip.style.left = evt.clientX + 10 + "px";
-    tooltip.style.top = evt.clientY + 10 + "px";
-    tooltip.style.display = "block";
+function onMouseMove(event) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(scene.children);
+
+  const pin = intersects.find(obj => obj.object.geometry.type === 'SphereGeometry' && obj.object.userData.name);
+  if (pin) {
+    const d = pin.object.userData;
+    tooltip.innerHTML = `<strong>${d.name}</strong><br>${d.date}`;
+    tooltip.style.left = event.clientX + 15 + 'px';
+    tooltip.style.top = event.clientY + 15 + 'px';
+    tooltip.classList.remove('hidden');
   } else {
-    tooltip.style.display = "none";
+    tooltip.classList.add('hidden');
   }
 }
+window.addEventListener('mousemove', onMouseMove);
 
-// === ANIMATION LOOP ===
-function animate() {
-  renderer.render(scene, camera);
-  orbitCtrl.update();
-  requestAnimationFrame(animate);
-}
-animate();
-
-// === EVENTS ===
-window.addEventListener("mousemove", (evt) => {
-  pointerPos.set(
-    (evt.clientX / window.innerWidth) * 2 - 1,
-    -(evt.clientY / window.innerHeight) * 2 + 1
-  );
-  handleRaycast(evt);
-});
-
-window.addEventListener("resize", () => {
+// === Resize Handling ===
+window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// === Animation Loop ===
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();

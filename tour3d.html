@@ -7,16 +7,17 @@
   <link rel="stylesheet" href="style.css" />
 
   <!-- Import maps for clean ES module imports -->
-  <script type="importmap">
-  {
+    <script type="importmap">
+    {
     "imports": {
-    "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/",
-    "three-globe": "https://unpkg.com/three-globe@2.31.1/dist/three-globe.module.js",
-    "topojson-client": "https://unpkg.com/topojson-client@3?module"
+        "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/",
+        "three-globe": "https://esm.sh/three-globe@2.44.0?external=three",
+        "topojson-client": "https://unpkg.com/topojson-client@3?module"
     }
-  }
-  </script>
+    }
+    </script>
+
 
   <!-- GSAP for smooth camera animation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>

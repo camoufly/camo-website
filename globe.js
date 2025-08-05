@@ -34,12 +34,12 @@ controls.minDistance = 160; // updated
 controls.maxDistance = 400;
 controls.rotateSpeed = 0.7;
 
-// === Helper: Convert lat/lng to 3D vector ===
+// === Helper: Convert lat/lng to 3D vector (original orientation restored) ===
 function latLngToVector3(lat, lng, radius = 100.2) {
   const phi = (90 - lat) * Math.PI / 180;
-  const theta = lng * Math.PI / 180; // aligned with three-globe
+  const theta = (lng + 180) * Math.PI / 180;
   return new THREE.Vector3(
-    radius * Math.sin(phi) * Math.cos(theta),
+    -radius * Math.sin(phi) * Math.cos(theta), // minus sign restored
     radius * Math.cos(phi),
     radius * Math.sin(phi) * Math.sin(theta)
   );
@@ -90,7 +90,7 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         return eventCountries.has(name) ? '#e0e0e0' : 'rgba(0,0,0,0)';
       });
 
-    // Outline (aligned with globe)
+    // Outline
     const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     countries.forEach(feature => {
       const coords = feature.geometry.coordinates;
@@ -105,7 +105,7 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
     });
   });
 
-// === Tooltip + Clicks ===
+// === Tooltip + Hover Logic ===
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let currentHoveredEvent = null;
@@ -127,7 +127,7 @@ document.addEventListener('mousemove', e => {
 
     if (currentHoveredEvent !== d) {
       currentHoveredEvent = d;
-      focusOnEvent(d, true); // close-up zoom
+      focusOnEvent(d, true); // zoom IN on hover
     }
   } else {
     tooltip.classList.add('hidden');
@@ -135,7 +135,7 @@ document.addEventListener('mousemove', e => {
 
     if (currentHoveredEvent) {
       currentHoveredEvent = null;
-      resetCameraPosition(); // smooth return
+      resetCameraPosition(); // zoom OUT when leaving
     }
   }
 });
@@ -153,7 +153,7 @@ document.addEventListener('click', e => {
   }
 });
 
-// === Event list hover + click ===
+// === Event List Hover + Click ===
 if (eventList) {
   eventList.innerHTML = events.map((e, i) => `<li data-index="${i}">${e.date} — ${e.name}</li>`).join('');
   eventList.addEventListener('mouseover', e => {
@@ -161,11 +161,11 @@ if (eventList) {
     if (!li) return;
     const ev = events[li.dataset.index];
     currentHoveredEvent = ev;
-    focusOnEvent(ev, true);
+    focusOnEvent(ev, true); // zoom IN
   });
   eventList.addEventListener('mouseleave', () => {
     currentHoveredEvent = null;
-    resetCameraPosition();
+    resetCameraPosition(); // zoom OUT
   });
   eventList.addEventListener('click', e => {
     const li = e.target.closest('li');
@@ -175,18 +175,19 @@ if (eventList) {
   });
 }
 
-// === Camera Helpers ===
+// === Camera Animation Helpers ===
 function focusOnEvent(ev, closeUp = false) {
   const phi = (90 - ev.lat) * Math.PI / 180;
-  const theta = ev.lng * Math.PI / 180;
-  const radius = closeUp ? 180 : 300;
-  const x = radius * Math.sin(phi) * Math.cos(theta);
+  const theta = (ev.lng + 180) * Math.PI / 180;
+  const radius = closeUp ? 180 : 300; // closeUp = zoom in
+  const x = -radius * Math.sin(phi) * Math.cos(theta);
   const y = radius * Math.cos(phi);
   const z = radius * Math.sin(phi) * Math.sin(theta);
 
   gsap.to(camera.position, {
     x, y, z,
     duration: 1.2,
+    ease: "power2.out",
     onUpdate: () => camera.lookAt(0, 0, 0)
   });
 }

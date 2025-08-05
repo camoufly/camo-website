@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import ThreeGlobe from "three-globe";
 import * as topojson from "topojson-client";
 
-// === Event Data (actual links) ===
+// === Event Data ===
 const events = [
   { lat: 51.5074, lng: -0.1278, country: 'United Kingdom', name: 'UKF Invites – London', date: 'Aug 6, 2025', link: 'https://ra.co/events/22180551451883445855686343' },
   { lat: 37.5683, lng: 14.3839, country: 'Italy', name: 'Mosaico Festival – Piazza Armerina', date: 'Aug 8, 2025', link: 'https://dice.fm/bundles/mosaico-festival-2025-d99o' },
@@ -30,13 +30,17 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.minDistance = 250;
-controls.maxDistance = 600;
+controls.minDistance = 110; // allow extreme zoom
+controls.maxDistance = 800;
 controls.rotateSpeed = 0.7;
+controls.zoomSpeed = 1.2;
 
 // === Globe ===
+// White globe texture with faint grey land outlines
+const whiteGlobeTexture = 'https://raw.githubusercontent.com/creativetimofficial/public-assets/main/globe-white-grey.png';
+
 const globe = new ThreeGlobe()
-  .globeImageUrl('') // white globe
+  .globeImageUrl(whiteGlobeTexture)
   .showAtmosphere(false)
   .showGraticules(false)
   .pointsData(events)
@@ -46,7 +50,6 @@ const globe = new ThreeGlobe()
   .pointRadius(0.6)
   .pointColor(() => '#ff4081');
 
-globe.globeMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff }));
 scene.add(globe);
 
 // === Lighting ===
@@ -61,15 +64,12 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
   .then(worldData => {
     const rawFeatures = topojson.feature(worldData, worldData.objects.countries).features;
 
-    // Filter only valid polygons
     const countries = rawFeatures.filter(f =>
       f.geometry &&
       (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon') &&
       Array.isArray(f.geometry.coordinates) &&
       f.geometry.coordinates.length > 0
     );
-
-    console.log(`Filtered countries: ${countries.length} valid out of ${rawFeatures.length}`);
 
     const eventCountries = new Set(events.map(e => e.country));
 
@@ -82,7 +82,6 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
         return eventCountries.has(name) ? '#e0e0e0' : 'rgba(0,0,0,0)';
       });
 
-    // Outline
     const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     countries.forEach(feature => {
       const coords = feature.geometry.coordinates;
@@ -110,12 +109,18 @@ fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
+// Ensure pins are raycastable after creation
+let pinMeshes = [];
+setTimeout(() => {
+  pinMeshes = globe.pointsData().map(p => p.__threeObj).filter(Boolean);
+}, 500);
+
 document.addEventListener('mousemove', e => {
   mouse.x = (e.clientX / container.clientWidth) * 2 - 1;
   mouse.y = -(e.clientY / container.clientHeight) * 2 + 1;
 
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
+  const intersects = raycaster.intersectObjects(pinMeshes);
 
   if (intersects.length > 0) {
     const d = intersects[0].object.__data;
@@ -135,7 +140,7 @@ document.addEventListener('click', e => {
   mouse.y = -(e.clientY / container.clientHeight) * 2 + 1;
 
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(globe.pointsData().map(p => p.__threeObj).filter(Boolean));
+  const intersects = raycaster.intersectObjects(pinMeshes);
 
   if (intersects.length > 0) {
     const d = intersects[0].object.__data;
@@ -143,15 +148,17 @@ document.addEventListener('click', e => {
   }
 });
 
-// === Event list hover + click ===
+// === Event list ===
 if (eventList) {
   eventList.innerHTML = events.map((e, i) => `<li data-index="${i}">${e.date} — ${e.name}</li>`).join('');
+
   eventList.addEventListener('mouseover', e => {
     const li = e.target.closest('li');
     if (!li) return;
     const ev = events[li.dataset.index];
     focusOnEvent(ev);
   });
+
   eventList.addEventListener('click', e => {
     const li = e.target.closest('li');
     if (!li) return;
@@ -163,7 +170,7 @@ if (eventList) {
 function focusOnEvent(ev) {
   const phi = (90 - ev.lat) * Math.PI / 180;
   const theta = (ev.lng + 180) * Math.PI / 180;
-  const radius = 300;
+  const radius = 250;
   const x = radius * Math.sin(phi) * Math.cos(theta);
   const y = radius * Math.cos(phi);
   const z = radius * Math.sin(phi) * Math.sin(theta);

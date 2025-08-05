@@ -2,17 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="description" content="Camoufly Tour – 3D Earth Map" />
+  <meta name="description" content="Camoufly — 3D Tour Map" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Camoufly – Tour Map</title>
   <link rel="stylesheet" href="style.css" />
 
+  <!-- Import map so "three" and "three/addons" work -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/",
+        "three-globe": "https://esm.sh/three-globe@2.31.1?deps=three@0.157.0",
+        "topojson-client": "https://unpkg.com/topojson-client@3?module"
+      }
+    }
+  </script>
+
   <style>
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
       height: 100%;
-      background: black;
+      background: white;
       overflow: hidden;
     }
     #globe-container {
@@ -21,27 +33,17 @@
     }
     #tooltip {
       position: absolute;
-      background: rgba(0, 0, 0, 0.75);
-      color: white;
+      background: rgba(255, 255, 255, 0.95);
+      color: black;
       padding: 8px 12px;
       border-radius: 8px;
       font-size: 14px;
       pointer-events: none;
       z-index: 10;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
   </style>
-
-  <script type="importmap">
-{
-    "imports": {
-        "three": "https://threejs.org/build/three.module.js",
-        "three/addons/": "https://threejs.org/examples/jsm/"
-    }
-}</script>
-
 </head>
 <body>
   <div id="globe-container"></div>

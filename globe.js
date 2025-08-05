@@ -1,94 +1,118 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import ThreeGlobe from "three-globe";
+import * as topojson from "topojson-client";
+
+if (typeof THREE === 'undefined') {
+  alert('Three.js failed to load — check import map in tour3d.html.');
+}
+
+const container = document.getElementById('globe-container');
+const tooltip   = document.getElementById('tooltip');
+
+const events = [
+  { lat: 51.5074, lng: -0.1278, country: 'United Kingdom', name: 'UKF Invites – London', date: 'Aug 6, 2025', link: '#' },
+  { lat: 37.5683, lng: 14.3839, country: 'Italy', name: 'Mosaico Festival – Piazza Armerina', date: 'Aug 8, 2025', link: '#' },
+  { lat: 38.9050, lng: 16.5870, country: 'Italy', name: 'Factory Area Festival – Catanzaro', date: 'Aug 20, 2025', link: '#' },
+  { lat: 52.5200, lng: 13.4050, country: 'Germany', name: 'Lava Festival – Berlin', date: 'Aug 31, 2025', link: '#' },
+  { lat: 48.8566, lng: 2.3522, country: 'France', name: 'Les Nuits de la Bomba – Paris', date: 'Sep 20, 2025', link: '#' }
+];
 
 // === Scene & Camera ===
-const container = document.getElementById('globe-container');
-const tooltip = document.getElementById('tooltip');
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(
-  45,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  2000
-);
-camera.position.set(0, 0, 400);
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(0, 0, 350);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 container.appendChild(renderer.domElement);
 
-// === Lighting ===
-scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-dirLight.position.set(5, 3, 5);
-scene.add(dirLight);
-
-// === Controls ===
+// === Controls (Drag Rotate) ===
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.minDistance = 200;
-controls.maxDistance = 800;
+controls.maxDistance = 500;
+controls.rotateSpeed = 0.8;
+controls.zoomSpeed = 0.6;
+controls.enableZoom = true;
 
-// === Load Textures for Earth ===
-const textureLoader = new THREE.TextureLoader();
-const earthTexture = textureLoader.load('https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg');
-const bumpMap = textureLoader.load('https://threejs.org/examples/textures/earthbump1k.jpg');
+// === Globe ===
+const globe = new ThreeGlobe()
+  .globeImageUrl('') // no texture for white globe
+  .showAtmosphere(false)
+  .showGraticules(false)
+  .pointsData(events)
+  .pointLat('lat')
+  .pointLng('lng')
+  .pointAltitude(0.02)
+  .pointRadius(0.5)
+  .pointColor(() => '#ff4081');
 
-// === Create Earth Sphere ===
-const earthGeometry = new THREE.SphereGeometry(100, 64, 64);
-const earthMaterial = new THREE.MeshPhongMaterial({
-  map: earthTexture,
-  bumpMap: bumpMap,
-  bumpScale: 0.5
-});
-const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
-scene.add(earthMesh);
+// White globe
+globe.globeMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff }));
+scene.add(globe);
 
-// === Event Data ===
-const events = [
-  { lat: 51.5074, lng: -0.1278, name: 'London', date: 'Aug 6, 2025' },
-  { lat: 37.5683, lng: 14.3839, name: 'Piazza Armerina', date: 'Aug 8, 2025' },
-  { lat: 38.9050, lng: 16.5870, name: 'Catanzaro', date: 'Aug 20, 2025' },
-  { lat: 52.5200, lng: 13.4050, name: 'Berlin', date: 'Aug 31, 2025' },
-  { lat: 48.8566, lng: 2.3522, name: 'Paris', date: 'Sep 20, 2025' }
-];
+// === Lighting ===
+scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+dirLight.position.set(1, 1, 1);
+scene.add(dirLight);
 
-// === Add Pins ===
-const pinGeometry = new THREE.SphereGeometry(1.5, 8, 8);
-const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff4081 });
+// === Country borders & event fills ===
+fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
+  .then(res => res.json())
+  .then(worldData => {
+    const countries = topojson.feature(worldData, worldData.objects.countries).features;
+    const eventCountries = new Set(events.map(e => e.country));
 
-events.forEach(event => {
-  const { lat, lng } = event;
-  const phi = (90 - lat) * (Math.PI / 180);
-  const theta = (lng + 180) * (Math.PI / 180);
-  const radius = 100;
+    // Fill event countries light grey
+    globe
+      .hexPolygonsData(countries)
+      .hexPolygonResolution(3)
+      .hexPolygonMargin(0.3)
+      .hexPolygonColor(d => eventCountries.has(d.properties.name) ? '#e0e0e0' : 'rgba(0,0,0,0)');
 
-  const x = radius * Math.sin(phi) * Math.cos(theta);
-  const y = radius * Math.cos(phi);
-  const z = radius * Math.sin(phi) * Math.sin(theta);
+    // Borders
+    const borderMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    countries.forEach(feature => {
+      const coords = feature.geometry.coordinates;
+      (feature.geometry.type === 'MultiPolygon' ? coords : [coords]).forEach(polygon => {
+        polygon.forEach(ring => {
+          const points = ring.map(([lng, lat]) => {
+            const phi = (90 - lat) * Math.PI / 180;
+            const theta = (lng + 180) * Math.PI / 180;
+            const r = 100.1;
+            return new THREE.Vector3(
+              -r * Math.sin(phi) * Math.cos(theta),
+               r * Math.cos(phi),
+               r * Math.sin(phi) * Math.sin(theta)
+            );
+          });
+          const geometry = new THREE.BufferGeometry().setFromPoints(points);
+          const line = new THREE.LineLoop(geometry, borderMaterial);
+          globe.add(line);
+        });
+      });
+    });
+  });
 
-  const pinMesh = new THREE.Mesh(pinGeometry, pinMaterial);
-  pinMesh.position.set(x, y, z);
-  pinMesh.userData = event; // store event info for tooltip
-  scene.add(pinMesh);
-});
-
-// === Raycaster for Tooltips ===
+// === Tooltip / Interaction ===
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-function onMouseMove(event) {
+document.addEventListener('mousemove', event => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(scene.children);
+  const intersects = raycaster.intersectObjects(
+    globe.pointsData().map(p => p.__threeObj).filter(Boolean)
+  );
 
-  const pin = intersects.find(obj => obj.object.geometry.type === 'SphereGeometry' && obj.object.userData.name);
-  if (pin) {
-    const d = pin.object.userData;
+  if (intersects.length > 0) {
+    const d = intersects[0].object.__data;
     tooltip.innerHTML = `<strong>${d.name}</strong><br>${d.date}`;
     tooltip.style.left = event.clientX + 15 + 'px';
     tooltip.style.top = event.clientY + 15 + 'px';
@@ -96,20 +120,33 @@ function onMouseMove(event) {
   } else {
     tooltip.classList.add('hidden');
   }
-}
-window.addEventListener('mousemove', onMouseMove);
-
-// === Resize Handling ===
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// === Animation Loop ===
+container.addEventListener('mouseleave', () => tooltip.classList.add('hidden'));
+
+document.addEventListener('click', event => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(
+    globe.pointsData().map(p => p.__threeObj).filter(Boolean)
+  );
+  if (intersects.length > 0) {
+    const d = intersects[0].object.__data;
+    if (d.link) window.open(d.link, '_blank');
+  }
+});
+
+// === Animate ===
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
 }
 animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});

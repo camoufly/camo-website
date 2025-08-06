@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("script loaded");
+  
   /* =========================
      Button click animation
   ========================= */
@@ -121,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (musicForm) {
     musicForm.addEventListener("submit", async function (event) {
+      console.log("form submitted");
       event.preventDefault();
       if (!fileInput.files.length) return uploadStatus.textContent = "⚠️ Please select a file.";
       if (!artistNameInput.value.trim() || !emailInput.value.trim()) return uploadStatus.textContent = "⚠️ Fill out all fields.";

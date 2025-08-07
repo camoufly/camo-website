@@ -3,9 +3,6 @@ console.log("✅ Script loaded");
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ DOM fully loaded");
 
-  /* =========================
-     Button click animation
-  ========================= */
   const animateButton = (e) => {
     e.preventDefault();
     e.target.classList.remove("animate");
@@ -16,24 +13,21 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", animateButton)
   );
 
-  /* =========================
-     Drag & Drop
-  ========================= */
   const dropArea = document.getElementById("drop-area");
   const fileInput = document.getElementById("input-file");
   const uploadStatus = document.getElementById("uploadStatus");
 
-  ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName =>
-    dropArea.addEventListener(eventName, e => {
+  ["dragenter", "dragover", "dragleave", "drop"].forEach(event =>
+    dropArea.addEventListener(event, e => {
       e.preventDefault();
       e.stopPropagation();
     })
   );
-  ["dragenter", "dragover"].forEach(eventName =>
-    dropArea.addEventListener(eventName, () => dropArea.classList.add("active"))
+  ["dragenter", "dragover"].forEach(event =>
+    dropArea.classList.add("active")
   );
-  ["dragleave", "drop"].forEach(eventName =>
-    dropArea.addEventListener(eventName, () => dropArea.classList.remove("active"))
+  ["dragleave", "drop"].forEach(event =>
+    dropArea.classList.remove("active")
   );
   dropArea.addEventListener("drop", e => {
     const files = e.dataTransfer.files;
@@ -43,30 +37,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  /* =========================
-     File selection status
-  ========================= */
   fileInput?.addEventListener("change", () => {
-    if (fileInput.files.length > 0) {
-      if (fileInput.files.length > 5) {
-        uploadStatus.textContent = "⚠️ You can upload a maximum of 5 files.";
-        fileInput.value = "";
-      } else {
-        uploadStatus.textContent = `📁 ${fileInput.files.length} file(s) selected.`;
-      }
+    if (fileInput.files.length > 5) {
+      uploadStatus.textContent = "⚠️ You can upload a maximum of 5 files.";
+      fileInput.value = "";
     } else {
-      uploadStatus.textContent = "";
+      uploadStatus.textContent = `📁 ${fileInput.files.length} file(s) selected.`;
     }
   });
 
-  /* =========================
-     Upload Logic
-  ========================= */
   const musicForm = document.getElementById("musicForm");
   const artistNameInput = document.getElementById("artistName");
   const emailInput = document.getElementById("email");
 
-  const CHUNK_SIZE = 32 * 1024 * 1024; // 32MB for Pro
+  const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB for Vercel Pro
 
   async function uploadSingleFile(file, index, totalFiles) {
     const now = new Date();
@@ -79,21 +63,25 @@ document.addEventListener("DOMContentLoaded", () => {
       uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Starting upload...`;
       const startRes = await fetch("/api/startUpload", { method: "POST" });
       const startData = await startRes.json();
-      if (!startRes.ok || !startData.session_id) throw new Error(startData.error || "Start session failed");
+      if (!startRes.ok || !startData.session_id) throw new Error(startData.error || "Failed to start upload session");
 
       const sessionId = startData.session_id;
 
       if (file.size <= CHUNK_SIZE) {
         const appendRes = await fetch("/api/appendUpload", {
           method: "POST",
-          headers: { "x-dropbox-session-id": sessionId, "x-dropbox-offset": 0 },
+          headers: { 
+            "x-dropbox-session-id": sessionId,
+            "x-dropbox-offset": 0 
+          },
           body: file
         });
-        if (!appendRes.ok) throw new Error("Upload failed");
+        if (!appendRes.ok) throw new Error("Direct upload failed");
       } else {
         let offset = 0;
         let chunkIndex = 0;
         const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
         while (offset < file.size) {
           const chunk = file.slice(offset, offset + CHUNK_SIZE);
           const appendRes = await fetch("/api/appendUpload", {
@@ -104,7 +92,9 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             body: chunk
           });
+          if (appendRes.status === 413) throw new Error("Chunk too large — try smaller CHUNK_SIZE.");
           if (!appendRes.ok) throw new Error(`Chunk ${chunkIndex + 1} failed`);
+
           offset += CHUNK_SIZE;
           chunkIndex++;
           const percent = Math.min(100, Math.round((chunkIndex / totalChunks) * 100));
@@ -121,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
           dropboxPath
         })
       });
-      if (!finishRes.ok) throw new Error("Finalize failed");
+      if (!finishRes.ok) throw new Error("Failed to finalize upload");
 
       uploadStatus.textContent = `✅ [${index + 1}/${totalFiles}] Finished: ${file.name}`;
     } catch (err) {
@@ -132,7 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (musicForm) {
     console.log("✅ About to bind submit handler");
-
     musicForm.addEventListener("submit", async function (e) {
       console.log("✅ Form submitted");
       e.preventDefault();
@@ -145,7 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
         uploadStatus.textContent = "⚠️ Fill out all fields.";
         return;
       }
-
       const files = Array.from(fileInput.files);
       if (files.length > 5) {
         uploadStatus.textContent = "⚠️ You can upload a maximum of 5 files.";

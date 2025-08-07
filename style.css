@@ -1078,4 +1078,41 @@ transform: scale(0.96);
 }
 .hidden {
   display: none;
+
+}
+
+@media screen and (max-width: 600px) {
+  #drop-area {
+    width: 90vw;           /* Use 90% of the viewport width */
+    height: auto;          /* Let it grow based on content */
+    padding: 20px;         /* Slightly reduced padding */
+  }
+
+  #img-view {
+    padding: 20px 10px;
+  }
+
+  #img-view img {
+    width: 60px;           /* Smaller icon */
+    margin-top: 10px;
+  }
+
+  #img-view span {
+    font-size: 14px;       /* Slightly larger for readability */
+  }
+
+  .hero {
+    padding: 15px;
+    width: 95vw;
+  }
+
+  .form-group input {
+    font-size: 1rem;
+  }
+
+  .upload-button {
+    width: 100%;
+    font-size: 1rem;
+    padding: 12px;
+  }
 }

@@ -1,46 +1,48 @@
-// pages/api/auth.js
-import fetch from 'node-fetch';
+// api/auth.js
+import fetch from "node-fetch";
 
 export default async function handler(req, res) {
   const { code } = req.query;
 
   if (!code) {
-    // Step 1: redirect user to Dropbox auth
-    const params = new URLSearchParams({
-      client_id: process.env.DROPBOX_APP_KEY,
-      response_type: 'code',
-      token_access_type: 'offline',
-      redirect_uri: process.env.DROPBOX_REDIRECT_URI,
-    });
+    const authorizeUrl = new URL("https://www.dropbox.com/oauth2/authorize");
+    authorizeUrl.searchParams.set("response_type", "code");
+    authorizeUrl.searchParams.set("client_id", process.env.DROPBOX_APP_KEY);
+    authorizeUrl.searchParams.set("token_access_type", "offline");
+    authorizeUrl.searchParams.set("redirect_uri", "https://www.camoufly.me/api/auth");
 
-    res.redirect(`https://www.dropbox.com/oauth2/authorize?${params.toString()}`);
-  } else {
-    // Step 2: exchange code for refresh_token
-    const tokenRes = await fetch('https://api.dropboxapi.com/oauth2/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    return res.redirect(authorizeUrl.toString());
+  }
+
+  try {
+    const tokenRes = await fetch("https://api.dropboxapi.com/oauth2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         code,
-        grant_type: 'authorization_code',
+        grant_type: "authorization_code",
         client_id: process.env.DROPBOX_APP_KEY,
         client_secret: process.env.DROPBOX_APP_SECRET,
-        redirect_uri: process.env.DROPBOX_REDIRECT_URI,
-      }),
+        redirect_uri: "https://www.camoufly.me/api/auth"
+      })
     });
 
-    const tokenData = await tokenRes.json();
+    const data = await tokenRes.json();
 
-    if (!tokenData.refresh_token) {
-      return res.status(400).json({ error: 'Failed to get refresh token', details: tokenData });
+    if (!tokenRes.ok) {
+      console.error("❌ Failed to get token:", data);
+      return res.status(500).json({ error: data });
     }
 
-    console.log('✅ Store this in Vercel:', tokenData.refresh_token);
-
-    // In a real app, redirect to a success page
-    res.send(`
-      <h2>🎉 Authorized!</h2>
-      <p>Copy this refresh token and store it in Vercel as:</p>
-      <code>DROPBOX_REFRESH_TOKEN=${tokenData.refresh_token}</code>
-    `);
+    return res.status(200).json({
+      message: "✅ Refresh token generated successfully!",
+      refresh_token: data.refresh_token,
+      access_token: data.access_token,
+      expires_in: data.expires_in,
+      account_id: data.account_id
+    });
+  } catch (err) {
+    console.error("auth error:", err);
+    return res.status(500).json({ error: err.message });
   }
 }

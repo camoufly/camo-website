@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     authorizeUrl.searchParams.set("response_type", "code");
     authorizeUrl.searchParams.set("client_id", process.env.DROPBOX_APP_KEY);
     authorizeUrl.searchParams.set("token_access_type", "offline");
-    authorizeUrl.searchParams.set("redirect_uri", "https://www.camoufly.me/api/auth");
+    authorizeUrl.searchParams.set("redirect_uri", "https://camoufly.me/api/auth");
 
     return res.redirect(authorizeUrl.toString());
   }
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         grant_type: "authorization_code",
         client_id: process.env.DROPBOX_APP_KEY,
         client_secret: process.env.DROPBOX_APP_SECRET,
-        redirect_uri: "https://www.camoufly.me/api/auth"
+        redirect_uri: "https://camoufly.me/api/auth"
       })
     });
 

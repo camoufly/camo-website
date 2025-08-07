@@ -11,10 +11,7 @@
     { "source": "/press", "destination": "/press.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/terms", "destination": "/terms.html" }
-  ]
-}
-
-{
+  ],
   "functions": {
     "api/upload.js": {
       "memory": 1024,

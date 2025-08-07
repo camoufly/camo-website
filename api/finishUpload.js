@@ -1,4 +1,3 @@
-// api/finishUpload.js
 import fetch from "node-fetch";
 import { getAccessToken } from "../lib/dropbox.js";
 
@@ -15,6 +14,12 @@ export default async function handler(req, res) {
       throw new Error("Missing required fields: session_id, offset, dropboxPath");
     }
 
+    console.log("📦 Finishing upload with:", {
+      session_id,
+      offset,
+      dropboxPath
+    });
+
     const finishRes = await fetch("https://content.dropboxapi.com/2/files/upload_session/finish", {
       method: "POST",
       headers: {
@@ -30,7 +35,6 @@ export default async function handler(req, res) {
         }),
         "Content-Type": "application/octet-stream"
       }
-      // No body needed here since chunks are already uploaded
     });
 
     const raw = await finishRes.text();
@@ -42,7 +46,11 @@ export default async function handler(req, res) {
     }
 
     if (!finishRes.ok) {
-      console.error("Dropbox finish error:", raw);
+      console.error("❌ Dropbox finish error:", {
+        status: finishRes.status,
+        statusText: finishRes.statusText,
+        raw
+      });
       throw new Error(data.error_summary || raw || "Failed to finish upload");
     }
 

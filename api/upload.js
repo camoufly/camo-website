@@ -1,4 +1,4 @@
-import { storage } from "@/lib/firebaseAdmin";
+import { storage } from "../lib/firebaseAdmin.js";
 import { Readable } from "stream";
 
 export default async function handler(req, res) {

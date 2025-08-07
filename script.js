@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const artistNameInput = document.getElementById("artistName");
   const emailInput = document.getElementById("email");
 
-  const CHUNK_SIZE = 4 * 1024 * 1024; // Pro plan safe
+  const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB to stay under Vercel API limits
 
   async function uploadSingleFile(file, index, totalFiles) {
     const now = new Date();
@@ -70,70 +70,64 @@ document.addEventListener("DOMContentLoaded", () => {
     const folderPath = `/MusicUploads/${dateFolder}`;
     const extension = file.name.split('.').pop();
     const dropboxPath = `${folderPath}/${artistNameInput.value.trim()} - ${file.name} (${emailInput.value.trim()}).${extension}`;
-    const MAX_SIMPLE_UPLOAD_SIZE = 150 * 1024 * 1024; // 150MB
-  
+
     try {
       uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Starting upload...`;
-  
-      if (file.size <= MAX_SIMPLE_UPLOAD_SIZE) {
-        // ✅ Simple direct upload
-        const uploadRes = await fetch("/api/simpleUpload", {
+
+      const startRes = await fetch("/api/startUpload", { method: "POST" });
+      const startData = await startRes.json();
+      if (!startRes.ok || !startData.session_id) throw new Error(startData.error || "Failed to start upload session");
+      const sessionId = startData.session_id;
+
+      // Chunked upload (only path now)
+      let offset = 0;
+      let chunkIndex = 0;
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      while (offset < file.size) {
+        const chunk = file.slice(offset, offset + CHUNK_SIZE);
+        const appendRes = await fetch("/api/appendUpload", {
           method: "POST",
           headers: {
-            "Content-Type": "application/octet-stream",
-            "x-dropbox-path": dropboxPath
+            "x-dropbox-session-id": sessionId,
+            "x-dropbox-offset": offset
           },
-          body: file
+          body: chunk
         });
-        if (!uploadRes.ok) throw new Error("Simple upload failed");
-  
-      } else {
-        // 🔁 Chunked upload (your existing logic)
-        const startRes = await fetch("/api/startUpload", { method: "POST" });
-        const startData = await startRes.json();
-        if (!startRes.ok || !startData.session_id) throw new Error(startData.error || "Failed to start upload session");
-        const sessionId = startData.session_id;
-  
-        let offset = 0;
-        let chunkIndex = 0;
-        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-        while (offset < file.size) {
-          const chunk = file.slice(offset, offset + CHUNK_SIZE);
-          const appendRes = await fetch("/api/appendUpload", {
-            method: "POST",
-            headers: {
-              "x-dropbox-session-id": sessionId,
-              "x-dropbox-offset": offset
-            },
-            body: chunk
-          });
-          if (!appendRes.ok) throw new Error(`Failed to upload chunk ${chunkIndex + 1}`);
-          offset += CHUNK_SIZE;
-          chunkIndex++;
-          const percent = Math.min(100, Math.round((chunkIndex / totalChunks) * 100));
-          uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading... ${percent}%`;
-        }
-  
-        const finishRes = await fetch("/api/finishUpload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ session_id: sessionId, offset: file.size, dropboxPath })
-        });
-        if (!finishRes.ok) throw new Error("Failed to finish upload");
+        if (!appendRes.ok) throw new Error(`Failed to upload chunk ${chunkIndex + 1}`);
+        offset += CHUNK_SIZE;
+        chunkIndex++;
+        const percent = Math.min(100, Math.round((chunkIndex / totalChunks) * 100));
+        uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading... ${percent}%`;
       }
-  
+
+      const finishRes = await fetch("/api/finishUpload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, offset: file.size, dropboxPath })
+      });
+      if (!finishRes.ok) throw new Error("Failed to finish upload");
+
       uploadStatus.textContent = `✅ [${index + 1}/${totalFiles}] Finished: ${file.name}`;
     } catch (err) {
       uploadStatus.textContent = `❌ [${index + 1}/${totalFiles}] Failed: ${err.message}`;
     }
   }
 
-
   if (musicForm) {
     musicForm.addEventListener("submit", async function (event) {
       event.preventDefault();
-      if (!fileInput.files.length) return uploadStatus.textContent = "⚠️ Please select a file.";
-      if (!artistNameInput.value.trim() || !emailInput.value.trim()) return uploadStatus.textContent = "⚠️ Fill out all fields.";
+      if (!fileInput.files.length) {
+        uploadStatus.textContent = "⚠️ Please select a file.";
+        return;
+      }
+      if (fileInput.files.length > 5) {
+        uploadStatus.textContent = "⚠️ You can upload a maximum of 5 files.";
+        return;
+      }
+      if (!artistNameInput.value.trim() || !emailInput.value.trim()) {
+        uploadStatus.textContent = "⚠️ Fill out all fields.";
+        return;
+      }
       const files = Array.from(fileInput.files);
       for (let i = 0; i < files.length; i++) {
         await uploadSingleFile(files[i], i, files.length);

@@ -1,4 +1,4 @@
-// pages/api/finishUpload.js
+// api/finishUpload.js
 import fetch from "node-fetch";
 import { getAccessToken } from "../lib/dropbox.js";
 
@@ -29,13 +29,21 @@ export default async function handler(req, res) {
           }
         }),
         "Content-Type": "application/octet-stream"
-      },
-      body: ""
+      }
+      // No body needed here since chunks are already uploaded
     });
 
-    const data = await finishRes.json();
+    const raw = await finishRes.text();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = {};
+    }
+
     if (!finishRes.ok) {
-      throw new Error(data.error_summary || "Failed to finish upload");
+      console.error("Dropbox finish error:", raw);
+      throw new Error(data.error_summary || raw || "Failed to finish upload");
     }
 
     res.status(200).json({ success: true, file: data });

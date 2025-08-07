@@ -18,6 +18,43 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Dropbox token not configured." });
   }
 
+  // === Check if this is a chunked request with headers ===
+  const session_id_header = req.headers["x-dropbox-session-id"];
+  const offset_header = req.headers["x-dropbox-offset"];
+
+  if (session_id_header && offset_header) {
+    // 🔁 Chunked binary stream (from script.js > 100MB)
+    const chunks = [];
+    for await (const chunk of req) {
+      chunks.push(chunk);
+    }
+    const buffer = Buffer.concat(chunks);
+
+    const appendRes = await fetch("https://content.dropboxapi.com/2/files/upload_session/append_v2", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${DROPBOX_PERMANENT_TOKEN}`,
+        "Dropbox-API-Arg": JSON.stringify({
+          cursor: {
+            session_id: session_id_header,
+            offset: parseInt(offset_header)
+          },
+          close: false
+        }),
+        "Content-Type": "application/octet-stream"
+      },
+      body: buffer
+    });
+
+    if (!appendRes.ok) {
+      const errText = await appendRes.text();
+      return res.status(appendRes.status).json({ error: `Append failed: ${errText}` });
+    }
+
+    return res.status(200).json({ success: true });
+  }
+
+  // === Otherwise treat it as FormData (direct upload) ===
   const form = new IncomingForm();
 
   form.parse(req, async (err, fields, files) => {
@@ -27,7 +64,7 @@ export default async function handler(req, res) {
     }
 
     const { file } = files;
-    const { dropboxPath, session_id, offset } = fields;
+    const { dropboxPath } = fields;
 
     if (!file || !dropboxPath) {
       return res.status(400).json({ error: "Missing file or dropboxPath" });
@@ -37,58 +74,27 @@ export default async function handler(req, res) {
     const fileSize = fileBuffer.length;
 
     try {
-      if (fileSize <= 100 * 1024 * 1024 && !session_id) {
-        // ✅ Direct upload to Dropbox
-        const uploadRes = await fetch("https://content.dropboxapi.com/2/files/upload", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${DROPBOX_PERMANENT_TOKEN}`,
-            "Dropbox-API-Arg": JSON.stringify({
-              path: dropboxPath,
-              mode: "add",
-              autorename: true,
-              mute: false
-            }),
-            "Content-Type": "application/octet-stream"
-          },
-          body: fileBuffer
-        });
+      const uploadRes = await fetch("https://content.dropboxapi.com/2/files/upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${DROPBOX_PERMANENT_TOKEN}`,
+          "Dropbox-API-Arg": JSON.stringify({
+            path: dropboxPath,
+            mode: "add",
+            autorename: true,
+            mute: false
+          }),
+          "Content-Type": "application/octet-stream"
+        },
+        body: fileBuffer
+      });
 
-        if (!uploadRes.ok) {
-          const errorText = await uploadRes.text();
-          return res.status(uploadRes.status).json({ error: errorText });
-        }
-
-        return res.status(200).json({ success: true });
-      } else {
-        // ✅ Append chunk to upload session
-        if (!session_id || isNaN(parseInt(offset))) {
-          return res.status(400).json({ error: "Missing session_id or offset" });
-        }
-
-        const appendRes = await fetch("https://content.dropboxapi.com/2/files/upload_session/append_v2", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${DROPBOX_PERMANENT_TOKEN}`,
-            "Dropbox-API-Arg": JSON.stringify({
-              cursor: {
-                session_id,
-                offset: parseInt(offset)
-              },
-              close: false
-            }),
-            "Content-Type": "application/octet-stream"
-          },
-          body: fileBuffer
-        });
-
-        if (!appendRes.ok) {
-          const errText = await appendRes.text();
-          return res.status(appendRes.status).json({ error: `Append failed: ${errText}` });
-        }
-
-        return res.status(200).json({ success: true });
+      if (!uploadRes.ok) {
+        const errorText = await uploadRes.text();
+        return res.status(uploadRes.status).json({ error: errorText });
       }
+
+      return res.status(200).json({ success: true });
     } catch (err) {
       console.error("Upload error:", err);
       return res.status(500).json({ error: "Internal upload error" });

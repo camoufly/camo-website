@@ -56,60 +56,30 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* =========================
-     Music Upload to Dropbox
+     Music Upload to Dropbox (via Vercel)
   ========================= */
   const musicForm = document.getElementById("musicForm");
   const artistNameInput = document.getElementById("artistName");
   const emailInput = document.getElementById("email");
 
-  const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB to stay under Vercel API limits
-
   async function uploadSingleFile(file, index, totalFiles) {
-    const now = new Date();
-    const dateFolder = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-    const folderPath = `/MusicUploads/${dateFolder}`;
-    const extension = file.name.split('.').pop();
-    const dropboxPath = `${folderPath}/${artistNameInput.value.trim()} - ${file.name} (${emailInput.value.trim()}).${extension}`;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("artist", artistNameInput.value.trim());
+    formData.append("email", emailInput.value.trim());
 
-    try {
-      uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Starting upload...`;
+    uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading...`;
 
-      const startRes = await fetch("/api/startUpload", { method: "POST" });
-      const startData = await startRes.json();
-      if (!startRes.ok || !startData.session_id) throw new Error(startData.error || "Failed to start upload session");
-      const sessionId = startData.session_id;
+    const res = await fetch("/api/uploadFile", {
+      method: "POST",
+      body: formData,
+    });
 
-      // Chunked upload (only path now)
-      let offset = 0;
-      let chunkIndex = 0;
-      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-      while (offset < file.size) {
-        const chunk = file.slice(offset, offset + CHUNK_SIZE);
-        const appendRes = await fetch("/api/appendUpload", {
-          method: "POST",
-          headers: {
-            "x-dropbox-session-id": sessionId,
-            "x-dropbox-offset": offset
-          },
-          body: chunk
-        });
-        if (!appendRes.ok) throw new Error(`Failed to upload chunk ${chunkIndex + 1}`);
-        offset += CHUNK_SIZE;
-        chunkIndex++;
-        const percent = Math.min(100, Math.round((chunkIndex / totalChunks) * 100));
-        uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading... ${percent}%`;
-      }
-
-      const finishRes = await fetch("/api/finishUpload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, offset: file.size, dropboxPath })
-      });
-      if (!finishRes.ok) throw new Error("Failed to finish upload");
-
+    const result = await res.json();
+    if (!res.ok) {
+      uploadStatus.textContent = `❌ [${index + 1}/${totalFiles}] Failed: ${result.error || "Upload failed"}`;
+    } else {
       uploadStatus.textContent = `✅ [${index + 1}/${totalFiles}] Finished: ${file.name}`;
-    } catch (err) {
-      uploadStatus.textContent = `❌ [${index + 1}/${totalFiles}] Failed: ${err.message}`;
     }
   }
 

@@ -135,7 +135,6 @@ document.addEventListener("DOMContentLoaded", () => {
       
       musicForm.addEventListener("submit", async function (e) {
         console.log("✅ Form submitted"); // << does this show up?
-        ...
       });
       e.preventDefault();
       if (!fileInput.files.length) return uploadStatus.textContent = "⚠️ Please select a file.";

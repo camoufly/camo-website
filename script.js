@@ -131,9 +131,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (musicForm) {
-    console.log("✅ musicForm:", musicForm);
-    musicForm.addEventListener("submit", async function (e) {
-      console.log("✅ Form submitted");
+      console.log("✅ About to bind submit handler");
+      
+      musicForm.addEventListener("submit", async function (e) {
+        console.log("✅ Form submitted"); // << does this show up?
+        ...
+      });
       e.preventDefault();
       if (!fileInput.files.length) return uploadStatus.textContent = "⚠️ Please select a file.";
       if (!artistNameInput.value.trim() || !emailInput.value.trim())

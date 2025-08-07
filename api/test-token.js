@@ -10,8 +10,10 @@ export default async function handler(req, res) {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"
-      }
+      },
+      body: JSON.stringify({})  // ✅ FIXED: must send an empty JSON body
     });
+
 
     const raw = await info.text();
     let data;

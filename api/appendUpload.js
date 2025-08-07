@@ -1,22 +1,12 @@
-import formidable from "formidable";
+import { IncomingForm } from "formidable";
+import fs from "fs/promises";
 import fetch from "node-fetch";
 
 export const config = {
   api: {
-    bodyParser: false, // Required to manually parse incoming stream
-    externalResolver: true,
-  },
+    bodyParser: false
+  }
 };
-
-// Buffer binary body manually (for chunked upload)
-function bufferRequest(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    req.on("data", (chunk) => chunks.push(chunk));
-    req.on("end", () => resolve(Buffer.concat(chunks)));
-    req.on("error", reject);
-  });
-}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -28,62 +18,27 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Dropbox token not configured." });
   }
 
-  const isChunked = req.headers["x-dropbox-session-id"];
+  const form = new IncomingForm();
 
-  try {
-    if (isChunked) {
-      // === 🔄 Handle chunked upload ===
-      const sessionId = req.headers["x-dropbox-session-id"];
-      const offset = parseInt(req.headers["x-dropbox-offset"], 10);
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      console.error("Formidable error:", err);
+      return res.status(400).json({ error: "File parsing error" });
+    }
 
-      if (!sessionId || isNaN(offset)) {
-        return res.status(400).json({ error: "Missing headers: x-dropbox-session-id or x-dropbox-offset" });
-      }
+    const { file } = files;
+    const { dropboxPath, session_id, offset } = fields;
 
-      const binaryData = await bufferRequest(req);
+    if (!file || !dropboxPath) {
+      return res.status(400).json({ error: "Missing file or dropboxPath" });
+    }
 
-      const appendRes = await fetch("https://content.dropboxapi.com/2/files/upload_session/append_v2", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${DROPBOX_PERMANENT_TOKEN}`,
-          "Dropbox-API-Arg": JSON.stringify({
-            cursor: { session_id: sessionId, offset },
-            close: false
-          }),
-          "Content-Type": "application/octet-stream"
-        },
-        body: binaryData
-      });
+    const fileBuffer = await fs.readFile(file.filepath);
+    const fileSize = fileBuffer.length;
 
-      if (!appendRes.ok) {
-        const text = await appendRes.text();
-        if (appendRes.status === 413) {
-          return res.status(413).json({ error: "Payload too large. Try a smaller chunk." });
-        }
-        throw new Error(text);
-      }
-
-      return res.status(200).json({ success: true });
-
-    } else {
-      // === 📦 Handle direct upload (FormData) ===
-      const form = new formidable.IncomingForm({ maxFileSize: 100 * 1024 * 1024 }); // 100MB limit
-
-      form.parse(req, async (err, fields, files) => {
-        if (err) {
-          console.error("❌ Formidable parse error:", err);
-          return res.status(400).json({ error: "Failed to parse upload form data." });
-        }
-
-        const { dropboxPath } = fields;
-        const file = files.file?.[0] || files.file;
-
-        if (!dropboxPath || !file?.filepath) {
-          return res.status(400).json({ error: "Missing file or dropboxPath" });
-        }
-
-        const fileBuffer = await fs.promises.readFile(file.filepath);
-
+    try {
+      if (fileSize <= 100 * 1024 * 1024 && !session_id) {
+        // ✅ Direct upload to Dropbox
         const uploadRes = await fetch("https://content.dropboxapi.com/2/files/upload", {
           method: "POST",
           headers: {
@@ -100,15 +55,43 @@ export default async function handler(req, res) {
         });
 
         if (!uploadRes.ok) {
-          const text = await uploadRes.text();
-          throw new Error(text);
+          const errorText = await uploadRes.text();
+          return res.status(uploadRes.status).json({ error: errorText });
         }
 
         return res.status(200).json({ success: true });
-      });
+      } else {
+        // ✅ Append chunk to upload session
+        if (!session_id || isNaN(parseInt(offset))) {
+          return res.status(400).json({ error: "Missing session_id or offset" });
+        }
+
+        const appendRes = await fetch("https://content.dropboxapi.com/2/files/upload_session/append_v2", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${DROPBOX_PERMANENT_TOKEN}`,
+            "Dropbox-API-Arg": JSON.stringify({
+              cursor: {
+                session_id,
+                offset: parseInt(offset)
+              },
+              close: false
+            }),
+            "Content-Type": "application/octet-stream"
+          },
+          body: fileBuffer
+        });
+
+        if (!appendRes.ok) {
+          const errText = await appendRes.text();
+          return res.status(appendRes.status).json({ error: `Append failed: ${errText}` });
+        }
+
+        return res.status(200).json({ success: true });
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      return res.status(500).json({ error: "Internal upload error" });
     }
-  } catch (error) {
-    console.error("❌ Upload error:", error.message);
-    return res.status(500).json({ error: error.message });
-  }
+  });
 }

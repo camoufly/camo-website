@@ -1,6 +1,6 @@
 // pages/api/finishUpload.js
 import fetch from "node-fetch";
-import { getAccessToken } from "../lib/dropbox";
+import { getAccessToken } from "../lib/dropbox.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {

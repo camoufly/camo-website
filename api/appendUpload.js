@@ -1,6 +1,6 @@
 // pages/api/appendUpload.js
 import fetch from "node-fetch";
-import { getAccessToken } from "../lib/dropbox";
+import { getAccessToken } from "../lib/dropbox.js";
 
 export const config = {
   api: {

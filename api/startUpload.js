@@ -1,6 +1,6 @@
 // pages/api/startUpload.js
 import fetch from "node-fetch";
-import { getAccessToken } from "../../lib/dropbox";
+import { getAccessToken } from "../lib/dropbox";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -17,25 +17,17 @@ export default async function handler(req, res) {
         "Dropbox-API-Arg": JSON.stringify({ close: false }),
         "Content-Type": "application/octet-stream"
       },
-      body: "" // Just opening a session
+      body: ""
     });
 
-    const raw = await startRes.text();
-    let data;
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      data = { error_summary: raw };
-    }
-
+    const data = await startRes.json();
     if (!startRes.ok) {
-      console.error("❌ Dropbox returned error:", data);
       throw new Error(data.error_summary || "Failed to start upload session");
     }
 
     res.status(200).json({ session_id: data.session_id });
   } catch (error) {
-    console.error("❌ startUpload error:", error);
+    console.error("startUpload error:", error);
     res.status(500).json({ error: error.message });
   }
 }

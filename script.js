@@ -3,6 +3,7 @@ console.log("✅ Script loaded");
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ DOM fully loaded");
 
+  // Grab DOM elements
   const musicForm = document.getElementById("musicForm");
   const inputFile = document.getElementById("input-file");
   const uploadStatus = document.getElementById("uploadStatus");
@@ -11,12 +12,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const fileInfo = document.createElement("p");
   imgView.appendChild(fileInfo);
 
+  // Ensure all required elements exist
   if (!musicForm || !inputFile || !uploadStatus || !dropArea) {
     console.error("❌ Missing form, input, status, or drop area element");
     return;
   }
 
-  // Show number of files selected
+  // === 📁 Display file selection status ===
   function updateFileInfoDisplay() {
     const count = inputFile.files.length;
     if (count === 0) {
@@ -28,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Handle drag & drop
+  // === 🎯 Drag and drop logic ===
   ["dragenter", "dragover"].forEach(eventName => {
     dropArea.addEventListener(eventName, (e) => {
       e.preventDefault();
@@ -59,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   inputFile.addEventListener("change", updateFileInfoDisplay);
 
+  // === 🚀 Upload form submission logic ===
   musicForm.addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -86,21 +89,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const fileCount = `${i + 1}/${files.length}`;
+      const fileIndex = i + 1;
+      const totalFiles = files.length;
       const statusLine = document.createElement("div");
-      statusLine.textContent = `${fileCount} Starting upload...`;
+      statusLine.textContent = `${fileIndex}/${totalFiles} Starting upload...`;
       uploadStatus.appendChild(statusLine);
 
       try {
         await uploadSingleFile(file, artistName, email, (percent) => {
-          statusLine.textContent = `${fileCount} Uploading... ${percent}%`;
+          statusLine.textContent = `${fileIndex}/${totalFiles} Uploading... ${percent}%`;
         });
 
-        statusLine.textContent = `${fileCount} Upload complete`;
+        statusLine.textContent = `${fileIndex}/${totalFiles} Upload complete`;
         successCount++;
       } catch (error) {
         console.error("Upload failed:", error);
-        statusLine.textContent = `${fileCount} Upload failed`;
+        statusLine.textContent = `${fileIndex}/${totalFiles} Upload failed`;
       }
     }
 
@@ -111,51 +115,69 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // === 📦 Upload a single file ===
   async function uploadSingleFile(file, artistName, email, onProgress) {
-    const CHUNK_SIZE = 8 * 1024 * 1024; // 8MB
-    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-
-    const startRes = await fetch("/api/startUpload", { method: "POST" });
-    const { session_id } = await startRes.json();
-
-    if (!session_id) throw new Error("Failed to start upload session");
-
-    let offset = 0;
-
-    while (offset < file.size) {
-      const chunk = file.slice(offset, offset + CHUNK_SIZE);
-
-      const appendRes = await fetch("/api/appendUpload", {
-        method: "POST",
-        headers: {
-          "x-dropbox-session-id": session_id,
-          "x-dropbox-offset": offset.toString()
-        },
-        body: chunk
-      });
-
-      if (!appendRes.ok) {
-        const errText = await appendRes.text();
-        throw new Error(`Append failed: ${errText}`);
-      }
-
-      offset += chunk.size;
-      const percent = Math.min(Math.floor((offset / file.size) * 100), 100);
-      if (onProgress) onProgress(percent);
-    }
-
+    const CHUNK_SIZE = 3 * 1024 * 1024; // 3MB
     const dropboxPath = `/submissions/${artistName}_${Date.now()}_${file.name}`;
 
-    const finishRes = await fetch("/api/finishUpload", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id, offset, dropboxPath })
-    });
+    if (file.size <= 100 * 1024 * 1024) {
+      // === Direct upload for files <= 100MB ===
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("dropboxPath", dropboxPath);
 
-    const finishData = await finishRes.json();
+      const directRes = await fetch("/api/appendUpload", {
+        method: "POST",
+        body: formData,
+      });
 
-    if (!finishRes.ok || !finishData.success) {
-      throw new Error(finishData.error || "Failed to finish upload");
+      const json = await directRes.json();
+      if (!directRes.ok || !json.success) {
+        throw new Error(json.error || "Direct upload failed");
+      }
+
+      if (onProgress) onProgress(100); // instantly complete
+    } else {
+      // === Chunked upload for files > 100MB ===
+      const startRes = await fetch("/api/startUpload", { method: "POST" });
+      const { session_id } = await startRes.json();
+
+      if (!session_id) throw new Error("Failed to start upload session");
+
+      let offset = 0;
+      while (offset < file.size) {
+        const chunk = file.slice(offset, offset + CHUNK_SIZE);
+
+        const appendRes = await fetch("/api/appendUpload", {
+          method: "POST",
+          headers: {
+            "x-dropbox-session-id": session_id,
+            "x-dropbox-offset": offset.toString()
+          },
+          body: chunk
+        });
+
+        if (!appendRes.ok) {
+          const errText = await appendRes.text();
+          throw new Error(`Append failed: ${errText}`);
+        }
+
+        offset += chunk.size;
+        const percent = Math.min(Math.floor((offset / file.size) * 100), 100);
+        if (onProgress) onProgress(percent);
+      }
+
+      const finishRes = await fetch("/api/finishUpload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id, offset, dropboxPath })
+      });
+
+      const finishData = await finishRes.json();
+
+      if (!finishRes.ok || !finishData.success) {
+        throw new Error(finishData.error || "Failed to finish upload");
+      }
     }
   }
 });

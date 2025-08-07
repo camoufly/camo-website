@@ -131,15 +131,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (musicForm) {
-      console.log("✅ About to bind submit handler");
-      
-      musicForm.addEventListener("submit", async function (e) {
-        console.log("✅ Form submitted"); // << does this show up?
-      });
+    console.log("✅ About to bind submit handler");
+
+    musicForm.addEventListener("submit", async function (e) {
+      console.log("✅ Form submitted");
       e.preventDefault();
-      if (!fileInput.files.length) return uploadStatus.textContent = "⚠️ Please select a file.";
-      if (!artistNameInput.value.trim() || !emailInput.value.trim())
-        return uploadStatus.textContent = "⚠️ Fill out all fields.";
+
+      if (!fileInput.files.length) {
+        uploadStatus.textContent = "⚠️ Please select a file.";
+        return;
+      }
+      if (!artistNameInput.value.trim() || !emailInput.value.trim()) {
+        uploadStatus.textContent = "⚠️ Fill out all fields.";
+        return;
+      }
 
       const files = Array.from(fileInput.files);
       if (files.length > 5) {

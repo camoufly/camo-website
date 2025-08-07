@@ -3,37 +3,31 @@ console.log("✅ Script loaded");
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ DOM fully loaded");
 
-  const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB safe for Vercel Pro
-
-  const musicForm = document.getElementById("musicForm");
-  const fileInput = document.getElementById("input-file");
-  const artistNameInput = document.getElementById("artistName");
-  const emailInput = document.getElementById("email");
-  const uploadStatus = document.getElementById("uploadStatus");
-
-  // Animate button
+  const animateButton = (e) => {
+    e.preventDefault();
+    e.target.classList.remove("animate");
+    e.target.classList.add("animate");
+    setTimeout(() => e.target.classList.remove("animate"), 700);
+  };
   document.querySelectorAll(".button").forEach(btn =>
-    btn.addEventListener("click", e => {
-      e.preventDefault();
-      btn.classList.remove("animate");
-      btn.classList.add("animate");
-      setTimeout(() => btn.classList.remove("animate"), 700);
-    })
+    btn.addEventListener("click", animateButton)
   );
 
-  // Drag & Drop functionality
   const dropArea = document.getElementById("drop-area");
-  ["dragenter", "dragover", "dragleave", "drop"].forEach(event =>
-    dropArea.addEventListener(event, e => {
+  const fileInput = document.getElementById("input-file");
+  const uploadStatus = document.getElementById("uploadStatus");
+
+  ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName =>
+    dropArea.addEventListener(eventName, e => {
       e.preventDefault();
       e.stopPropagation();
     })
   );
-  ["dragenter", "dragover"].forEach(event =>
-    dropArea.addEventListener(event, () => dropArea.classList.add("active"))
+  ["dragenter", "dragover"].forEach(eventName =>
+    dropArea.addEventListener(eventName, () => dropArea.classList.add("active"))
   );
-  ["dragleave", "drop"].forEach(event =>
-    dropArea.addEventListener(event, () => dropArea.classList.remove("active"))
+  ["dragleave", "drop"].forEach(eventName =>
+    dropArea.addEventListener(eventName, () => dropArea.classList.remove("active"))
   );
   dropArea.addEventListener("drop", e => {
     const files = e.dataTransfer.files;
@@ -43,15 +37,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // File selection status
   fileInput?.addEventListener("change", () => {
-    if (fileInput.files.length > 5) {
-      uploadStatus.textContent = "⚠️ You can upload a maximum of 5 files.";
-      fileInput.value = "";
-      return;
+    if (fileInput.files.length > 0) {
+      if (fileInput.files.length > 5) {
+        uploadStatus.textContent = "Too many files. Maximum allowed is 5.";
+        fileInput.value = "";
+      } else {
+        uploadStatus.textContent = `${fileInput.files.length} file(s) selected.`;
+      }
+    } else {
+      uploadStatus.textContent = "";
     }
-    uploadStatus.textContent = `📁 ${fileInput.files.length} file(s) selected.`;
   });
+
+  const musicForm = document.getElementById("musicForm");
+  const artistNameInput = document.getElementById("artistName");
+  const emailInput = document.getElementById("email");
+  const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB max size per upload chunk
 
   async function uploadSingleFile(file, index, totalFiles) {
     const now = new Date();
@@ -61,8 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const dropboxPath = `${folderPath}/${artistNameInput.value.trim()} - ${file.name} (${emailInput.value.trim()}).${extension}`;
 
     try {
-      uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Starting upload...`;
-
+      uploadStatus.textContent = `[${index + 1}/${totalFiles}] Starting upload...`;
       const startRes = await fetch("/api/startUpload", { method: "POST" });
       const startData = await startRes.json();
       if (!startRes.ok || !startData.session_id) throw new Error(startData.error || "Start session failed");
@@ -70,8 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const sessionId = startData.session_id;
 
       if (file.size <= CHUNK_SIZE) {
-        // Direct small upload
-        const appendRes = await fetch("/api/appendUpload", {
+        const res = await fetch("/api/appendUpload", {
           method: "POST",
           headers: {
             "x-dropbox-session-id": sessionId,
@@ -79,18 +79,14 @@ document.addEventListener("DOMContentLoaded", () => {
           },
           body: file
         });
-
-        if (!appendRes.ok) throw new Error("Upload failed");
-        uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading... 100%`;
+        if (!res.ok) throw new Error("Upload failed for small file.");
       } else {
-        // Chunked upload
         let offset = 0;
         let chunkIndex = 0;
         const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-
         while (offset < file.size) {
           const chunk = file.slice(offset, offset + CHUNK_SIZE);
-          const appendRes = await fetch("/api/appendUpload", {
+          const res = await fetch("/api/appendUpload", {
             method: "POST",
             headers: {
               "x-dropbox-session-id": sessionId,
@@ -98,16 +94,11 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             body: chunk
           });
-
-          if (!appendRes.ok) {
-            const errText = await appendRes.text();
-            throw new Error(`Chunk ${chunkIndex + 1} failed — ${errText}`);
-          }
-
+          if (!res.ok) throw new Error(`Upload failed at chunk ${chunkIndex + 1}`);
           offset += CHUNK_SIZE;
           chunkIndex++;
           const percent = Math.min(100, Math.round((chunkIndex / totalChunks) * 100));
-          uploadStatus.textContent = `📤 [${index + 1}/${totalFiles}] Uploading... ${percent}%`;
+          uploadStatus.textContent = `[${index + 1}/${totalFiles}] Uploading... ${percent}%`;
         }
       }
 
@@ -120,46 +111,51 @@ document.addEventListener("DOMContentLoaded", () => {
           dropboxPath
         })
       });
+      if (!finishRes.ok) throw new Error("Finalize failed");
 
-      if (!finishRes.ok) {
-        const errText = await finishRes.text();
-        throw new Error(`Finalize failed: ${errText}`);
-      }
-
-      uploadStatus.textContent = `✅ [${index + 1}/${totalFiles}] Finished: ${file.name}`;
+      uploadStatus.textContent = `[${index + 1}/${totalFiles}] Upload complete: ${file.name}`;
+      return true;
     } catch (err) {
-      console.error("Upload error:", err.message);
-      uploadStatus.textContent = `❌ [${index + 1}/${totalFiles}] Failed: ${err.message}`;
+      console.error(err);
+      uploadStatus.textContent = `[${index + 1}/${totalFiles}] Failed: ${err.message}`;
+      return false;
     }
   }
 
-  // Submit handler
   if (musicForm) {
-    console.log("✅ Binding form submit");
     musicForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-      console.log("✅ Form submitted");
 
       if (!fileInput.files.length) {
-        uploadStatus.textContent = "⚠️ Please select a file.";
+        uploadStatus.textContent = "Please select a file to upload.";
         return;
       }
+
       if (!artistNameInput.value.trim() || !emailInput.value.trim()) {
-        uploadStatus.textContent = "⚠️ Please fill out all fields.";
+        uploadStatus.textContent = "Please fill in all fields.";
         return;
       }
 
       const files = Array.from(fileInput.files);
       if (files.length > 5) {
-        uploadStatus.textContent = "⚠️ Max 5 files.";
+        uploadStatus.textContent = "You can upload a maximum of 5 files.";
         return;
       }
 
+      uploadStatus.textContent = "Preparing upload...";
+      let successCount = 0;
+
       for (let i = 0; i < files.length; i++) {
-        await uploadSingleFile(files[i], i, files.length);
+        const success = await uploadSingleFile(files[i], i, files.length);
+        if (success) successCount++;
       }
 
-      uploadStatus.textContent += " 🎉 All uploads completed!";
+      if (successCount === files.length) {
+        uploadStatus.textContent = `All uploads completed successfully.`;
+      } else {
+        uploadStatus.textContent += ` Some uploads failed.`;
+      }
+
       fileInput.value = "";
       artistNameInput.value = "";
       emailInput.value = "";

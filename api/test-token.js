@@ -1,5 +1,5 @@
 // pages/api/test-token.js
-import { getAccessToken } from "../../lib/dropbox";
+import { getAccessToken } from "../lib/dropbox.js";
 
 export default async function handler(req, res) {
   try {

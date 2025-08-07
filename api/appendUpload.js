@@ -1,8 +1,10 @@
+// pages/api/appendUpload.js
 import fetch from "node-fetch";
+import { getAccessToken } from "../../lib/dropbox";
 
 export const config = {
   api: {
-    bodyParser: false // We are streaming binary data
+    bodyParser: false
   }
 };
 
@@ -12,10 +14,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const DROPBOX_PERMANENT_TOKEN = process.env.DROPBOX_PERMANENT_TOKEN;
-    if (!DROPBOX_PERMANENT_TOKEN) {
-      throw new Error("Dropbox permanent token not configured.");
-    }
+    const accessToken = await getAccessToken();
 
     const sessionId = req.headers["x-dropbox-session-id"];
     const offset = parseInt(req.headers["x-dropbox-offset"], 10);
@@ -27,14 +26,14 @@ export default async function handler(req, res) {
     const appendRes = await fetch("https://content.dropboxapi.com/2/files/upload_session/append_v2", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${DROPBOX_PERMANENT_TOKEN}`,
+        Authorization: `Bearer ${accessToken}`,
         "Dropbox-API-Arg": JSON.stringify({
           cursor: { session_id: sessionId, offset },
           close: false
         }),
         "Content-Type": "application/octet-stream"
       },
-      body: req // Pass binary directly
+      body: req
     });
 
     if (!appendRes.ok) {

@@ -1,4 +1,6 @@
+// pages/api/startUpload.js
 import fetch from "node-fetch";
+import { getAccessToken } from "../../lib/dropbox";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -6,20 +8,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const DROPBOX_PERMANENT_TOKEN = process.env.DROPBOX_PERMANENT_TOKEN;
-    if (!DROPBOX_PERMANENT_TOKEN) {
-      throw new Error("Dropbox permanent token not configured.");
-    }
+    const accessToken = await getAccessToken();
 
-    // Start a new Dropbox upload session
     const startRes = await fetch("https://content.dropboxapi.com/2/files/upload_session/start", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${DROPBOX_PERMANENT_TOKEN}`,
+        Authorization: `Bearer ${accessToken}`,
         "Dropbox-API-Arg": JSON.stringify({ close: false }),
         "Content-Type": "application/octet-stream"
       },
-      body: "" // No content yet, just opening a session
+      body: ""
     });
 
     const data = await startRes.json();

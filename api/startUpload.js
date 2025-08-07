@@ -17,17 +17,25 @@ export default async function handler(req, res) {
         "Dropbox-API-Arg": JSON.stringify({ close: false }),
         "Content-Type": "application/octet-stream"
       },
-      body: ""
+      body: "" // Just opening a session
     });
 
-    const data = await startRes.json();
+    const raw = await startRes.text();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = { error_summary: raw };
+    }
+
     if (!startRes.ok) {
+      console.error("❌ Dropbox returned error:", data);
       throw new Error(data.error_summary || "Failed to start upload session");
     }
 
     res.status(200).json({ session_id: data.session_id });
   } catch (error) {
-    console.error("startUpload error:", error);
+    console.error("❌ startUpload error:", error);
     res.status(500).json({ error: error.message });
   }
 }

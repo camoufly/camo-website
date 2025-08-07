@@ -8,13 +8,12 @@ export default async function handler(req, res) {
   try {
     const DROPBOX_PERMANENT_TOKEN = process.env.DROPBOX_PERMANENT_TOKEN;
     if (!DROPBOX_PERMANENT_TOKEN) {
-      throw new Error("❌ Dropbox token is missing from environment variables.");
+      throw new Error("Dropbox permanent token not configured.");
     }
 
     const { session_id, offset, dropboxPath } = req.body;
-
     if (!session_id || typeof offset !== "number" || !dropboxPath) {
-      throw new Error("❌ Missing required fields: session_id, offset, or dropboxPath.");
+      throw new Error("Missing required fields: session_id, offset, dropboxPath");
     }
 
     const finishRes = await fetch("https://content.dropboxapi.com/2/files/upload_session/finish", {
@@ -22,10 +21,7 @@ export default async function handler(req, res) {
       headers: {
         Authorization: `Bearer ${DROPBOX_PERMANENT_TOKEN}`,
         "Dropbox-API-Arg": JSON.stringify({
-          cursor: {
-            session_id,
-            offset
-          },
+          cursor: { session_id, offset },
           commit: {
             path: dropboxPath,
             mode: "add",
@@ -35,21 +31,17 @@ export default async function handler(req, res) {
         }),
         "Content-Type": "application/octet-stream"
       },
-      body: "" // Dropbox expects empty body here, just a final commit
+      body: ""
     });
 
     const data = await finishRes.json();
-
     if (!finishRes.ok) {
-      console.error("❌ Dropbox upload_session/finish failed:", JSON.stringify(data, null, 2));
-      throw new Error(data.error_summary || "Failed to finish upload session.");
+      throw new Error(data.error_summary || "Failed to finish upload");
     }
-
-    console.log("✅ Upload finished successfully:", data);
 
     res.status(200).json({ success: true, file: data });
   } catch (error) {
-    console.error("🔥 finishUpload error:", error.message);
+    console.error("finishUpload error:", error);
     res.status(500).json({ error: error.message });
   }
 }

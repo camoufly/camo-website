@@ -7,12 +7,8 @@ export default async function handler(req, res) {
 
   try {
     const DROPBOX_PERMANENT_TOKEN = process.env.DROPBOX_PERMANENT_TOKEN;
-
-    // Debug: Check token existence (never log the actual token!)
-    console.log("🔍 Dropbox token exists:", !!DROPBOX_PERMANENT_TOKEN);
-
     if (!DROPBOX_PERMANENT_TOKEN) {
-      throw new Error("❌ Dropbox permanent token is not set in environment variables.");
+      throw new Error("Dropbox permanent token not configured.");
     }
 
     // Start a new Dropbox upload session
@@ -27,18 +23,13 @@ export default async function handler(req, res) {
     });
 
     const data = await startRes.json();
-
-    // Debug: Log raw Dropbox response if there's an error
     if (!startRes.ok) {
-      console.error("❌ Dropbox upload_session/start failed:", JSON.stringify(data, null, 2));
-      throw new Error(data.error_summary || "Failed to start upload session.");
+      throw new Error(data.error_summary || "Failed to start upload session");
     }
-
-    console.log("✅ Dropbox session started:", data.session_id);
 
     res.status(200).json({ session_id: data.session_id });
   } catch (error) {
-    console.error("🔥 startUpload.js error:", error.message);
+    console.error("startUpload error:", error);
     res.status(500).json({ error: error.message });
   }
 }

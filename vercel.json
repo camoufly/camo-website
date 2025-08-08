@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    { "source": "/tour", "destination": "/tour.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/send", "destination": "/sendmusic.html" },
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/music", "destination": "/music.html" },
+    { "source": "/store", "destination": "/store.html" },
+    { "source": "/videos", "destination": "/videos.html" },
+    { "source": "/newskin", "destination": "/newskin.html" },
+    { "source": "/press", "destination": "/press.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" }
+  ]
+}

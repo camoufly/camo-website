@@ -15,7 +15,7 @@
   "functions": {
     "api/upload.js": {
       "memory": 1024,
-      "maxSize": "100mb"
+      "maxDuration": 10
     }
   }
 }

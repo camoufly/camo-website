@@ -10,6 +10,7 @@
     { "source": "/newskin", "destination": "/newskin.html" },
     { "source": "/press", "destination": "/press.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/codes", "destination": "/codes.html" },
     { "source": "/terms", "destination": "/terms.html" }
   ]
 }

@@ -11,6 +11,7 @@
     { "source": "/press", "destination": "/press.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/codes", "destination": "/codes.html" },
+    { "source": "/eutour", "destination": "/eutour.html" },
     { "source": "/terms", "destination": "/terms.html" }
   ]
 }

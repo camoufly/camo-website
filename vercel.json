@@ -12,6 +12,7 @@
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/codes", "destination": "/codes.html" },
     { "source": "/eutour", "destination": "/eutour.html" },
+    { "source": "/ustour", "destination": "/ustour.html" },
     { "source": "/floorfilla", "destination": "/floorfilla.html" },
     { "source": "/terms", "destination": "/terms.html" }
   ]

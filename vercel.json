@@ -16,6 +16,7 @@
     { "source": "/floorfilla", "destination": "/floorfilla.html" },
     { "source": "/believe", "destination": "/believe.html" },
     { "source": "/believe_download", "destination": "/believe_download.html" },
+    { "source": "/sendmusic", "destination": "/sendmusic.html" },
     { "source": "/terms", "destination": "/terms.html" }
   ]
 }

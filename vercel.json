@@ -15,6 +15,7 @@
     { "source": "/ustour", "destination": "/ustour.html" },
     { "source": "/floorfilla", "destination": "/floorfilla.html" },
     { "source": "/believe", "destination": "/believe.html" },
+    { "source": "/believe_download", "destination": "/believe_download.html" },
     { "source": "/terms", "destination": "/terms.html" }
   ]
 }

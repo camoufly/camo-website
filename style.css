@@ -1152,6 +1152,8 @@ transform: scale(0.96);
   display: flex;
   flex-direction: column;
   gap: 2px;
+  text-align: left;    /* ← forces left alignment */
+  align-items: flex-start;  /* ← prevents accidental centering */
 }
 
 .ts-mailbox-title {

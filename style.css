@@ -295,3 +295,11 @@ a:focus-visible {
 @media (max-width: 600px) {
   .ts-mailbox-iframe iframe { height: 540px; }
 }
+
+.legal {
+  margin-top: 14px;
+  font-size: 0.5rem;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.4;
+}

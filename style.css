@@ -303,3 +303,34 @@ a:focus-visible {
   text-align: center;
   line-height: 1.4;
 }
+
+/* --- Index hero (Believe) hover: no shrink, no layout shift --- */
+.hero-card {
+  display: inline-block;
+  width: min(420px, 92vw);
+  border-radius: var(--radius);
+  overflow: hidden; /* so shadow/edges look clean */
+  text-decoration: none; /* keep it clean */
+}
+
+.hero-card__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: opacity 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+}
+
+/* Hover/focus effect that doesn't resize the image */
+.hero-card:hover .hero-card__img,
+.hero-card:focus-visible .hero-card__img {
+  opacity: 0.92;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+  transform: translateY(-1px); /* tiny lift, not shrink */
+}
+
+/* nice focus ring without changing layout */
+.hero-card:focus-visible {
+  outline: 2px solid rgba(0,0,0,0.35);
+  outline-offset: 3px;
+  border-radius: calc(var(--radius) + 4px);
+}

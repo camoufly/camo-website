@@ -18,24 +18,21 @@
   <meta name="twitter:description" content="camo's next stops">
   <meta name="twitter:image" content="http://camoufly.me/image2.jpg">
 
+  <link rel="stylesheet" href="style.css">
   <link rel="icon" href="thumbnail_logo.png">
   <title>camoufly — tour</title>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Instrument+Sans:wght@400;500;600&display=swap');
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background: #000;
-      color: #fff;
-      font-family: 'Instrument Sans', sans-serif;
+    /* ── Globe page overrides ── */
+    html, body {
+      background: #000 !important;
+      color: #fff !important;
       overflow: hidden;
       height: 100vh;
       width: 100vw;
+      margin: 0;
       cursor: grab;
     }
-
     body:active { cursor: grabbing; }
 
     #globe-container {
@@ -51,15 +48,15 @@
       z-index: 100;
       display: flex;
       flex-direction: column;
+      align-items: flex-start;
       gap: 6px;
+      margin: 0; padding: 0;
     }
-
     .brand .logo {
       height: 28px;
       width: auto;
       filter: brightness(0) invert(1);
     }
-
     .brand .logoalt {
       height: 16px;
       width: auto;
@@ -71,7 +68,6 @@
       position: fixed;
       top: 28px; right: 28px;
       z-index: 100;
-      font-family: 'Space Mono', monospace;
       font-size: 11px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -81,7 +77,7 @@
     }
     .back-link:hover { color: #fff; }
 
-    /* Tooltip / Popup */
+    /* ── Tooltip ── */
     .pin-tooltip {
       position: fixed;
       z-index: 200;
@@ -89,15 +85,12 @@
       opacity: 0;
       transform: translateY(8px);
       transition: opacity 0.25s ease, transform 0.25s ease;
-      font-family: 'Space Mono', monospace;
     }
-
     .pin-tooltip.visible {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
     }
-
     .pin-tooltip-inner {
       background: rgba(10, 10, 10, 0.92);
       backdrop-filter: blur(12px);
@@ -108,8 +101,7 @@
       min-width: 220px;
       max-width: 300px;
     }
-
-    .pin-tooltip .tt-date {
+    .tt-date {
       font-size: 11px;
       letter-spacing: 0.15em;
       text-transform: uppercase;
@@ -117,24 +109,19 @@
       margin-bottom: 6px;
       font-weight: 700;
     }
-
-    .pin-tooltip .tt-venue {
+    .tt-venue {
       font-size: 13px;
       color: #fff;
       margin-bottom: 2px;
-      font-family: 'Instrument Sans', sans-serif;
       font-weight: 600;
     }
-
-    .pin-tooltip .tt-city {
+    .tt-city {
       font-size: 11px;
       color: rgba(255,255,255,0.5);
       margin-bottom: 14px;
     }
-
-    .pin-tooltip .tt-btn {
+    .tt-btn {
       display: inline-block;
-      font-family: 'Space Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -147,17 +134,13 @@
       cursor: pointer;
       transition: background 0.2s;
     }
+    .tt-btn:hover { background: #c0392b; }
 
-    .pin-tooltip .tt-btn:hover {
-      background: #c0392b;
-    }
-
-    /* Date list sidebar */
+    /* ── Sidebar date list ── */
     .date-list {
       position: fixed;
       bottom: 28px; left: 28px;
       z-index: 100;
-      font-family: 'Space Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -165,8 +148,8 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      padding: 0; margin: 0;
     }
-
     .date-list li {
       color: rgba(255,255,255,0.3);
       cursor: pointer;
@@ -175,11 +158,7 @@
       align-items: center;
       gap: 8px;
     }
-
-    .date-list li:hover, .date-list li.active {
-      color: #fff;
-    }
-
+    .date-list li:hover, .date-list li.active { color: #fff; }
     .date-list li::before {
       content: '';
       width: 5px; height: 5px;
@@ -189,7 +168,7 @@
       flex-shrink: 0;
     }
 
-    /* Footer */
+    /* ── Social footer ── */
     .globe-footer {
       position: fixed;
       bottom: 24px; right: 28px;
@@ -198,18 +177,14 @@
       gap: 10px;
       align-items: center;
     }
-
-    .globe-footer a {
-      opacity: 0.3;
-      transition: opacity 0.3s;
-    }
+    .globe-footer a { opacity: 0.3; transition: opacity 0.3s; text-decoration: none; }
     .globe-footer a:hover { opacity: 0.8; }
     .globe-footer a img {
       width: 18px; height: 18px;
       filter: brightness(0) invert(1);
     }
 
-    /* Loading */
+    /* ── Loading ── */
     #loading {
       position: fixed;
       top: 0; left: 0;
@@ -219,19 +194,26 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Space Mono', monospace;
       font-size: 12px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: rgba(255,255,255,0.4);
       transition: opacity 0.8s ease;
     }
-    #loading.hidden {
-      opacity: 0;
-      pointer-events: none;
+    #loading.hidden { opacity: 0; pointer-events: none; }
+
+    .globe-legal {
+      position: fixed;
+      bottom: 6px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.15);
+      text-align: center;
+      white-space: nowrap;
     }
 
-    /* Mobile */
     @media (max-width: 640px) {
       .date-list { display: none; }
       .globe-footer { display: none; }
@@ -242,7 +224,6 @@
 <body>
 
   <div id="loading">Loading globe…</div>
-
   <div id="globe-container"></div>
 
   <header class="brand">
@@ -272,286 +253,243 @@
     <a href="https://www.youtube.com/c/camoufly" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/youtube.png" alt="YouTube"></a>
   </div>
 
+  <div class="globe-legal">© Kawaii Bounce FR. All rights reserved. · P. IVA (IT): IT01442860456</div>
+
+  <!-- Three.js r128 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Earcut for polygon triangulation -->
+  <script src="https://cdn.jsdelivr.net/npm/earcut@2.2.4/dist/earcut.min.js"></script>
+
   <script>
-    // ── Tour Data ──
+    // ═══════════════════════════════════════
+    //  TOUR DATA
+    // ═══════════════════════════════════════
     const TOUR_DATES = [
-      {
-        date: 'MAR 21',
-        venue: 'Electric Studios',
-        city: 'Sheffield, UK',
-        lat: 53.3811, lng: -1.4701,
-        url: 'https://www.skiddle.com/whats-on/Sheffield/Electric-Studios/Faster-Horses-b2b-Paige-Tomlinson-sim0ne-Camoufly--More/42076875/'
-      },
-      {
-        date: 'MAR 25',
-        venue: 'Factory Town',
-        city: 'Miami, US',
-        lat: 25.7617, lng: -80.1918,
-        url: 'https://dice.fm/bundles/factory-town-music-week-2026-2x86'
-      },
-      {
-        date: 'MAR 27',
-        venue: 'Magazzini Generali (+ Four Tet)',
-        city: 'Milano, IT',
-        lat: 45.4408, lng: 9.1850,
-        url: 'https://dice.fm/event/yonyba--four-tet-milano-27th-mar-magazzini-generali-milano-tickets'
-      },
-      {
-        date: 'APR 8',
-        venue: 'La Nau',
-        city: 'Barcelona, ES',
-        lat: 41.3874, lng: 2.1686,
-        url: 'https://ra.co/events/2295130'
-      },
-      {
-        date: 'APR 9',
-        venue: 'Berlin Club',
-        city: 'Madrid, ES',
-        lat: 40.4168, lng: -3.7038,
-        url: 'https://tickets.berlinclub.es/en/events/camoufly-en-microdosis'
-      },
-      {
-        date: 'APR 24',
-        venue: 'Hiroshima Mon Amour',
-        city: 'Torino, IT',
-        lat: 45.0903, lng: 7.6615,
-        url: 'https://ticket.hiroshimamonamour.org/it/hiroshima-mon-amour/eventi/NH44'
-      },
-      {
-        date: 'MAY 15',
-        venue: 'Gemini Festival',
-        city: 'Bologna, IT',
-        lat: 44.4949, lng: 11.3426,
-        url: 'https://geminifestival.com/#tickets'
-      },
-      {
-        date: 'MAY 16',
-        venue: 'Invincible Festival',
-        city: 'Roma, IT',
-        lat: 41.9028, lng: 12.4964,
-        url: 'https://xceed.me/en/roma/event/invincible-festival-sab-16-maggio/213253/channel/invincibile-festival'
-      }
+      { date: 'MAR 21', venue: 'Electric Studios', city: 'Sheffield, UK', lat: 53.3811, lng: -1.4701, url: 'https://www.skiddle.com/whats-on/Sheffield/Electric-Studios/Faster-Horses-b2b-Paige-Tomlinson-sim0ne-Camoufly--More/42076875/' },
+      { date: 'MAR 25', venue: 'Factory Town', city: 'Miami, US', lat: 25.7617, lng: -80.1918, url: 'https://dice.fm/bundles/factory-town-music-week-2026-2x86' },
+      { date: 'MAR 27', venue: 'Magazzini Generali (+ Four Tet)', city: 'Milano, IT', lat: 45.4408, lng: 9.1850, url: 'https://dice.fm/event/yonyba--four-tet-milano-27th-mar-magazzini-generali-milano-tickets' },
+      { date: 'APR 8', venue: 'La Nau', city: 'Barcelona, ES', lat: 41.3874, lng: 2.1686, url: 'https://ra.co/events/2295130' },
+      { date: 'APR 9', venue: 'Berlin Club', city: 'Madrid, ES', lat: 40.4168, lng: -3.7038, url: 'https://tickets.berlinclub.es/en/events/camoufly-en-microdosis' },
+      { date: 'APR 24', venue: 'Hiroshima Mon Amour', city: 'Torino, IT', lat: 45.0903, lng: 7.6615, url: 'https://ticket.hiroshimamonamour.org/it/hiroshima-mon-amour/eventi/NH44' },
+      { date: 'MAY 15', venue: 'Gemini Festival', city: 'Bologna, IT', lat: 44.4949, lng: 11.3426, url: 'https://geminifestival.com/#tickets' },
+      { date: 'MAY 16', venue: 'Invincible Festival', city: 'Roma, IT', lat: 41.9028, lng: 12.4964, url: 'https://xceed.me/en/roma/event/invincible-festival-sab-16-maggio/213253/channel/invincibile-festival' }
     ];
 
-    // ── Globals ──
+    // ═══════════════════════════════════════
+    //  GLOBALS
+    // ═══════════════════════════════════════
     let scene, camera, renderer, globe, pinGroup;
     let raycaster, mouse;
     let isDragging = false;
     let previousMouse = { x: 0, y: 0 };
     let rotationVelocity = { x: 0, y: 0 };
-    let targetRotation = { x: 0.3, y: -0.2 };
     let autoRotate = true;
     let hoveredPin = null;
     let pinMeshes = [];
     const tooltip = document.getElementById('tooltip');
+    const GLOBE_R = 1.5;
 
-    // ── Coordinate conversion ──
-    function latLngToVector3(lat, lng, radius) {
-      const phi = (90 - lat) * (Math.PI / 180);
-      const theta = (lng + 180) * (Math.PI / 180);
+    // ═══════════════════════════════════════
+    //  HELPERS
+    // ═══════════════════════════════════════
+    function latLngToVec3(lat, lng, r) {
+      const phi = (90 - lat) * Math.PI / 180;
+      const theta = (lng + 180) * Math.PI / 180;
       return new THREE.Vector3(
-        -(radius * Math.sin(phi) * Math.cos(theta)),
-        radius * Math.cos(phi),
-        radius * Math.sin(phi) * Math.sin(theta)
+        -(r * Math.sin(phi) * Math.cos(theta)),
+        r * Math.cos(phi),
+        r * Math.sin(phi) * Math.sin(theta)
       );
     }
 
-    // ── Build the scene ──
+    // ═══════════════════════════════════════
+    //  INIT
+    // ═══════════════════════════════════════
     function init() {
       scene = new THREE.Scene();
 
-      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 1000);
       camera.position.z = 4.2;
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
       renderer.setClearColor(0x000000, 1);
       document.getElementById('globe-container').appendChild(renderer.domElement);
 
       // Lights
-      const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-      scene.add(ambient);
-      const directional = new THREE.DirectionalLight(0xffffff, 0.8);
-      directional.position.set(5, 3, 5);
-      scene.add(directional);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+      const dir = new THREE.DirectionalLight(0xffffff, 0.6);
+      dir.position.set(5, 3, 5);
+      scene.add(dir);
 
-      // Globe group
       globe = new THREE.Group();
       scene.add(globe);
 
-      // Ocean sphere (dark)
-      const oceanGeo = new THREE.SphereGeometry(1.5, 64, 64);
-      const oceanMat = new THREE.MeshPhongMaterial({
-        color: 0x0a0a0a,
-        shininess: 30,
-        transparent: false
-      });
-      const ocean = new THREE.Mesh(oceanGeo, oceanMat);
-      globe.add(ocean);
+      // ── Ocean sphere (dark) ──
+      const oceanMat = new THREE.MeshPhongMaterial({ color: 0x080808, shininess: 5 });
+      globe.add(new THREE.Mesh(new THREE.SphereGeometry(GLOBE_R, 64, 64), oceanMat));
 
-      // Atmosphere glow
-      const glowGeo = new THREE.SphereGeometry(1.55, 64, 64);
+      // ── Atmosphere glow ──
       const glowMat = new THREE.MeshBasicMaterial({
-        color: 0x222222,
-        transparent: true,
-        opacity: 0.08,
-        side: THREE.BackSide
+        color: 0x333333, transparent: true, opacity: 0.06, side: THREE.BackSide
       });
-      globe.add(new THREE.Mesh(glowGeo, glowMat));
+      globe.add(new THREE.Mesh(new THREE.SphereGeometry(GLOBE_R + 0.04, 64, 64), glowMat));
 
-      // Graticule (subtle grid lines)
-      const graticuleLines = new THREE.Group();
-      const lineMat = new THREE.LineBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.5 });
-
-      // Latitude lines
+      // ── Graticule ──
+      const gridMat = new THREE.LineBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.4 });
       for (let lat = -80; lat <= 80; lat += 20) {
         const pts = [];
-        for (let lng = -180; lng <= 180; lng += 2) {
-          pts.push(latLngToVector3(lat, lng, 1.502));
-        }
-        const geo = new THREE.BufferGeometry().setFromPoints(pts);
-        graticuleLines.add(new THREE.Line(geo, lineMat));
+        for (let lng = -180; lng <= 180; lng += 2) pts.push(latLngToVec3(lat, lng, GLOBE_R + 0.002));
+        globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), gridMat));
       }
-
-      // Longitude lines
       for (let lng = -180; lng < 180; lng += 20) {
         const pts = [];
-        for (let lat = -90; lat <= 90; lat += 2) {
-          pts.push(latLngToVector3(lat, lng, 1.502));
-        }
-        const geo = new THREE.BufferGeometry().setFromPoints(pts);
-        graticuleLines.add(new THREE.Line(geo, lineMat));
+        for (let lat = -90; lat <= 90; lat += 2) pts.push(latLngToVec3(lat, lng, GLOBE_R + 0.002));
+        globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), gridMat));
       }
-      globe.add(graticuleLines);
 
       // Pin group
       pinGroup = new THREE.Group();
       globe.add(pinGroup);
 
-      // Load GeoJSON and create land
-      loadGeoJSON();
-
-      // Create pins
+      // Load land + create pins + sidebar
+      loadLand();
       createPins();
-
-      // Build sidebar date list
       buildDateList();
 
       // Raycaster
       raycaster = new THREE.Raycaster();
       mouse = new THREE.Vector2();
 
-      // Set initial rotation to center on Europe
+      // Start centered on Europe
       globe.rotation.x = 0.3;
       globe.rotation.y = -0.2;
 
       // Events
-      window.addEventListener('resize', onResize);
-      renderer.domElement.addEventListener('mousedown', onMouseDown);
-      renderer.domElement.addEventListener('mousemove', onMouseMove);
-      renderer.domElement.addEventListener('mouseup', onMouseUp);
-      renderer.domElement.addEventListener('mouseleave', onMouseUp);
-      renderer.domElement.addEventListener('touchstart', onTouchStart, { passive: false });
-      renderer.domElement.addEventListener('touchmove', onTouchMove, { passive: false });
-      renderer.domElement.addEventListener('touchend', onTouchEnd);
-      renderer.domElement.addEventListener('wheel', onWheel, { passive: false });
+      addEventListener('resize', onResize);
+      const cv = renderer.domElement;
+      cv.addEventListener('mousedown', onMouseDown);
+      cv.addEventListener('mousemove', onMouseMove);
+      cv.addEventListener('mouseup', onMouseUp);
+      cv.addEventListener('mouseleave', onMouseLeave);
+      cv.addEventListener('touchstart', onTouchStart, { passive: false });
+      cv.addEventListener('touchmove', onTouchMove, { passive: false });
+      cv.addEventListener('touchend', onTouchEnd);
+      cv.addEventListener('wheel', onWheel, { passive: false });
 
       animate();
     }
 
-    // ── GeoJSON Land ──
-    function loadGeoJSON() {
+    // ═══════════════════════════════════════
+    //  LAND — filled white via earcut triangulation
+    // ═══════════════════════════════════════
+    function loadLand() {
       fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson')
         .then(r => r.json())
         .then(data => {
-          const landMat = new THREE.LineBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: 0.85 });
-          const fillMat = new THREE.MeshPhongMaterial({
-            color: 0xe8e8e8,
-            transparent: true,
-            opacity: 0.15,
-            side: THREE.DoubleSide,
-            depthWrite: false
+          const fillMat = new THREE.MeshBasicMaterial({
+            color: 0xe0e0e0, side: THREE.DoubleSide, depthWrite: true
+          });
+          const lineMat = new THREE.LineBasicMaterial({
+            color: 0xffffff, transparent: true, opacity: 0.6
           });
 
           data.features.forEach(feature => {
             const geom = feature.geometry;
-            const coords = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+            const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
 
-            coords.forEach(polygon => {
-              polygon.forEach(ring => {
-                const pts = ring.map(c => latLngToVector3(c[1], c[0], 1.503));
-                const geo = new THREE.BufferGeometry().setFromPoints(pts);
-                globe.add(new THREE.Line(geo, landMat));
+            polys.forEach(polygon => {
+              const outerRing = polygon[0];
+
+              // Outline
+              const linePts = outerRing.map(c => latLngToVec3(c[1], c[0], GLOBE_R + 0.003));
+              globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(linePts), lineMat));
+
+              // Fill via earcut
+              const flatCoords = [];
+              outerRing.forEach(c => { flatCoords.push(c[0], c[1]); });
+
+              const holeIndices = [];
+              for (let h = 1; h < polygon.length; h++) {
+                holeIndices.push(flatCoords.length / 2);
+                polygon[h].forEach(c => { flatCoords.push(c[0], c[1]); });
+              }
+
+              const indices = earcut(flatCoords, holeIndices.length ? holeIndices : undefined, 2);
+              if (!indices.length) return;
+
+              const allCoords = [];
+              for (let i = 0; i < flatCoords.length; i += 2) {
+                allCoords.push([flatCoords[i], flatCoords[i + 1]]);
+              }
+
+              const positions = new Float32Array(allCoords.length * 3);
+              allCoords.forEach((c, i) => {
+                const v = latLngToVec3(c[1], c[0], GLOBE_R + 0.001);
+                positions[i * 3]     = v.x;
+                positions[i * 3 + 1] = v.y;
+                positions[i * 3 + 2] = v.z;
               });
+
+              const bufGeo = new THREE.BufferGeometry();
+              bufGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+              bufGeo.setIndex(indices);
+              bufGeo.computeVertexNormals();
+              globe.add(new THREE.Mesh(bufGeo, fillMat));
             });
           });
 
           document.getElementById('loading').classList.add('hidden');
         })
         .catch(() => {
-          // Fallback: show globe without land outlines
           document.getElementById('loading').classList.add('hidden');
         });
     }
 
-    // ── Pins ──
+    // ═══════════════════════════════════════
+    //  PINS
+    // ═══════════════════════════════════════
     function createPins() {
       TOUR_DATES.forEach((td, i) => {
-        const pos = latLngToVector3(td.lat, td.lng, 1.51);
+        const pos = latLngToVec3(td.lat, td.lng, GLOBE_R + 0.01);
+        const normal = pos.clone().normalize();
 
-        // Pin stem
-        const stemGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.08, 8);
+        const stemGeo = new THREE.CylinderGeometry(0.005, 0.005, 0.1, 8);
         const stemMat = new THREE.MeshBasicMaterial({ color: 0xe74c3c });
         const stem = new THREE.Mesh(stemGeo, stemMat);
 
-        // Pin head
-        const headGeo = new THREE.SphereGeometry(0.022, 16, 16);
+        const headGeo = new THREE.SphereGeometry(0.028, 16, 16);
         const headMat = new THREE.MeshPhongMaterial({
-          color: 0xe74c3c,
-          emissive: 0xe74c3c,
-          emissiveIntensity: 0.3,
-          shininess: 80
+          color: 0xe74c3c, emissive: 0xe74c3c, emissiveIntensity: 0.35, shininess: 80
         });
         const head = new THREE.Mesh(headGeo, headMat);
 
-        // Pulse ring
-        const ringGeo = new THREE.RingGeometry(0.025, 0.035, 32);
+        const ringGeo = new THREE.RingGeometry(0.03, 0.042, 32);
         const ringMat = new THREE.MeshBasicMaterial({
-          color: 0xe74c3c,
-          transparent: true,
-          opacity: 0.4,
-          side: THREE.DoubleSide
+          color: 0xe74c3c, transparent: true, opacity: 0.4, side: THREE.DoubleSide
         });
         const ring = new THREE.Mesh(ringGeo, ringMat);
 
-        // Pin group
         const pin = new THREE.Group();
-        pin.add(stem);
-        pin.add(head);
-        pin.add(ring);
-
-        // Orient pin to stand on globe surface
-        const normal = pos.clone().normalize();
+        pin.add(stem); pin.add(head); pin.add(ring);
         pin.position.copy(pos);
-        pin.lookAt(normal.multiplyScalar(3).add(pos));
+        pin.lookAt(normal.clone().multiplyScalar(5).add(pos));
 
-        // Offset stem and head
-        stem.position.set(0, 0, 0.04);
-        head.position.set(0, 0, 0.08);
+        stem.position.set(0, 0, 0.05);
+        head.position.set(0, 0, 0.10);
         ring.position.set(0, 0, 0.005);
 
         pin.userData = { index: i, ...td };
         pinGroup.add(pin);
         pinMeshes.push(head);
-
-        // Store refs for animation
-        head.userData = { ring, index: i, originalScale: 1 };
+        head.userData = { ring, index: i };
       });
     }
 
-    // ── Sidebar date list ──
+    // ═══════════════════════════════════════
+    //  SIDEBAR
+    // ═══════════════════════════════════════
     function buildDateList() {
       const list = document.getElementById('dateList');
       TOUR_DATES.forEach((td, i) => {
@@ -564,274 +502,263 @@
       });
     }
 
-    // ── Fly to pin ──
+    // ═══════════════════════════════════════
+    //  FLY TO
+    // ═══════════════════════════════════════
     function flyToPin(index) {
       const td = TOUR_DATES[index];
-      const target = latLngToVector3(td.lat, td.lng, 1.51);
-
-      // Calculate target rotation
       const phi = (90 - td.lat) * Math.PI / 180;
       const theta = (td.lng + 180) * Math.PI / 180;
 
       autoRotate = false;
-      setTimeout(() => { autoRotate = true; }, 4000);
+      rotationVelocity = { x: 0, y: 0 };
 
-      // Animate rotation
-      const startX = globe.rotation.x;
-      const startY = globe.rotation.y;
-      const endX = -(phi - Math.PI / 2);
-      const endY = -(theta - Math.PI);
+      const startX = globe.rotation.x, startY = globe.rotation.y;
+      const endX = -(phi - Math.PI / 2), endY = -(theta - Math.PI);
+      const dur = 1200, t0 = Date.now();
 
-      const duration = 1200;
-      const startTime = Date.now();
-
-      function animateFly() {
-        const elapsed = Date.now() - startTime;
-        const t = Math.min(elapsed / duration, 1);
-        const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
+      (function tick() {
+        const t = Math.min((Date.now() - t0) / dur, 1);
+        const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
         globe.rotation.x = startX + (endX - startX) * ease;
         globe.rotation.y = startY + (endY - startY) * ease;
-
-        if (t < 1) requestAnimationFrame(animateFly);
-        else showTooltipForPin(index);
-      }
-      animateFly();
+        if (t < 1) requestAnimationFrame(tick);
+        else {
+          showTooltipForPin(index);
+          setTimeout(() => { if (hoveredPin === null && !isDragging) autoRotate = true; }, 4000);
+        }
+      })();
     }
 
     function highlightPin(index) {
       const head = pinMeshes[index];
-      if (head) {
-        head.scale.set(1.5, 1.5, 1.5);
-        head.material.emissiveIntensity = 0.8;
-      }
-      // Highlight sidebar
-      const items = document.querySelectorAll('#dateList li');
-      items.forEach((li, i) => li.classList.toggle('active', i === index));
+      if (head) { head.scale.set(1.6,1.6,1.6); head.material.emissiveIntensity = 0.9; }
+      document.querySelectorAll('#dateList li').forEach((li,i) => li.classList.toggle('active', i===index));
     }
 
     function unhighlightPin(index) {
       const head = pinMeshes[index];
-      if (head) {
-        head.scale.set(1, 1, 1);
-        head.material.emissiveIntensity = 0.3;
-      }
-      const items = document.querySelectorAll('#dateList li');
-      items[index]?.classList.remove('active');
+      if (head) { head.scale.set(1,1,1); head.material.emissiveIntensity = 0.35; }
+      document.querySelectorAll('#dateList li')[index]?.classList.remove('active');
     }
 
-    // ── Tooltip ──
+    // ═══════════════════════════════════════
+    //  TOOLTIP
+    // ═══════════════════════════════════════
     function showTooltipForPin(index) {
       const td = TOUR_DATES[index];
       document.getElementById('ttDate').textContent = td.date;
       document.getElementById('ttVenue').textContent = td.venue;
       document.getElementById('ttCity').textContent = td.city;
       document.getElementById('ttBtn').href = td.url;
-
-      // Position tooltip at screen center-ish
-      tooltip.style.left = (window.innerWidth / 2 - 110) + 'px';
-      tooltip.style.top = (window.innerHeight / 2 - 80) + 'px';
       tooltip.classList.add('visible');
+      updateTooltipScreenPos(index);
     }
 
-    function updateTooltipPosition() {
-      if (hoveredPin === null) return;
-      const td = TOUR_DATES[hoveredPin];
-      const pos = latLngToVector3(td.lat, td.lng, 1.58);
-      pos.applyMatrix4(globe.matrixWorld);
+    function updateTooltipScreenPos(index) {
+      const td = TOUR_DATES[index];
+      const worldPos = latLngToVec3(td.lat, td.lng, GLOBE_R + 0.12);
+      worldPos.applyMatrix4(globe.matrixWorld);
 
-      const screenPos = pos.clone().project(camera);
-      const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-      const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
-
-      // Check if pin is on front side of globe
+      // Is pin facing camera?
       const camDir = new THREE.Vector3();
       camera.getWorldDirection(camDir);
-      const pinWorldPos = latLngToVector3(td.lat, td.lng, 1.51);
-      pinWorldPos.applyMatrix4(globe.matrixWorld);
-      const toPin = pinWorldPos.clone().sub(camera.position).normalize();
-      const dot = camDir.dot(toPin);
+      const surfacePos = latLngToVec3(td.lat, td.lng, GLOBE_R);
+      surfacePos.applyMatrix4(globe.matrixWorld);
+      const toPin = surfacePos.clone().sub(camera.position).normalize();
+      if (camDir.dot(toPin) <= 0) { tooltip.classList.remove('visible'); return; }
 
-      if (dot > 0 && screenPos.z < 1) {
-        tooltip.style.left = (x + 15) + 'px';
-        tooltip.style.top = (y - 50) + 'px';
-      } else {
-        tooltip.classList.remove('visible');
-        hoveredPin = null;
-      }
+      const ndc = worldPos.clone().project(camera);
+      let x = (ndc.x * 0.5 + 0.5) * innerWidth;
+      let y = (-ndc.y * 0.5 + 0.5) * innerHeight;
+      x = Math.max(10, Math.min(x + 15, innerWidth - 260));
+      y = Math.max(10, Math.min(y - 40, innerHeight - 140));
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
     }
 
-    // ── Interaction ──
+    // ═══════════════════════════════════════
+    //  MOUSE / TOUCH
+    // ═══════════════════════════════════════
+    let dragStartPos = { x: 0, y: 0 };
+
     function onMouseDown(e) {
       isDragging = true;
       autoRotate = false;
-      previousMouse.x = e.clientX;
-      previousMouse.y = e.clientY;
+      previousMouse.x = dragStartPos.x = e.clientX;
+      previousMouse.y = dragStartPos.y = e.clientY;
       rotationVelocity = { x: 0, y: 0 };
     }
 
     function onMouseMove(e) {
-      // Update mouse for raycasting
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      mouse.x = (e.clientX / innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / innerHeight) * 2 + 1;
 
       if (isDragging) {
         const dx = e.clientX - previousMouse.x;
         const dy = e.clientY - previousMouse.y;
         globe.rotation.y += dx * 0.005;
         globe.rotation.x += dy * 0.005;
-        globe.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, globe.rotation.x));
+        globe.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, globe.rotation.x));
         rotationVelocity.x = dy * 0.005;
         rotationVelocity.y = dx * 0.005;
         previousMouse.x = e.clientX;
         previousMouse.y = e.clientY;
+        tooltip.classList.remove('visible');
         return;
       }
 
-      // Raycast for pin hover
+      // Raycast pins
       raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(pinMeshes);
+      const hits = raycaster.intersectObjects(pinMeshes);
 
-      if (intersects.length > 0) {
-        const hit = intersects[0].object;
-        const idx = hit.userData.index;
+      if (hits.length > 0) {
+        const idx = hits[0].object.userData.index;
         if (hoveredPin !== idx) {
           if (hoveredPin !== null) unhighlightPin(hoveredPin);
           hoveredPin = idx;
+          autoRotate = false;           // STOP on hover
+          rotationVelocity = { x: 0, y: 0 };  // kill inertia too
           highlightPin(idx);
           showTooltipForPin(idx);
           renderer.domElement.style.cursor = 'pointer';
         }
-        updateTooltipPosition();
-      } else {
-        if (hoveredPin !== null) {
-          unhighlightPin(hoveredPin);
-          hoveredPin = null;
-          tooltip.classList.remove('visible');
-          renderer.domElement.style.cursor = 'grab';
-        }
+        updateTooltipScreenPos(idx);
+      } else if (hoveredPin !== null) {
+        unhighlightPin(hoveredPin);
+        hoveredPin = null;
+        tooltip.classList.remove('visible');
+        renderer.domElement.style.cursor = 'grab';
+        autoRotate = true;              // RESUME when leaving pin
       }
     }
 
     function onMouseUp() {
       isDragging = false;
-      setTimeout(() => { autoRotate = true; }, 2000);
+      if (hoveredPin === null) {
+        setTimeout(() => { if (hoveredPin === null && !isDragging) autoRotate = true; }, 1500);
+      }
+    }
+
+    function onMouseLeave() {
+      isDragging = false;
+      // Don't clear hoveredPin here — mouse might re-enter
+      if (hoveredPin === null) {
+        setTimeout(() => { if (hoveredPin === null && !isDragging) autoRotate = true; }, 1500);
+      }
     }
 
     // Touch
-    let touchStart = { x: 0, y: 0 };
+    let touchStartPos = { x: 0, y: 0 };
     function onTouchStart(e) {
-      if (e.touches.length === 1) {
-        isDragging = true;
-        autoRotate = false;
-        touchStart.x = e.touches[0].clientX;
-        touchStart.y = e.touches[0].clientY;
-        previousMouse.x = touchStart.x;
-        previousMouse.y = touchStart.y;
-      }
+      if (e.touches.length !== 1) return;
+      isDragging = true; autoRotate = false;
+      touchStartPos.x = previousMouse.x = e.touches[0].clientX;
+      touchStartPos.y = previousMouse.y = e.touches[0].clientY;
     }
     function onTouchMove(e) {
-      if (isDragging && e.touches.length === 1) {
-        e.preventDefault();
-        const dx = e.touches[0].clientX - previousMouse.x;
-        const dy = e.touches[0].clientY - previousMouse.y;
-        globe.rotation.y += dx * 0.005;
-        globe.rotation.x += dy * 0.005;
-        globe.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, globe.rotation.x));
-        previousMouse.x = e.touches[0].clientX;
-        previousMouse.y = e.touches[0].clientY;
-      }
+      if (!isDragging || e.touches.length !== 1) return;
+      e.preventDefault();
+      const dx = e.touches[0].clientX - previousMouse.x;
+      const dy = e.touches[0].clientY - previousMouse.y;
+      globe.rotation.y += dx * 0.005;
+      globe.rotation.x += dy * 0.005;
+      globe.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, globe.rotation.x));
+      previousMouse.x = e.touches[0].clientX;
+      previousMouse.y = e.touches[0].clientY;
     }
     function onTouchEnd() {
       isDragging = false;
-      setTimeout(() => { autoRotate = true; }, 2000);
+      setTimeout(() => { if (hoveredPin === null && !isDragging) autoRotate = true; }, 2000);
     }
 
-    // Zoom
     function onWheel(e) {
       e.preventDefault();
-      camera.position.z += e.deltaY * 0.002;
-      camera.position.z = Math.max(2.5, Math.min(8, camera.position.z));
+      camera.position.z = Math.max(2.5, Math.min(8, camera.position.z + e.deltaY * 0.002));
     }
 
     function onResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.aspect = innerWidth / innerHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(innerWidth, innerHeight);
     }
 
-    // ── Animation loop ──
+    // ═══════════════════════════════════════
+    //  TAP ON PIN (mobile)
+    // ═══════════════════════════════════════
+    document.getElementById('globe-container').addEventListener('click', (e) => {
+      const dist = Math.abs(e.clientX - (touchStartPos.x||dragStartPos.x))
+                 + Math.abs(e.clientY - (touchStartPos.y||dragStartPos.y));
+      if (dist > 10) return;
+
+      mouse.x = (e.clientX / innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(pinMeshes);
+
+      if (hits.length > 0) {
+        const idx = hits[0].object.userData.index;
+        hoveredPin = idx; autoRotate = false;
+        highlightPin(idx);
+        showTooltipForPin(idx);
+      } else {
+        if (hoveredPin !== null) unhighlightPin(hoveredPin);
+        hoveredPin = null;
+        tooltip.classList.remove('visible');
+        setTimeout(() => { if (hoveredPin === null) autoRotate = true; }, 2000);
+      }
+    });
+
+    // Close tooltip on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.pin-tooltip') && !e.target.closest('#globe-container')) {
+        tooltip.classList.remove('visible');
+        if (hoveredPin !== null) { unhighlightPin(hoveredPin); hoveredPin = null; }
+        setTimeout(() => { if (hoveredPin === null) autoRotate = true; }, 1500);
+      }
+    });
+
+    // ═══════════════════════════════════════
+    //  RENDER LOOP
+    // ═══════════════════════════════════════
     function animate() {
       requestAnimationFrame(animate);
 
-      // Auto rotation
-      if (autoRotate && !isDragging) {
-        globe.rotation.y += 0.001;
+      // Auto-rotate ONLY when nothing hovered + not dragging
+      if (autoRotate && !isDragging && hoveredPin === null) {
+        globe.rotation.y += 0.0008;
       }
 
-      // Inertia
-      if (!isDragging) {
-        rotationVelocity.x *= 0.95;
-        rotationVelocity.y *= 0.95;
-        globe.rotation.x += rotationVelocity.x;
-        globe.rotation.y += rotationVelocity.y;
+      // Inertia (also blocked by hover)
+      if (!isDragging && hoveredPin === null) {
+        rotationVelocity.x *= 0.94;
+        rotationVelocity.y *= 0.94;
+        if (Math.abs(rotationVelocity.x) > 0.00001) globe.rotation.x += rotationVelocity.x;
+        if (Math.abs(rotationVelocity.y) > 0.00001) globe.rotation.y += rotationVelocity.y;
       }
 
-      // Pulse animation for pin rings
-      const time = Date.now() * 0.003;
+      // Pulse rings
+      const t = Date.now() * 0.003;
       pinMeshes.forEach((head, i) => {
         const ring = head.userData.ring;
         if (ring) {
-          const pulse = 0.3 + Math.sin(time + i * 0.5) * 0.15;
-          ring.material.opacity = pulse;
-          const s = 1 + Math.sin(time + i * 0.5) * 0.15;
+          ring.material.opacity = 0.3 + Math.sin(t + i * 0.7) * 0.15;
+          const s = 1 + Math.sin(t + i * 0.7) * 0.15;
           ring.scale.set(s, s, s);
         }
       });
 
-      // Update tooltip position if hovering
-      if (hoveredPin !== null && !isDragging) {
-        updateTooltipPosition();
-      }
+      // Track tooltip to pin
+      if (hoveredPin !== null) updateTooltipScreenPos(hoveredPin);
 
       renderer.render(scene, camera);
     }
 
-    // ── Click on pin (for mobile) ──
-    document.getElementById('globe-container').addEventListener('click', (e) => {
-      if (isDragging) return;
-      const dist = Math.abs(e.clientX - touchStart.x) + Math.abs(e.clientY - touchStart.y);
-      if (dist > 10) return; // was a drag
-
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(pinMeshes);
-
-      if (intersects.length > 0) {
-        const idx = intersects[0].object.userData.index;
-        showTooltipForPin(idx);
-      } else {
-        tooltip.classList.remove('visible');
-      }
-    });
-
-    // ── Close tooltip on clicking elsewhere ──
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.pin-tooltip') && !e.target.closest('#globe-container')) {
-        tooltip.classList.remove('visible');
-        if (hoveredPin !== null) {
-          unhighlightPin(hoveredPin);
-          hoveredPin = null;
-        }
-      }
-    });
-
-    // ── Init ──
+    // GO
     init();
   </script>
 
-  <!-- Cookie Consent by FreePrivacyPolicy.com -->
+  <!-- Cookie Consent -->
   <script type="text/javascript" src="//www.freeprivacypolicy.com/public/cookie-consent/4.0.0/cookie-consent.js" charset="UTF-8"></script>
   <script type="text/javascript" charset="UTF-8">
     document.addEventListener('DOMContentLoaded', function () {
@@ -849,12 +776,6 @@
       });
     });
   </script>
-
-  <footer style="position:fixed; bottom:6px; left:50%; transform:translateX(-50%); z-index:100; text-align:center;">
-    <div style="font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.1em; color:rgba(255,255,255,0.15);">
-      © Kawaii Bounce FR. All rights reserved. · P. IVA (IT): IT01442860456
-    </div>
-  </footer>
 
 </body>
 </html>

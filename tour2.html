@@ -23,7 +23,6 @@
   <title>camoufly — tour</title>
 
   <style>
-    /* ── Globe page overrides ── */
     html, body {
       background: #000 !important;
       color: #fff !important;
@@ -52,17 +51,8 @@
       gap: 6px;
       margin: 0; padding: 0;
     }
-    .brand .logo {
-      height: 28px;
-      width: auto;
-      filter: brightness(0) invert(1);
-    }
-    .brand .logoalt {
-      height: 16px;
-      width: auto;
-      filter: brightness(0) invert(1);
-      opacity: 0.5;
-    }
+    .brand .logo { height: 28px; width: auto; filter: brightness(0) invert(1); }
+    .brand .logoalt { height: 16px; width: auto; filter: brightness(0) invert(1); opacity: 0.5; }
 
     .back-link {
       position: fixed;
@@ -77,141 +67,68 @@
     }
     .back-link:hover { color: #fff; }
 
-    /* ── Tooltip ── */
     .pin-tooltip {
-      position: fixed;
-      z-index: 200;
-      pointer-events: none;
-      opacity: 0;
+      position: fixed; z-index: 200;
+      pointer-events: none; opacity: 0;
       transform: translateY(8px);
       transition: opacity 0.25s ease, transform 0.25s ease;
     }
-    .pin-tooltip.visible {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
+    .pin-tooltip.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
     .pin-tooltip-inner {
-      background: rgba(10, 10, 10, 0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      padding: 16px 20px;
-      min-width: 220px;
-      max-width: 300px;
+      border-radius: 10px; padding: 16px 20px;
+      min-width: 220px; max-width: 300px;
     }
-    .tt-date {
-      font-size: 11px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #e74c3c;
-      margin-bottom: 6px;
-      font-weight: 700;
-    }
-    .tt-venue {
-      font-size: 13px;
-      color: #fff;
-      margin-bottom: 2px;
-      font-weight: 600;
-    }
-    .tt-city {
-      font-size: 11px;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 14px;
-    }
+    .tt-date { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #e74c3c; margin-bottom: 6px; font-weight: 700; }
+    .tt-venue { font-size: 13px; color: #fff; margin-bottom: 2px; font-weight: 600; }
+    .tt-city { font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
     .tt-btn {
-      display: inline-block;
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #fff;
-      background: #e74c3c;
-      border: none;
-      border-radius: 5px;
-      padding: 8px 16px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: background 0.2s;
+      display: inline-block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #fff; background: #e74c3c; border: none; border-radius: 5px;
+      padding: 8px 16px; text-decoration: none; cursor: pointer; transition: background 0.2s;
     }
     .tt-btn:hover { background: #c0392b; }
 
-    /* ── Sidebar date list ── */
     .date-list {
-      position: fixed;
-      bottom: 28px; left: 28px;
-      z-index: 100;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 0; margin: 0;
+      position: fixed; bottom: 28px; left: 28px; z-index: 100;
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      list-style: none; display: flex; flex-direction: column; gap: 6px; padding: 0; margin: 0;
     }
     .date-list li {
-      color: rgba(255,255,255,0.3);
-      cursor: pointer;
-      transition: color 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      color: rgba(255,255,255,0.3); cursor: pointer; transition: color 0.3s;
+      display: flex; align-items: center; gap: 8px;
     }
     .date-list li:hover, .date-list li.active { color: #fff; }
     .date-list li::before {
-      content: '';
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: #e74c3c;
-      display: inline-block;
-      flex-shrink: 0;
+      content: ''; width: 5px; height: 5px; border-radius: 50%;
+      background: #e74c3c; display: inline-block; flex-shrink: 0;
     }
 
-    /* ── Social footer ── */
     .globe-footer {
-      position: fixed;
-      bottom: 24px; right: 28px;
-      z-index: 100;
-      display: flex;
-      gap: 10px;
-      align-items: center;
+      position: fixed; bottom: 24px; right: 28px; z-index: 100;
+      display: flex; gap: 12px; align-items: center;
     }
-    .globe-footer a { opacity: 0.3; transition: opacity 0.3s; text-decoration: none; }
-    .globe-footer a:hover { opacity: 0.8; }
-    .globe-footer a img {
-      width: 18px; height: 18px;
-      filter: brightness(0) invert(1);
+    .globe-footer a {
+      opacity: 0.35; transition: opacity 0.3s; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center;
     }
+    .globe-footer a:hover { opacity: 0.9; }
+    .globe-footer a svg { width: 18px; height: 18px; fill: #fff; }
 
-    /* ── Loading ── */
     #loading {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #000;
-      z-index: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-      transition: opacity 0.8s ease;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; z-index: 500; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); transition: opacity 0.8s ease;
     }
     #loading.hidden { opacity: 0; pointer-events: none; }
 
     .globe-legal {
-      position: fixed;
-      bottom: 6px; left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
-      font-size: 8px;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.15);
-      text-align: center;
-      white-space: nowrap;
+      position: fixed; bottom: 6px; left: 50%; transform: translateX(-50%); z-index: 100;
+      font-size: 8px; letter-spacing: 0.1em; color: rgba(255,255,255,0.15);
+      text-align: center; white-space: nowrap;
     }
 
     @media (max-width: 640px) {
@@ -246,24 +163,28 @@
     </div>
   </div>
 
+  <!-- Social icons as inline SVGs -->
   <div class="globe-footer">
-    <a href="http://instagram.com/camouflybeats" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/instagram.png" alt="Instagram"></a>
-    <a href="http://soundcloud.com/camouflybeats" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/soundcloud.png" alt="SoundCloud"></a>
-    <a href="https://open.spotify.com/artist/6ZmJg6NCjGmRgC2GEI86pQ" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/spotify.png" alt="Spotify"></a>
-    <a href="https://www.youtube.com/c/camoufly" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/youtube.png" alt="YouTube"></a>
+    <a href="http://instagram.com/camouflybeats" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+    </a>
+    <a href="http://soundcloud.com/camouflybeats" target="_blank" rel="noopener noreferrer" aria-label="SoundCloud">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1.175 12.225c-.051 0-.094.046-.101.1l-.233 2.154.233 2.105c.007.058.05.098.101.098.05 0 .09-.04.099-.098l.255-2.105-.27-2.154c-.009-.057-.049-.1-.084-.1zm-.899.828c-.06 0-.091.037-.104.094L0 14.479l.172 1.308c.013.06.045.094.104.094.057 0 .09-.037.104-.094l.199-1.308-.199-1.332c-.014-.06-.047-.094-.104-.094zm1.8-1.143c-.063 0-.11.053-.116.12l-.213 2.449.213 2.381c.006.065.053.119.116.119.063 0 .11-.054.116-.119l.24-2.381-.24-2.449c-.006-.066-.053-.12-.116-.12zm.899-.166c-.074 0-.131.06-.137.135l-.196 2.735.196 2.67c.006.075.063.135.137.135s.131-.06.137-.135l.222-2.67-.222-2.735c-.006-.075-.063-.135-.137-.135zm.9-.09c-.087 0-.15.069-.156.153l-.18 2.96.18 2.883c.006.087.069.153.156.153.084 0 .15-.066.153-.153l.204-2.883-.204-2.96c-.003-.084-.069-.153-.153-.153zm.898-.327c-.097 0-.172.078-.178.171l-.163 3.14.163 3.015c.006.096.081.168.178.168.096 0 .172-.072.178-.168l.184-3.015-.184-3.14c-.006-.093-.082-.171-.178-.171zm1.08-.372c-.109 0-.197.087-.203.193l-.148 3.327.148 3.18c.006.109.094.193.203.193.108 0 .194-.084.2-.193l.166-3.18-.166-3.327c-.006-.108-.092-.193-.2-.193zm.899-.078c-.12 0-.213.096-.219.213l-.131 3.22.131 3.075c.006.12.099.213.219.213.12 0 .213-.093.219-.213l.149-3.075-.149-3.22c-.006-.12-.099-.213-.219-.213zm1.08-.498c-.13 0-.234.105-.24.234l-.114 3.532.114 3.375c.006.132.11.234.24.234.131 0 .234-.102.24-.234l.129-3.375-.129-3.532c-.006-.129-.109-.234-.24-.234zm.9-.162c-.143 0-.253.114-.259.253l-.098 3.528.098 3.37c.006.141.116.253.259.253.142 0 .253-.112.259-.253l.11-3.37-.11-3.528c-.006-.141-.117-.253-.259-.253zm1.619-1.636c-.051 0-.101.003-.149.012a4.343 4.343 0 00-4.292-3.67c-.542 0-1.071.1-1.553.288-.18.07-.228.141-.228.281v8.625c0 .146.114.269.259.281h5.963a2.735 2.735 0 000-5.469v-.348z"/></svg>
+    </a>
+    <a href="https://open.spotify.com/artist/6ZmJg6NCjGmRgC2GEI86pQ" target="_blank" rel="noopener noreferrer" aria-label="Spotify">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+    </a>
+    <a href="https://www.youtube.com/c/camoufly" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
   </div>
 
   <div class="globe-legal">© Kawaii Bounce FR. All rights reserved. · P. IVA (IT): IT01442860456</div>
 
-  <!-- Three.js r128 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- Earcut for polygon triangulation -->
   <script src="https://cdn.jsdelivr.net/npm/earcut@2.2.4/dist/earcut.min.js"></script>
 
   <script>
-    // ═══════════════════════════════════════
-    //  TOUR DATA
-    // ═══════════════════════════════════════
     const TOUR_DATES = [
       { date: 'MAR 21', venue: 'Electric Studios', city: 'Sheffield, UK', lat: 53.3811, lng: -1.4701, url: 'https://www.skiddle.com/whats-on/Sheffield/Electric-Studios/Faster-Horses-b2b-Paige-Tomlinson-sim0ne-Camoufly--More/42076875/' },
       { date: 'MAR 25', venue: 'Factory Town', city: 'Miami, US', lat: 25.7617, lng: -80.1918, url: 'https://dice.fm/bundles/factory-town-music-week-2026-2x86' },
@@ -275,9 +196,6 @@
       { date: 'MAY 16', venue: 'Invincible Festival', city: 'Roma, IT', lat: 41.9028, lng: 12.4964, url: 'https://xceed.me/en/roma/event/invincible-festival-sab-16-maggio/213253/channel/invincibile-festival' }
     ];
 
-    // ═══════════════════════════════════════
-    //  GLOBALS
-    // ═══════════════════════════════════════
     let scene, camera, renderer, globe, pinGroup;
     let raycaster, mouse;
     let isDragging = false;
@@ -289,9 +207,6 @@
     const tooltip = document.getElementById('tooltip');
     const GLOBE_R = 1.5;
 
-    // ═══════════════════════════════════════
-    //  HELPERS
-    // ═══════════════════════════════════════
     function latLngToVec3(lat, lng, r) {
       const phi = (90 - lat) * Math.PI / 180;
       const theta = (lng + 180) * Math.PI / 180;
@@ -302,12 +217,8 @@
       );
     }
 
-    // ═══════════════════════════════════════
-    //  INIT
-    // ═══════════════════════════════════════
     function init() {
       scene = new THREE.Scene();
-
       camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 1000);
       camera.position.z = 4.2;
 
@@ -317,7 +228,6 @@
       renderer.setClearColor(0x000000, 1);
       document.getElementById('globe-container').appendChild(renderer.domElement);
 
-      // Lights
       scene.add(new THREE.AmbientLight(0xffffff, 0.7));
       const dir = new THREE.DirectionalLight(0xffffff, 0.6);
       dir.position.set(5, 3, 5);
@@ -326,17 +236,19 @@
       globe = new THREE.Group();
       scene.add(globe);
 
-      // ── Ocean sphere (dark) ──
-      const oceanMat = new THREE.MeshPhongMaterial({ color: 0x080808, shininess: 5 });
-      globe.add(new THREE.Mesh(new THREE.SphereGeometry(GLOBE_R, 64, 64), oceanMat));
+      // Ocean (dark sphere)
+      globe.add(new THREE.Mesh(
+        new THREE.SphereGeometry(GLOBE_R, 64, 64),
+        new THREE.MeshPhongMaterial({ color: 0x080808, shininess: 5 })
+      ));
 
-      // ── Atmosphere glow ──
-      const glowMat = new THREE.MeshBasicMaterial({
-        color: 0x333333, transparent: true, opacity: 0.06, side: THREE.BackSide
-      });
-      globe.add(new THREE.Mesh(new THREE.SphereGeometry(GLOBE_R + 0.04, 64, 64), glowMat));
+      // Atmosphere
+      globe.add(new THREE.Mesh(
+        new THREE.SphereGeometry(GLOBE_R + 0.04, 64, 64),
+        new THREE.MeshBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.06, side: THREE.BackSide })
+      ));
 
-      // ── Graticule ──
+      // Graticule
       const gridMat = new THREE.LineBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.4 });
       for (let lat = -80; lat <= 80; lat += 20) {
         const pts = [];
@@ -349,16 +261,13 @@
         globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), gridMat));
       }
 
-      // Pin group
       pinGroup = new THREE.Group();
       globe.add(pinGroup);
 
-      // Load land + create pins + sidebar
       loadLand();
       createPins();
       buildDateList();
 
-      // Raycaster
       raycaster = new THREE.Raycaster();
       mouse = new THREE.Vector2();
 
@@ -366,7 +275,6 @@
       globe.rotation.x = 0.3;
       globe.rotation.y = -0.2;
 
-      // Events
       addEventListener('resize', onResize);
       const cv = renderer.domElement;
       cv.addEventListener('mousedown', onMouseDown);
@@ -381,19 +289,13 @@
       animate();
     }
 
-    // ═══════════════════════════════════════
-    //  LAND — filled white via earcut triangulation
-    // ═══════════════════════════════════════
+    // ── Land ──
     function loadLand() {
       fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson')
         .then(r => r.json())
         .then(data => {
-          const fillMat = new THREE.MeshBasicMaterial({
-            color: 0xe0e0e0, side: THREE.DoubleSide, depthWrite: true
-          });
-          const lineMat = new THREE.LineBasicMaterial({
-            color: 0xffffff, transparent: true, opacity: 0.6
-          });
+          const fillMat = new THREE.MeshBasicMaterial({ color: 0xe0e0e0, side: THREE.DoubleSide, depthWrite: true });
+          // No outline — just filled land, no white border
 
           data.features.forEach(feature => {
             const geom = feature.geometry;
@@ -402,11 +304,6 @@
             polys.forEach(polygon => {
               const outerRing = polygon[0];
 
-              // Outline
-              const linePts = outerRing.map(c => latLngToVec3(c[1], c[0], GLOBE_R + 0.003));
-              globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(linePts), lineMat));
-
-              // Fill via earcut
               const flatCoords = [];
               outerRing.forEach(c => { flatCoords.push(c[0], c[1]); });
 
@@ -419,18 +316,14 @@
               const indices = earcut(flatCoords, holeIndices.length ? holeIndices : undefined, 2);
               if (!indices.length) return;
 
-              const allCoords = [];
+              const positions = new Float32Array((flatCoords.length / 2) * 3);
               for (let i = 0; i < flatCoords.length; i += 2) {
-                allCoords.push([flatCoords[i], flatCoords[i + 1]]);
+                const v = latLngToVec3(flatCoords[i + 1], flatCoords[i], GLOBE_R + 0.001);
+                const idx = (i / 2) * 3;
+                positions[idx] = v.x;
+                positions[idx + 1] = v.y;
+                positions[idx + 2] = v.z;
               }
-
-              const positions = new Float32Array(allCoords.length * 3);
-              allCoords.forEach((c, i) => {
-                const v = latLngToVec3(c[1], c[0], GLOBE_R + 0.001);
-                positions[i * 3]     = v.x;
-                positions[i * 3 + 1] = v.y;
-                positions[i * 3 + 2] = v.z;
-              });
 
               const bufGeo = new THREE.BufferGeometry();
               bufGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -447,38 +340,51 @@
         });
     }
 
-    // ═══════════════════════════════════════
-    //  PINS
-    // ═══════════════════════════════════════
+    // ── Pins — stem aligned radially outward ──
     function createPins() {
       TOUR_DATES.forEach((td, i) => {
-        const pos = latLngToVec3(td.lat, td.lng, GLOBE_R + 0.01);
-        const normal = pos.clone().normalize();
+        const surfacePos = latLngToVec3(td.lat, td.lng, GLOBE_R);
+        const normal = surfacePos.clone().normalize();
 
-        const stemGeo = new THREE.CylinderGeometry(0.005, 0.005, 0.1, 8);
+        // Build pin in a group, then orient the whole group
+        const pin = new THREE.Group();
+
+        // Stem: CylinderGeometry is along Y by default
+        // We want it along the local "up" (which will be the normal after orientation)
+        const stemHeight = 0.10;
+        const stemGeo = new THREE.CylinderGeometry(0.004, 0.004, stemHeight, 8);
         const stemMat = new THREE.MeshBasicMaterial({ color: 0xe74c3c });
         const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.position.y = stemHeight / 2; // bottom of stem at origin
+        pin.add(stem);
 
-        const headGeo = new THREE.SphereGeometry(0.028, 16, 16);
+        // Head sphere at top of stem
+        const headGeo = new THREE.SphereGeometry(0.025, 16, 16);
         const headMat = new THREE.MeshPhongMaterial({
           color: 0xe74c3c, emissive: 0xe74c3c, emissiveIntensity: 0.35, shininess: 80
         });
         const head = new THREE.Mesh(headGeo, headMat);
+        head.position.y = stemHeight + 0.02;
+        pin.add(head);
 
-        const ringGeo = new THREE.RingGeometry(0.03, 0.042, 32);
+        // Pulse ring at base
+        const ringGeo = new THREE.RingGeometry(0.025, 0.038, 32);
         const ringMat = new THREE.MeshBasicMaterial({
           color: 0xe74c3c, transparent: true, opacity: 0.4, side: THREE.DoubleSide
         });
         const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = -Math.PI / 2; // flat on the surface
+        ring.position.y = 0.002;
+        pin.add(ring);
 
-        const pin = new THREE.Group();
-        pin.add(stem); pin.add(head); pin.add(ring);
-        pin.position.copy(pos);
-        pin.lookAt(normal.clone().multiplyScalar(5).add(pos));
+        // Position pin on globe surface
+        pin.position.copy(surfacePos);
 
-        stem.position.set(0, 0, 0.05);
-        head.position.set(0, 0, 0.10);
-        ring.position.set(0, 0, 0.005);
+        // Orient pin so its local Y axis points along the surface normal
+        // Default "up" for the pin group is (0,1,0), we need to rotate it to match `normal`
+        const up = new THREE.Vector3(0, 1, 0);
+        const quat = new THREE.Quaternion().setFromUnitVectors(up, normal);
+        pin.quaternion.copy(quat);
 
         pin.userData = { index: i, ...td };
         pinGroup.add(pin);
@@ -487,9 +393,7 @@
       });
     }
 
-    // ═══════════════════════════════════════
-    //  SIDEBAR
-    // ═══════════════════════════════════════
+    // ── Sidebar ──
     function buildDateList() {
       const list = document.getElementById('dateList');
       TOUR_DATES.forEach((td, i) => {
@@ -502,28 +406,40 @@
       });
     }
 
-    // ═══════════════════════════════════════
-    //  FLY TO
-    // ═══════════════════════════════════════
+    // ── Fly to pin — quaternion slerp approach ──
     function flyToPin(index) {
       const td = TOUR_DATES[index];
-      const phi = (90 - td.lat) * Math.PI / 180;
-      const theta = (td.lng + 180) * Math.PI / 180;
-
       autoRotate = false;
       rotationVelocity = { x: 0, y: 0 };
 
-      const startX = globe.rotation.x, startY = globe.rotation.y;
-      const endX = -(phi - Math.PI / 2), endY = -(theta - Math.PI);
-      const dur = 1200, t0 = Date.now();
+      // We want the pin's position to face the camera (along +Z).
+      // The pin is at latLngToVec3(lat, lng, R) in globe-local space.
+      // We need to find a globe rotation that puts that point facing +Z (toward camera).
+      const pinLocal = latLngToVec3(td.lat, td.lng, GLOBE_R).normalize();
 
+      // Camera looks along -Z, so we want pinLocal to point toward (0, 0, 1) after rotation.
+      // That means we need a rotation that takes pinLocal → (0, 0, 1)
+      const target = new THREE.Vector3(0, 0, 1);
+      const targetQuat = new THREE.Quaternion().setFromUnitVectors(pinLocal, target);
+
+      // Current rotation as quaternion
+      const startQuat = new THREE.Quaternion().copy(globe.quaternion);
+      // End quaternion: targetQuat applied to current identity
+      // We want globe.quaternion = targetQuat (rotating globe so pin faces camera)
+      const endQuat = targetQuat.clone();
+
+      const dur = 1200, t0 = Date.now();
       (function tick() {
         const t = Math.min((Date.now() - t0) / dur, 1);
         const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
-        globe.rotation.x = startX + (endX - startX) * ease;
-        globe.rotation.y = startY + (endY - startY) * ease;
-        if (t < 1) requestAnimationFrame(tick);
-        else {
+
+        const q = new THREE.Quaternion();
+        THREE.Quaternion.slerp(startQuat, endQuat, q, ease);
+        globe.quaternion.copy(q);
+
+        if (t < 1) {
+          requestAnimationFrame(tick);
+        } else {
           showTooltipForPin(index);
           setTimeout(() => { if (hoveredPin === null && !isDragging) autoRotate = true; }, 4000);
         }
@@ -542,9 +458,7 @@
       document.querySelectorAll('#dateList li')[index]?.classList.remove('active');
     }
 
-    // ═══════════════════════════════════════
-    //  TOOLTIP
-    // ═══════════════════════════════════════
+    // ── Tooltip ──
     function showTooltipForPin(index) {
       const td = TOUR_DATES[index];
       document.getElementById('ttDate').textContent = td.date;
@@ -557,15 +471,14 @@
 
     function updateTooltipScreenPos(index) {
       const td = TOUR_DATES[index];
-      const worldPos = latLngToVec3(td.lat, td.lng, GLOBE_R + 0.12);
+      const worldPos = latLngToVec3(td.lat, td.lng, GLOBE_R + 0.15);
       worldPos.applyMatrix4(globe.matrixWorld);
 
-      // Is pin facing camera?
       const camDir = new THREE.Vector3();
       camera.getWorldDirection(camDir);
-      const surfacePos = latLngToVec3(td.lat, td.lng, GLOBE_R);
-      surfacePos.applyMatrix4(globe.matrixWorld);
-      const toPin = surfacePos.clone().sub(camera.position).normalize();
+      const surfaceWorld = latLngToVec3(td.lat, td.lng, GLOBE_R);
+      surfaceWorld.applyMatrix4(globe.matrixWorld);
+      const toPin = surfaceWorld.clone().sub(camera.position).normalize();
       if (camDir.dot(toPin) <= 0) { tooltip.classList.remove('visible'); return; }
 
       const ndc = worldPos.clone().project(camera);
@@ -577,9 +490,7 @@
       tooltip.style.top = y + 'px';
     }
 
-    // ═══════════════════════════════════════
-    //  MOUSE / TOUCH
-    // ═══════════════════════════════════════
+    // ── Mouse ──
     let dragStartPos = { x: 0, y: 0 };
 
     function onMouseDown(e) {
@@ -597,9 +508,13 @@
       if (isDragging) {
         const dx = e.clientX - previousMouse.x;
         const dy = e.clientY - previousMouse.y;
-        globe.rotation.y += dx * 0.005;
-        globe.rotation.x += dy * 0.005;
-        globe.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, globe.rotation.x));
+
+        // Apply rotation via quaternion to avoid gimbal lock
+        const qx = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.005);
+        const qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.005);
+        globe.quaternion.premultiply(qx);
+        globe.quaternion.premultiply(qy);
+
         rotationVelocity.x = dy * 0.005;
         rotationVelocity.y = dx * 0.005;
         previousMouse.x = e.clientX;
@@ -608,7 +523,6 @@
         return;
       }
 
-      // Raycast pins
       raycaster.setFromCamera(mouse, camera);
       const hits = raycaster.intersectObjects(pinMeshes);
 
@@ -617,8 +531,8 @@
         if (hoveredPin !== idx) {
           if (hoveredPin !== null) unhighlightPin(hoveredPin);
           hoveredPin = idx;
-          autoRotate = false;           // STOP on hover
-          rotationVelocity = { x: 0, y: 0 };  // kill inertia too
+          autoRotate = false;
+          rotationVelocity = { x: 0, y: 0 };
           highlightPin(idx);
           showTooltipForPin(idx);
           renderer.domElement.style.cursor = 'pointer';
@@ -629,7 +543,7 @@
         hoveredPin = null;
         tooltip.classList.remove('visible');
         renderer.domElement.style.cursor = 'grab';
-        autoRotate = true;              // RESUME when leaving pin
+        autoRotate = true;
       }
     }
 
@@ -642,13 +556,12 @@
 
     function onMouseLeave() {
       isDragging = false;
-      // Don't clear hoveredPin here — mouse might re-enter
       if (hoveredPin === null) {
         setTimeout(() => { if (hoveredPin === null && !isDragging) autoRotate = true; }, 1500);
       }
     }
 
-    // Touch
+    // ── Touch ──
     let touchStartPos = { x: 0, y: 0 };
     function onTouchStart(e) {
       if (e.touches.length !== 1) return;
@@ -661,9 +574,10 @@
       e.preventDefault();
       const dx = e.touches[0].clientX - previousMouse.x;
       const dy = e.touches[0].clientY - previousMouse.y;
-      globe.rotation.y += dx * 0.005;
-      globe.rotation.x += dy * 0.005;
-      globe.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, globe.rotation.x));
+      const qx = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.005);
+      const qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.005);
+      globe.quaternion.premultiply(qx);
+      globe.quaternion.premultiply(qy);
       previousMouse.x = e.touches[0].clientX;
       previousMouse.y = e.touches[0].clientY;
     }
@@ -683,9 +597,7 @@
       renderer.setSize(innerWidth, innerHeight);
     }
 
-    // ═══════════════════════════════════════
-    //  TAP ON PIN (mobile)
-    // ═══════════════════════════════════════
+    // ── Tap (mobile) ──
     document.getElementById('globe-container').addEventListener('click', (e) => {
       const dist = Math.abs(e.clientX - (touchStartPos.x||dragStartPos.x))
                  + Math.abs(e.clientY - (touchStartPos.y||dragStartPos.y));
@@ -699,8 +611,7 @@
       if (hits.length > 0) {
         const idx = hits[0].object.userData.index;
         hoveredPin = idx; autoRotate = false;
-        highlightPin(idx);
-        showTooltipForPin(idx);
+        highlightPin(idx); showTooltipForPin(idx);
       } else {
         if (hoveredPin !== null) unhighlightPin(hoveredPin);
         hoveredPin = null;
@@ -709,7 +620,6 @@
       }
     });
 
-    // Close tooltip on outside click
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.pin-tooltip') && !e.target.closest('#globe-container')) {
         tooltip.classList.remove('visible');
@@ -718,26 +628,26 @@
       }
     });
 
-    // ═══════════════════════════════════════
-    //  RENDER LOOP
-    // ═══════════════════════════════════════
+    // ── Render loop ──
     function animate() {
       requestAnimationFrame(animate);
 
-      // Auto-rotate ONLY when nothing hovered + not dragging
       if (autoRotate && !isDragging && hoveredPin === null) {
-        globe.rotation.y += 0.0008;
+        const qAutoRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0.0008);
+        globe.quaternion.premultiply(qAutoRot);
       }
 
-      // Inertia (also blocked by hover)
       if (!isDragging && hoveredPin === null) {
         rotationVelocity.x *= 0.94;
         rotationVelocity.y *= 0.94;
-        if (Math.abs(rotationVelocity.x) > 0.00001) globe.rotation.x += rotationVelocity.x;
-        if (Math.abs(rotationVelocity.y) > 0.00001) globe.rotation.y += rotationVelocity.y;
+        if (Math.abs(rotationVelocity.x) > 0.00001 || Math.abs(rotationVelocity.y) > 0.00001) {
+          const qIx = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), rotationVelocity.x);
+          const qIy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), rotationVelocity.y);
+          globe.quaternion.premultiply(qIx);
+          globe.quaternion.premultiply(qIy);
+        }
       }
 
-      // Pulse rings
       const t = Date.now() * 0.003;
       pinMeshes.forEach((head, i) => {
         const ring = head.userData.ring;
@@ -748,17 +658,14 @@
         }
       });
 
-      // Track tooltip to pin
       if (hoveredPin !== null) updateTooltipScreenPos(hoveredPin);
 
       renderer.render(scene, camera);
     }
 
-    // GO
     init();
   </script>
 
-  <!-- Cookie Consent -->
   <script type="text/javascript" src="//www.freeprivacypolicy.com/public/cookie-consent/4.0.0/cookie-consent.js" charset="UTF-8"></script>
   <script type="text/javascript" charset="UTF-8">
     document.addEventListener('DOMContentLoaded', function () {

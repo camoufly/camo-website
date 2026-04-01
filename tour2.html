@@ -182,7 +182,6 @@
   <div class="globe-legal">© Kawaii Bounce FR. All rights reserved. · P. IVA (IT): IT01442860456</div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/earcut@2.2.4/dist/earcut.min.js"></script>
 
   <script>
     const TOUR_DATES = [
@@ -289,47 +288,22 @@
       animate();
     }
 
-    // ── Land ──
+    // ── Land — outlines only ──
     function loadLand() {
       fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson')
         .then(r => r.json())
         .then(data => {
-          const fillMat = new THREE.MeshBasicMaterial({ color: 0xe0e0e0, side: THREE.DoubleSide, depthWrite: true });
-          // No outline — just filled land, no white border
+          const landMat = new THREE.LineBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: 0.85 });
 
           data.features.forEach(feature => {
             const geom = feature.geometry;
-            const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+            const coords = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
 
-            polys.forEach(polygon => {
-              const outerRing = polygon[0];
-
-              const flatCoords = [];
-              outerRing.forEach(c => { flatCoords.push(c[0], c[1]); });
-
-              const holeIndices = [];
-              for (let h = 1; h < polygon.length; h++) {
-                holeIndices.push(flatCoords.length / 2);
-                polygon[h].forEach(c => { flatCoords.push(c[0], c[1]); });
-              }
-
-              const indices = earcut(flatCoords, holeIndices.length ? holeIndices : undefined, 2);
-              if (!indices.length) return;
-
-              const positions = new Float32Array((flatCoords.length / 2) * 3);
-              for (let i = 0; i < flatCoords.length; i += 2) {
-                const v = latLngToVec3(flatCoords[i + 1], flatCoords[i], GLOBE_R + 0.001);
-                const idx = (i / 2) * 3;
-                positions[idx] = v.x;
-                positions[idx + 1] = v.y;
-                positions[idx + 2] = v.z;
-              }
-
-              const bufGeo = new THREE.BufferGeometry();
-              bufGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-              bufGeo.setIndex(indices);
-              bufGeo.computeVertexNormals();
-              globe.add(new THREE.Mesh(bufGeo, fillMat));
+            coords.forEach(polygon => {
+              polygon.forEach(ring => {
+                const pts = ring.map(c => latLngToVec3(c[1], c[0], GLOBE_R + 0.003));
+                globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), landMat));
+              });
             });
           });
 

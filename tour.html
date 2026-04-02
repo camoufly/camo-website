@@ -6,7 +6,6 @@
   <meta name="keywords" content="camoufly, music">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
 
-  <!-- OG / Twitter -->
   <meta property="og:site_name" content="camoufly" />
   <meta property="og:title" content="camoufly – tour dates" />
   <meta property="og:description" content="camo's next stops" />
@@ -21,114 +20,627 @@
 
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="thumbnail_logo.png">
-  <script src="script.js"></script>
-
   <title>camoufly — tour</title>
+
+  <style>
+    html, body {
+      background: #000 !important;
+      color: #fff !important;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      cursor: grab;
+    }
+    body:active { cursor: grabbing; }
+
+    #globe-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
+    }
+
+    .brand {
+      position: fixed;
+      top: 24px; left: 28px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin: 0; padding: 0;
+    }
+    .brand .logo { height: 28px; width: auto; filter: brightness(0) invert(1); }
+    .brand .logoalt { height: 16px; width: auto; filter: brightness(0) invert(1); opacity: 0.5; margin-left: -8px; }
+
+    .back-link {
+      position: fixed;
+      top: 28px; right: 28px;
+      z-index: 100;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: #fff; }
+
+    .pin-tooltip {
+      position: fixed; z-index: 200;
+      pointer-events: none; opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .pin-tooltip.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .pin-tooltip-inner {
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px; padding: 16px 20px;
+      min-width: 220px; max-width: 300px;
+    }
+    .tt-date { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #e74c3c; margin-bottom: 6px; font-weight: 700; }
+    .tt-venue { font-size: 13px; color: #fff; margin-bottom: 2px; font-weight: 600; }
+    .tt-city { font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
+    .tt-btn {
+      display: inline-block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #fff; background: #e74c3c; border: none; border-radius: 5px;
+      padding: 8px 16px; text-decoration: none; cursor: pointer; transition: background 0.2s;
+    }
+    .tt-btn:hover { background: #c0392b; }
+
+    .date-list {
+      position: fixed; bottom: 28px; left: 28px; z-index: 100;
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      list-style: none; display: flex; flex-direction: column; gap: 6px; padding: 0; margin: 0;
+    }
+    .date-list li {
+      color: rgba(255,255,255,0.3); cursor: pointer; transition: color 0.3s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .date-list li:hover, .date-list li.active { color: #fff; }
+    .date-list li::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%;
+      background: #e74c3c; display: inline-block; flex-shrink: 0;
+    }
+
+    .globe-footer {
+      position: fixed; bottom: 24px; right: 28px; z-index: 100;
+      display: flex; gap: 12px; align-items: center;
+    }
+    .globe-footer a {
+      opacity: 0.35; transition: opacity 0.3s; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .globe-footer a:hover { opacity: 0.9; }
+    .globe-footer a svg { width: 18px; height: 18px; fill: #fff; }
+
+    #loading {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; z-index: 500; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); transition: opacity 0.8s ease;
+    }
+    #loading.hidden { opacity: 0; pointer-events: none; }
+
+    .globe-legal {
+      position: fixed; bottom: 6px; left: 50%; transform: translateX(-50%); z-index: 100;
+      font-size: 8px; letter-spacing: 0.1em; color: rgba(255,255,255,0.15);
+      text-align: center; white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .date-list { display: none; }
+      .globe-footer { display: none; }
+      .brand .logo { height: 22px; }
+    }
+  </style>
 </head>
 <body>
 
-  <main class="wrap">
-    <header class="brand">
-      <a href="https://camoufly.me/" aria-label="Home">
-        <img src="/images/logo.png" alt="camoufly" class="logo">
-      </a>
-      <img src="/images/ontour.png" alt="Tour" class="logoalt">
-      <p class="small"><a href="/">Back</a></p>
-    </header>
+  <div id="loading">Loading globe…</div>
+  <div id="globe-container"></div>
 
-    <hr class="hr">
+  <header class="brand">
+    <a href="https://camoufly.me/" aria-label="Home">
+      <img src="/images/logo.png" alt="camoufly" class="logo">
+    </a>
+    <img src="/images/ontour.png" alt="Tour" class="logoalt">
+  </header>
 
-    <section class="section">
-      <ul class="tour" aria-label="Tour dates">
-        <li>
-          <a href="https://www.skiddle.com/whats-on/Sheffield/Electric-Studios/Faster-Horses-b2b-Paige-Tomlinson-sim0ne-Camoufly--More/42076875/" target="_blank" rel="noopener noreferrer">
-            MAR 21
-            <span class="line2">Electric Studios — Sheffield, UK</span>
-          </a>
-        </li>
+  <a href="/" class="back-link">← Back</a>
 
-        <li>
-          <a href="https://dice.fm/bundles/factory-town-music-week-2026-2x86" target="_blank" rel="noopener noreferrer">
-            MAR 25
-            <span class="line2">Factory Town — Miami, US</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="https://dice.fm/event/yonyba--four-tet-milano-27th-mar-magazzini-generali-milano-tickets" target="_blank" rel="noopener noreferrer">
-            MAR 27
-            <span class="line2">Magazzini Generali (+ Four Tet) — Milano, IT</span>
-          </a>
-        </li>
+  <ul class="date-list" id="dateList"></ul>
 
-        <li>
-          <a href="https://ra.co/events/2295130" target="_blank" rel="noopener noreferrer">
-            APR 8
-            <span class="line2">La Nau — Barcelona, ES</span>
-          </a>
-        </li>
+  <div class="pin-tooltip" id="tooltip">
+    <div class="pin-tooltip-inner">
+      <div class="tt-date" id="ttDate"></div>
+      <div class="tt-venue" id="ttVenue"></div>
+      <div class="tt-city" id="ttCity"></div>
+      <a class="tt-btn" id="ttBtn" href="#" target="_blank" rel="noopener noreferrer">Tickets →</a>
+    </div>
+  </div>
 
-        <li>
-          <a href="https://tickets.berlinclub.es/en/events/camoufly-en-microdosis" target="_blank" rel="noopener noreferrer">
-            APR 9
-            <span class="line2">Berlin Club — Madrid, ES</span>
-          </a>
-        </li>
+  <!-- Social icons as inline SVGs -->
+  <div class="globe-footer">
+    <a href="http://instagram.com/camouflybeats" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+    </a>
+    <a href="http://soundcloud.com/camouflybeats" target="_blank" rel="noopener noreferrer" aria-label="SoundCloud">
+      <svg viewBox="-271 345.8 256 111.2" xmlns="http://www.w3.org/2000/svg"><g><path d="M-238.4,398.1c-0.8,0-1.4,0.6-1.5,1.5l-2.3,28l2.3,27.1c0.1,0.8,0.7,1.5,1.5,1.5c0.8,0,1.4-0.6,1.5-1.5l2.6-27.1l-2.6-28C-237,398.7-237.7,398.1-238.4,398.1z"/><path d="M-228.2,399.9c-0.9,0-1.7,0.7-1.7,1.7l-2.1,26l2.1,27.3c0.1,1,0.8,1.7,1.7,1.7c0.9,0,1.6-0.7,1.7-1.7l2.4-27.3l-2.4-26C-226.6,400.6-227.3,399.9-228.2,399.9z"/><path d="M-258.6,403.5c-0.5,0-1,0.4-1.1,1l-2.5,23l2.5,22.5c0.1,0.6,0.5,1,1.1,1c0.5,0,1-0.4,1.1-1l2.9-22.5l-2.9-23C-257.7,404-258.1,403.5-258.6,403.5z"/><path d="M-268.1,412.3c-0.5,0-1,0.4-1,1l-1.9,14.3l1.9,14c0.1,0.6,0.5,1,1,1s0.9-0.4,1-1l2.2-14l-2.2-14.2C-267.2,412.8-267.6,412.3-268.1,412.3z"/><path d="M-207.5,373.5c-1.2,0-2.1,0.9-2.2,2.1l-1.9,52l1.9,27.2c0.1,1.2,1,2.1,2.2,2.1s2.1-0.9,2.2-2.1l2.1-27.2l-2.1-52C-205.4,374.4-206.4,373.5-207.5,373.5z"/><path d="M-248.6,399c-0.7,0-1.2,0.5-1.3,1.3l-2.4,27.3l2.4,26.3c0.1,0.7,0.6,1.3,1.3,1.3c0.7,0,1.2-0.5,1.3-1.2l2.7-26.3l-2.7-27.3C-247.4,399.6-247.9,399-248.6,399z"/><path d="M-217.9,383.4c-1,0-1.9,0.8-1.9,1.9l-2,42.3l2,27.3c0.1,1.1,0.9,1.9,1.9,1.9s1.9-0.8,1.9-1.9l2.3-27.3l-2.3-42.3C-216,384.2-216.9,383.4-217.9,383.4z"/><path d="M-154.4,359.3c-1.8,0-3.2,1.4-3.2,3.2l-1.2,65l1.2,26.1c0,1.8,1.5,3.2,3.2,3.2c1.8,0,3.2-1.5,3.2-3.2l1.4-26.1l-1.4-65C-151.1,360.8-152.6,359.3-154.4,359.3z"/><path d="M-197.1,368.9c-1.3,0-2.3,1-2.4,2.4l-1.8,56.3l1.8,26.9c0,1.3,1.1,2.3,2.4,2.3s2.3-1,2.4-2.4l2-26.9l-2-56.3C-194.7,370-195.8,368.9-197.1,368.9z"/><path d="M-46.5,394c-4.3,0-8.4,0.9-12.2,2.4C-61.2,368-85,345.8-114,345.8c-7.1,0-14,1.4-20.1,3.8c-2.4,0.9-3,1.9-3,3.7v99.9c0,1.9,1.5,3.5,3.4,3.7c0.1,0,86.7,0,87.3,0c17.4,0,31.5-14.1,31.5-31.5C-15,408.1-29.1,394-46.5,394z"/><path d="M-143.6,353.2c-1.9,0-3.4,1.6-3.5,3.5l-1.4,70.9l1.4,25.7c0,1.9,1.6,3.4,3.5,3.4c1.9,0,3.4-1.6,3.5-3.5l1.5-25.8l-1.5-70.9C-140.2,354.8-141.7,353.2-143.6,353.2z"/><path d="M-186.5,366.8c-1.4,0-2.5,1.1-2.6,2.6l-1.6,58.2l1.6,26.7c0,1.4,1.2,2.6,2.6,2.6s2.5-1.1,2.6-2.6l1.8-26.7l-1.8-58.2C-184,367.9-185.1,366.8-186.5,366.8z"/><path d="M-175.9,368.1c-1.5,0-2.8,1.2-2.8,2.8l-1.5,56.7l1.5,26.5c0,1.6,1.3,2.8,2.8,2.8s2.8-1.2,2.8-2.8l1.7-26.5l-1.7-56.7C-173.1,369.3-174.3,368.1-175.9,368.1z"/><path d="M-165.2,369.9c-1.7,0-3,1.3-3,3l-1.4,54.7l1.4,26.3c0,1.7,1.4,3,3,3c1.7,0,3-1.3,3-3l1.5-26.3l-1.5-54.7C-162.2,371.3-163.5,369.9-165.2,369.9z"/></g></svg>
+    </a>
+    <a href="https://open.spotify.com/artist/6ZmJg6NCjGmRgC2GEI86pQ" target="_blank" rel="noopener noreferrer" aria-label="Spotify">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+    </a>
+    <a href="https://www.youtube.com/c/camoufly" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+  </div>
 
-        <li>
-          <a href="https://ticket.hiroshimamonamour.org/it/hiroshima-mon-amour/eventi/NH44" target="_blank" rel="noopener noreferrer">
-            APR 24
-            <span class="line2">Hiroshima Mon Amour — Torino, IT</span>
-          </a>
-        </li>
+  <div class="globe-legal">© Kawaii Bounce FR. All rights reserved. · P. IVA (IT): IT01442860456</div>
 
-        <li>
-          <a href="https://geminifestival.com/#tickets" target="_blank" rel="noopener noreferrer">
-            MAY 15
-            <span class="line2">Gemini Festival — Bologna, IT</span>
-          </a>
-        </li>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-        <li>
-          <a href="https://xceed.me/en/roma/event/invincible-festival-sab-16-maggio/213253/channel/invincibile-festival" target="_blank" rel="noopener noreferrer">
-            MAY 16
-            <span class="line2">Invincible Festival — Roma, IT</span>
-          </a>
-        </li>
+  <script>
+    const TOUR_DATES = [
+      { date: 'APR 8', venue: 'La Nau', city: 'Barcelona, ES', lat: 41.3874, lng: 2.1686, url: 'https://ra.co/events/2295130' },
+      { date: 'APR 9', venue: 'Berlin Club', city: 'Madrid, ES', lat: 40.4168, lng: -3.7038, url: 'https://tickets.berlinclub.es/en/events/camoufly-en-microdosis' },
+      { date: 'APR 24', venue: 'Hiroshima Mon Amour', city: 'Torino, IT', lat: 45.0903, lng: 7.6615, url: 'https://ticket.hiroshimamonamour.org/it/hiroshima-mon-amour/eventi/NH44' },
+      { date: 'MAY 15', venue: 'Gemini Festival', city: 'Bologna, IT', lat: 44.4949, lng: 11.3426, url: 'https://geminifestival.com/#tickets' },
+      { date: 'MAY 16', venue: 'Invincible Festival', city: 'Roma, IT', lat: 41.9028, lng: 12.4964, url: 'https://xceed.me/en/roma/event/invincible-festival-sab-16-maggio/213253/channel/invincibile-festival' },
+      { date: 'MAY 30', venue: 'Le Bikini', city: 'Ramonville-Saint-Agne, FR', lat: 43.5461, lng: 1.4749, url: 'https://shotgun.live/fr/events/crtl-f-festival-pass-2-jours' },
+      { date: 'JUL 17', venue: 'Breakaway Under the K', city: 'New York, US', lat: 40.7127, lng: -74.006, url: 'https://www.axs.com/events/1372373/breakaway-festival-ft-tiesto-tickets?skin=underthek' },
+      { date: 'AUG 08', venue: 'Outside Lands', city: 'San Francisco, US', lat: 37.7879, lng: -122.4075, url: 'https://outsidelands.frontgatetickets.com/?_gl=1*ftg8rp*_gcl_au*MTc5NzA4MDc2MC4xNzc1MTMwMDcw' },
+      { date: 'AUG 28', venue: 'Touquet Music Beach', city: 'Le Touquet, FR', lat: 50.52, lng: 1.5865, url: 'https://tickets.touquetmusicbeach.com/f5cfd932e7d4469ea2f0cb519cea39c6/' }
+    ];
 
-      </ul>
-    </section>
+    let scene, camera, renderer, globe, pinGroup;
+    let raycaster, mouse;
+    let isDragging = false;
+    let previousMouse = { x: 0, y: 0 };
+    let rotationVelocity = { x: 0, y: 0 };
+    let autoRotate = true;
+    let hoveredPin = null;
+    let pinMeshes = [];
+    const tooltip = document.getElementById('tooltip');
+    const GLOBE_R = 1.5;
 
-        <hr class="hr">
+    function latLngToVec3(lat, lng, r) {
+      const phi = (90 - lat) * Math.PI / 180;
+      const theta = (lng + 180) * Math.PI / 180;
+      return new THREE.Vector3(
+        -(r * Math.sin(phi) * Math.cos(theta)),
+        r * Math.cos(phi),
+        r * Math.sin(phi) * Math.sin(theta)
+      );
+    }
 
-    <footer class="section">
-      <div class="socials" aria-label="Social links">
-        <a href="https://audius.co/camouflybeats" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/audius.png" alt="Audius"></a>
-        <a href="https://camouflybeats.bandcamp.com" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/bandcamp.png" alt="Bandcamp"></a>
-        <a href="https://beta.catalog.works/camoufly" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/catalog.png" alt="Catalog"></a>
-        <a href="http://instagram.com/camouflybeats" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/instagram.png" alt="Instagram"></a>
-        <a href="https://www.sound.xyz/camoufly" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/sound.png" alt="Sound.xyz"></a>
-        <a href="http://soundcloud.com/camouflybeats" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/soundcloud.png" alt="SoundCloud"></a>
-        <a href="https://open.spotify.com/artist/6ZmJg6NCjGmRgC2GEI86pQ" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/spotify.png" alt="Spotify"></a>
-        <a href="http://twitter.com/camouflybeats" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/twitter.png" alt="Twitter/X"></a>
-        <a href="https://www.youtube.com/c/camoufly" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/youtube.png" alt="YouTube"></a>
-        <a href="mailto:keiran@ctrlfrk.co.uk" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/mail.png" alt="Email"></a>
-      </div>
+    function init() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 1000);
+      camera.position.z = 4.2;
 
-      <div class="footer-links">
-        <a href="https://camoufly.me/privacy">privacy</a> //
-        <a href="#" id="open_preferences_center">update cookies preferences</a>
-      </div>
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setClearColor(0x000000, 1);
+      document.getElementById('globe-container').appendChild(renderer.domElement);
 
-      <div class="legal">
-        © Kawaii Bounce FR. All rights reserved.<br>
-        P. IVA (IT): IT01442860456
-      </div>
+      scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+      const dir = new THREE.DirectionalLight(0xffffff, 0.6);
+      dir.position.set(5, 3, 5);
+      scene.add(dir);
 
-    </footer>
-  </main>
+      globe = new THREE.Group();
+      scene.add(globe);
 
-  <!-- Cookie Consent by FreePrivacyPolicy.com -->
+      // Ocean (dark sphere)
+      globe.add(new THREE.Mesh(
+        new THREE.SphereGeometry(GLOBE_R, 64, 64),
+        new THREE.MeshPhongMaterial({ color: 0x080808, shininess: 5 })
+      ));
+
+      // Atmosphere
+      globe.add(new THREE.Mesh(
+        new THREE.SphereGeometry(GLOBE_R + 0.04, 64, 64),
+        new THREE.MeshBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.06, side: THREE.BackSide })
+      ));
+
+      // Graticule
+      const gridMat = new THREE.LineBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.4 });
+      for (let lat = -80; lat <= 80; lat += 20) {
+        const pts = [];
+        for (let lng = -180; lng <= 180; lng += 2) pts.push(latLngToVec3(lat, lng, GLOBE_R + 0.002));
+        globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), gridMat));
+      }
+      for (let lng = -180; lng < 180; lng += 20) {
+        const pts = [];
+        for (let lat = -90; lat <= 90; lat += 2) pts.push(latLngToVec3(lat, lng, GLOBE_R + 0.002));
+        globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), gridMat));
+      }
+
+      pinGroup = new THREE.Group();
+      globe.add(pinGroup);
+
+      loadLand();
+      createPins();
+      buildDateList();
+
+      raycaster = new THREE.Raycaster();
+      mouse = new THREE.Vector2();
+
+      // Start centered on Europe
+      globe.rotation.x = 0.3;
+      globe.rotation.y = -0.2;
+
+      addEventListener('resize', onResize);
+      const cv = renderer.domElement;
+      cv.addEventListener('mousedown', onMouseDown);
+      cv.addEventListener('mousemove', onMouseMove);
+      cv.addEventListener('mouseup', onMouseUp);
+      cv.addEventListener('mouseleave', onMouseLeave);
+      cv.addEventListener('touchstart', onTouchStart, { passive: false });
+      cv.addEventListener('touchmove', onTouchMove, { passive: false });
+      cv.addEventListener('touchend', onTouchEnd);
+      cv.addEventListener('wheel', onWheel, { passive: false });
+
+      animate();
+    }
+
+    // ── Land — outlines only ──
+    function loadLand() {
+      fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson')
+        .then(r => r.json())
+        .then(data => {
+          const landMat = new THREE.LineBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: 0.85 });
+
+          data.features.forEach(feature => {
+            const geom = feature.geometry;
+            const coords = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+
+            coords.forEach(polygon => {
+              polygon.forEach(ring => {
+                const pts = ring.map(c => latLngToVec3(c[1], c[0], GLOBE_R + 0.003));
+                globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), landMat));
+              });
+            });
+          });
+
+          document.getElementById('loading').classList.add('hidden');
+        })
+        .catch(() => {
+          document.getElementById('loading').classList.add('hidden');
+        });
+    }
+
+    // ── Pins — stem aligned radially outward ──
+    function createPins() {
+      TOUR_DATES.forEach((td, i) => {
+        const surfacePos = latLngToVec3(td.lat, td.lng, GLOBE_R);
+        const normal = surfacePos.clone().normalize();
+
+        // Build pin in a group, then orient the whole group
+        const pin = new THREE.Group();
+
+        // Stem: CylinderGeometry is along Y by default
+        // We want it along the local "up" (which will be the normal after orientation)
+        const stemHeight = 0.10;
+        const stemGeo = new THREE.CylinderGeometry(0.004, 0.004, stemHeight, 8);
+        const stemMat = new THREE.MeshBasicMaterial({ color: 0xe74c3c });
+        const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.position.y = stemHeight / 2; // bottom of stem at origin
+        pin.add(stem);
+
+        // Head sphere at top of stem
+        const headGeo = new THREE.SphereGeometry(0.025, 16, 16);
+        const headMat = new THREE.MeshPhongMaterial({
+          color: 0xe74c3c, emissive: 0xe74c3c, emissiveIntensity: 0.35, shininess: 80
+        });
+        const head = new THREE.Mesh(headGeo, headMat);
+        head.position.y = stemHeight + 0.02;
+        pin.add(head);
+
+        // Pulse ring at base
+        const ringGeo = new THREE.RingGeometry(0.025, 0.038, 32);
+        const ringMat = new THREE.MeshBasicMaterial({
+          color: 0xe74c3c, transparent: true, opacity: 0.4, side: THREE.DoubleSide
+        });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = -Math.PI / 2; // flat on the surface
+        ring.position.y = 0.002;
+        pin.add(ring);
+
+        // Position pin on globe surface
+        pin.position.copy(surfacePos);
+
+        // Orient pin so its local Y axis points along the surface normal
+        // Default "up" for the pin group is (0,1,0), we need to rotate it to match `normal`
+        const up = new THREE.Vector3(0, 1, 0);
+        const quat = new THREE.Quaternion().setFromUnitVectors(up, normal);
+        pin.quaternion.copy(quat);
+
+        pin.userData = { index: i, ...td };
+        pinGroup.add(pin);
+        pinMeshes.push(head);
+        head.userData = { ring, index: i };
+      });
+    }
+
+    // ── Sidebar ──
+    function buildDateList() {
+      const list = document.getElementById('dateList');
+      TOUR_DATES.forEach((td, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${td.date} — ${td.city}`;
+        li.addEventListener('click', () => flyToPin(i));
+        li.addEventListener('mouseenter', () => highlightPin(i));
+        li.addEventListener('mouseleave', () => unhighlightPin(i));
+        list.appendChild(li);
+      });
+    }
+
+    // ── Fly to pin — quaternion slerp approach ──
+    function flyToPin(index) {
+      const td = TOUR_DATES[index];
+      autoRotate = false;
+      rotationVelocity = { x: 0, y: 0 };
+
+      // We want the pin's position to face the camera (along +Z).
+      // The pin is at latLngToVec3(lat, lng, R) in globe-local space.
+      // We need to find a globe rotation that puts that point facing +Z (toward camera).
+      const pinLocal = latLngToVec3(td.lat, td.lng, GLOBE_R).normalize();
+
+      // Camera looks along -Z, so we want pinLocal to point toward (0, 0, 1) after rotation.
+      // That means we need a rotation that takes pinLocal → (0, 0, 1)
+      const target = new THREE.Vector3(0, 0, 1);
+      const targetQuat = new THREE.Quaternion().setFromUnitVectors(pinLocal, target);
+
+      // Current rotation as quaternion
+      const startQuat = new THREE.Quaternion().copy(globe.quaternion);
+      // End quaternion: targetQuat applied to current identity
+      // We want globe.quaternion = targetQuat (rotating globe so pin faces camera)
+      const endQuat = targetQuat.clone();
+
+      const dur = 1200, t0 = Date.now();
+      (function tick() {
+        const t = Math.min((Date.now() - t0) / dur, 1);
+        const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+
+        const q = new THREE.Quaternion();
+        THREE.Quaternion.slerp(startQuat, endQuat, q, ease);
+        globe.quaternion.copy(q);
+
+        if (t < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          showTooltipForPin(index);
+          setTimeout(() => { if (hoveredPin === null && !isDragging) autoRotate = true; }, 4000);
+        }
+      })();
+    }
+
+    function highlightPin(index) {
+      const head = pinMeshes[index];
+      if (head) { head.scale.set(1.6,1.6,1.6); head.material.emissiveIntensity = 0.9; }
+      document.querySelectorAll('#dateList li').forEach((li,i) => li.classList.toggle('active', i===index));
+    }
+
+    function unhighlightPin(index) {
+      const head = pinMeshes[index];
+      if (head) { head.scale.set(1,1,1); head.material.emissiveIntensity = 0.35; }
+      document.querySelectorAll('#dateList li')[index]?.classList.remove('active');
+    }
+
+    // ── Tooltip ──
+    function showTooltipForPin(index) {
+      const td = TOUR_DATES[index];
+      document.getElementById('ttDate').textContent = td.date;
+      document.getElementById('ttVenue').textContent = td.venue;
+      document.getElementById('ttCity').textContent = td.city;
+      document.getElementById('ttBtn').href = td.url;
+      tooltip.classList.add('visible');
+      updateTooltipScreenPos(index);
+    }
+
+    function updateTooltipScreenPos(index) {
+      const td = TOUR_DATES[index];
+      const worldPos = latLngToVec3(td.lat, td.lng, GLOBE_R + 0.15);
+      worldPos.applyMatrix4(globe.matrixWorld);
+
+      const camDir = new THREE.Vector3();
+      camera.getWorldDirection(camDir);
+      const surfaceWorld = latLngToVec3(td.lat, td.lng, GLOBE_R);
+      surfaceWorld.applyMatrix4(globe.matrixWorld);
+      const toPin = surfaceWorld.clone().sub(camera.position).normalize();
+      if (camDir.dot(toPin) <= 0) { tooltip.classList.remove('visible'); return; }
+
+      const ndc = worldPos.clone().project(camera);
+      let x = (ndc.x * 0.5 + 0.5) * innerWidth;
+      let y = (-ndc.y * 0.5 + 0.5) * innerHeight;
+      x = Math.max(10, Math.min(x + 15, innerWidth - 260));
+      y = Math.max(10, Math.min(y - 40, innerHeight - 140));
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+    }
+
+    // ── Mouse ──
+    let dragStartPos = { x: 0, y: 0 };
+
+    function onMouseDown(e) {
+      isDragging = true;
+      autoRotate = false;
+      previousMouse.x = dragStartPos.x = e.clientX;
+      previousMouse.y = dragStartPos.y = e.clientY;
+      rotationVelocity = { x: 0, y: 0 };
+    }
+
+    function onMouseMove(e) {
+      mouse.x = (e.clientX / innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+
+      if (isDragging) {
+        const dx = e.clientX - previousMouse.x;
+        const dy = e.clientY - previousMouse.y;
+
+        // Apply rotation via quaternion to avoid gimbal lock
+        const qx = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.005);
+        const qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.005);
+        globe.quaternion.premultiply(qx);
+        globe.quaternion.premultiply(qy);
+
+        rotationVelocity.x = dy * 0.005;
+        rotationVelocity.y = dx * 0.005;
+        previousMouse.x = e.clientX;
+        previousMouse.y = e.clientY;
+        tooltip.classList.remove('visible');
+        return;
+      }
+
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(pinMeshes);
+
+      if (hits.length > 0) {
+        const idx = hits[0].object.userData.index;
+        if (hoveredPin !== idx) {
+          if (hoveredPin !== null) unhighlightPin(hoveredPin);
+          hoveredPin = idx;
+          autoRotate = false;
+          rotationVelocity = { x: 0, y: 0 };
+          highlightPin(idx);
+          showTooltipForPin(idx);
+          renderer.domElement.style.cursor = 'pointer';
+        }
+        updateTooltipScreenPos(idx);
+      } else if (hoveredPin !== null) {
+        unhighlightPin(hoveredPin);
+        hoveredPin = null;
+        tooltip.classList.remove('visible');
+        renderer.domElement.style.cursor = 'grab';
+        autoRotate = true;
+      }
+    }
+
+    function onMouseUp() {
+      isDragging = false;
+      if (hoveredPin === null) {
+        setTimeout(() => { if (hoveredPin === null && !isDragging) autoRotate = true; }, 1500);
+      }
+    }
+
+    function onMouseLeave() {
+      isDragging = false;
+      if (hoveredPin === null) {
+        setTimeout(() => { if (hoveredPin === null && !isDragging) autoRotate = true; }, 1500);
+      }
+    }
+
+    // ── Touch ──
+    let touchStartPos = { x: 0, y: 0 };
+    function onTouchStart(e) {
+      if (e.touches.length !== 1) return;
+      isDragging = true; autoRotate = false;
+      touchStartPos.x = previousMouse.x = e.touches[0].clientX;
+      touchStartPos.y = previousMouse.y = e.touches[0].clientY;
+    }
+    function onTouchMove(e) {
+      if (!isDragging || e.touches.length !== 1) return;
+      e.preventDefault();
+      const dx = e.touches[0].clientX - previousMouse.x;
+      const dy = e.touches[0].clientY - previousMouse.y;
+      const qx = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.005);
+      const qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.005);
+      globe.quaternion.premultiply(qx);
+      globe.quaternion.premultiply(qy);
+      previousMouse.x = e.touches[0].clientX;
+      previousMouse.y = e.touches[0].clientY;
+    }
+    function onTouchEnd() {
+      isDragging = false;
+      setTimeout(() => { if (hoveredPin === null && !isDragging) autoRotate = true; }, 2000);
+    }
+
+    function onWheel(e) {
+      e.preventDefault();
+      camera.position.z = Math.max(2.5, Math.min(8, camera.position.z + e.deltaY * 0.002));
+    }
+
+    function onResize() {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    }
+
+    // ── Tap (mobile) ──
+    document.getElementById('globe-container').addEventListener('click', (e) => {
+      const dist = Math.abs(e.clientX - (touchStartPos.x||dragStartPos.x))
+                 + Math.abs(e.clientY - (touchStartPos.y||dragStartPos.y));
+      if (dist > 10) return;
+
+      mouse.x = (e.clientX / innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(pinMeshes);
+
+      if (hits.length > 0) {
+        const idx = hits[0].object.userData.index;
+        hoveredPin = idx; autoRotate = false;
+        highlightPin(idx); showTooltipForPin(idx);
+      } else {
+        if (hoveredPin !== null) unhighlightPin(hoveredPin);
+        hoveredPin = null;
+        tooltip.classList.remove('visible');
+        setTimeout(() => { if (hoveredPin === null) autoRotate = true; }, 2000);
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.pin-tooltip') && !e.target.closest('#globe-container')) {
+        tooltip.classList.remove('visible');
+        if (hoveredPin !== null) { unhighlightPin(hoveredPin); hoveredPin = null; }
+        setTimeout(() => { if (hoveredPin === null) autoRotate = true; }, 1500);
+      }
+    });
+
+    // ── Render loop ──
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (autoRotate && !isDragging && hoveredPin === null) {
+        const qAutoRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0.0008);
+        globe.quaternion.premultiply(qAutoRot);
+      }
+
+      if (!isDragging && hoveredPin === null) {
+        rotationVelocity.x *= 0.94;
+        rotationVelocity.y *= 0.94;
+        if (Math.abs(rotationVelocity.x) > 0.00001 || Math.abs(rotationVelocity.y) > 0.00001) {
+          const qIx = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), rotationVelocity.x);
+          const qIy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), rotationVelocity.y);
+          globe.quaternion.premultiply(qIx);
+          globe.quaternion.premultiply(qIy);
+        }
+      }
+
+      const t = Date.now() * 0.003;
+      pinMeshes.forEach((head, i) => {
+        const ring = head.userData.ring;
+        if (ring) {
+          ring.material.opacity = 0.3 + Math.sin(t + i * 0.7) * 0.15;
+          const s = 1 + Math.sin(t + i * 0.7) * 0.15;
+          ring.scale.set(s, s, s);
+        }
+      });
+
+      if (hoveredPin !== null) updateTooltipScreenPos(hoveredPin);
+
+      renderer.render(scene, camera);
+    }
+
+    init();
+  </script>
+
   <script type="text/javascript" src="//www.freeprivacypolicy.com/public/cookie-consent/4.0.0/cookie-consent.js" charset="UTF-8"></script>
   <script type="text/javascript" charset="UTF-8">
     document.addEventListener('DOMContentLoaded', function () {
@@ -146,6 +658,6 @@
       });
     });
   </script>
-  <noscript>Cookie Consent by <a href="https://www.freeprivacypolicy.com/" rel="noopener">Free Privacy Policy Generator</a></noscript>
 
 </body>
+</html>

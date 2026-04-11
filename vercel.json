@@ -1,15 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/",
-      "has": [{ "type": "host", "value": "tools.camoufly.me" }],
-      "destination": "/tools/index.html"
-    },
-    {
-      "source": "/isrc",
-      "has": [{ "type": "host", "value": "tools.camoufly.me" }],
-      "destination": "/tools/isrc/index.html"
-    },
     { "source": "/tour", "destination": "/tour.html" },
     { "source": "/about", "destination": "/about.html" },
     { "source": "/send", "destination": "/sendmusic.html" },

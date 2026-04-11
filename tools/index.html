@@ -16,6 +16,7 @@
     --accent: #c8f060;
     --accent-dim: rgba(200,240,96,0.07);
     --accent-border: rgba(200,240,96,0.18);
+    --red: #ff5b5b;
     --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
   }
   html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
@@ -31,7 +32,7 @@
     z-index: 0;
   }
   .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
-  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 28px; border-bottom: 0.5px solid var(--border); }
+  .topbar { display: flex; align-items: center; padding: 20px 28px; border-bottom: 0.5px solid var(--border); }
   .wordmark { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: 1px; }
   .wordmark span { color: var(--accent); }
   .center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; }
@@ -39,22 +40,67 @@
   .title { font-size: 32px; font-weight: 600; letter-spacing: -1px; margin-bottom: 8px; text-align: center; }
   .title span { color: var(--accent); }
   .sub { font-size: 14px; color: var(--muted); margin-bottom: 48px; text-align: center; }
-  .card { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 16px; padding: 28px 32px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 18px; }
+  .card { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 16px; padding: 28px 32px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 16px; }
   .card-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-  .btn-google { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 13px 20px; background: #fff; color: #1f1f1f; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.15s, transform 0.1s; font-family: inherit; }
-  .btn-google:hover { background: #f2f2f2; }
-  .btn-google:active { transform: scale(0.98); }
-  .btn-google.loading { background: #e8e8e8; pointer-events: none; }
-  .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
-  .btn-google .spinner { display: none; width: 16px; height: 16px; border: 2px solid #ccc; border-top-color: #666; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
-  .btn-google.loading .spinner { display: block; }
-  .btn-google.loading .g-icon { display: none; }
-  .btn-google.loading .btn-text { color: #999; }
+  .input-wrap { position: relative; }
+  .pw-input {
+    width: 100%;
+    background: #0e0e0e;
+    border: 0.5px solid var(--border2);
+    border-radius: 10px;
+    color: var(--text);
+    padding: 13px 44px 13px 16px;
+    font-size: 14px;
+    font-family: var(--mono);
+    letter-spacing: 2px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .pw-input::placeholder { letter-spacing: 0; font-family: inherit; color: var(--muted); }
+  .pw-input:focus { border-color: var(--accent-border); }
+  .pw-input.error { border-color: rgba(255,91,91,0.5); }
+  .toggle-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+  .toggle-btn:hover { color: var(--text); }
+  .btn-submit {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, transform 0.1s, opacity 0.15s;
+  }
+  .btn-submit:hover { background: #d4f575; }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .error-msg { font-size: 12px; color: var(--red); display: none; }
+  .error-msg.show { display: block; }
   .divider { height: 0.5px; background: var(--border); }
   .note { font-size: 12px; color: var(--muted); line-height: 1.7; }
   .note strong { color: #4a4a4a; font-weight: 500; }
   .footer { padding: 20px 28px; border-top: 0.5px solid var(--border); font-family: var(--mono); font-size: 11px; color: #2a2a2a; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+  .shake { animation: shake 0.35s ease; }
 </style>
 </head>
 <body>
@@ -65,19 +111,27 @@
   <div class="center">
     <div class="eyebrow">internal tools</div>
     <div class="title">camoufly <span>tools</span></div>
-    <div class="sub">Sign in to access your workspace</div>
+    <div class="sub">Enter your access code to continue</div>
     <div class="card">
-      <div class="card-label">Sign in to continue</div>
-      <button class="btn-google" id="signin-btn" onclick="handleSignIn()">
-        <svg class="g-icon" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
-          <path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.548 0 9s.348 2.825.957 4.039l3.007-2.332z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#EA4335"/>
-        </svg>
-        <div class="spinner"></div>
-        <span class="btn-text">Continue with Google</span>
-      </button>
+      <div class="card-label">Access code</div>
+      <div class="input-wrap">
+        <input
+          class="pw-input"
+          id="pw"
+          type="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') handleSubmit()"
+        >
+        <button class="toggle-btn" onclick="toggleVisibility()" tabindex="-1" type="button">
+          <svg id="eye-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="error-msg" id="error-msg">Incorrect access code</div>
+      <button class="btn-submit" id="submit-btn" onclick="handleSubmit()">Enter</button>
       <div class="divider"></div>
       <div class="note">Access restricted to authorised accounts —<br><strong>camoufly.me</strong> and <strong>ctrlfrk.co.uk</strong>.</div>
     </div>
@@ -85,11 +139,55 @@
   <div class="footer">tools.camoufly.me</div>
 </div>
 <script>
-  function handleSignIn() {
-    const btn = document.getElementById('signin-btn');
-    btn.classList.add('loading');
-    btn.querySelector('.btn-text').textContent = 'Signing in...';
-    setTimeout(() => { window.location.href = '/hub'; }, 500);
+  let visible = false;
+
+  function toggleVisibility() {
+    visible = !visible;
+    const input = document.getElementById('pw');
+    input.type = visible ? 'text' : 'password';
+    document.getElementById('eye-icon').innerHTML = visible
+      ? '<path d="M2 2l12 12M6.5 6.7A2 2 0 0 0 9.3 9.5M1 8s2.5-5 7-5c1.4 0 2.7.4 3.8 1M15 8s-2.5 5-7 5c-1.4 0-2.7-.4-3.8-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'
+      : '<path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/>';
+  }
+
+  async function handleSubmit() {
+    const pw = document.getElementById('pw').value;
+    const btn = document.getElementById('submit-btn');
+    const err = document.getElementById('error-msg');
+    const input = document.getElementById('pw');
+
+    if (!pw) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Checking...';
+    err.classList.remove('show');
+    input.classList.remove('error');
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+      });
+
+      if (res.ok) {
+        btn.textContent = '✓';
+        setTimeout(() => { window.location.href = '/hub'; }, 300);
+      } else {
+        input.classList.add('error', 'shake');
+        err.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'Enter';
+        setTimeout(() => input.classList.remove('shake'), 400);
+        document.getElementById('pw').value = '';
+        document.getElementById('pw').focus();
+      }
+    } catch (e) {
+      err.textContent = 'Connection error — try again';
+      err.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Enter';
+    }
   }
 </script>
 </body>

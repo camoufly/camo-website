@@ -158,15 +158,15 @@
     /* legal — bottom left */
     .s-legal {
       position: absolute; bottom: 20px; left: 28px;
-      z-index: 10; display: flex; flex-direction: column; gap: 4px;
+      z-index: 10; display: flex; flex-direction: column; gap: 3px;
     }
     .s-legal a, .s-legal span {
-      font-size: 9px; letter-spacing: 0.08em;
+      font-size: 9px; letter-spacing: 0.06em;
       color: rgba(255,255,255,0.28); text-decoration: none;
-      line-height: 1.4; transition: color 0.18s;
+      line-height: 1.5; transition: color 0.18s;
+      display: block;
     }
     .s-legal a:hover { color: rgba(255,255,255,0.7); }
-    .s-legal .sep { opacity: 0.4; }
 
     /* ══ MOBILE ══ */
     @media (max-width: 700px) {
@@ -191,15 +191,17 @@
       /* socials centrate in basso */
       .s-socials {
         right: auto; left: 50%; transform: translateX(-50%);
-        gap: 20px; bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+        gap: 20px; bottom: calc(72px + env(safe-area-inset-bottom, 0px));
       }
       .s-socials a svg { width: 20px; height: 20px; }
 
-      /* legal sotto le socials */
+      /* legal sotto le socials, allineato a sinistra */
       .s-legal {
-        left: 50%; transform: translateX(-50%);
+        left: 28px;
+        transform: none;
         bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-        align-items: center; flex-direction: row; gap: 6px; white-space: nowrap;
+        align-items: flex-start;
+        flex-direction: column;
       }
     }
 
@@ -230,7 +232,7 @@
       <a href="/tour">tour <em>«</em></a>
       <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
       <a href="http://tstack.app/camoufly" target="_blank" rel="noopener noreferrer">send music <em>«</em></a>
-      <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
+      <a href="/cdn-cgi/l/email-protection#412a242833202f012235332d27332a6f222e6f342a">contact <em>«</em></a>
     </nav>
 
     <!-- mobile nav -->
@@ -238,7 +240,7 @@
       <a href="/tour">tour <em>«</em></a>
       <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
       <a href="http://tstack.app/camoufly" target="_blank" rel="noopener noreferrer">send music <em>«</em></a>
-      <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
+      <a href="/cdn-cgi/l/email-protection#fe959b978c9f90be9d8a8c92988c95d09d91d08b95">contact <em>«</em></a>
     </nav>
 
     <!-- socials -->
@@ -259,14 +261,14 @@
 
     <!-- legal bottom left -->
     <div class="s-legal">
-      <a href="https://camoufly.me/privacy">privacy</a><br>
-      <a href="#" id="open_preferences_center">update cookies preferences</a><br>
+      <a href="https://camoufly.me/privacy">privacy</a>
+      <a href="#" id="open_preferences_center">update cookies preferences</a>
       <span>© Kawaii Bounce FR · P. IVA IT01442860456</span>
     </div>
 
   </div>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // ── Password redirect ──
     const SHOW_PASSWORD = false; // ← true per mostrare, false per nascondere
 

@@ -68,6 +68,7 @@
 
     :root {
       --font: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+      /* panel warm palette */
       --p-text:    #111111;
       --p-muted:   rgba(0,0,0,0.35);
       --p-border:  rgba(0,0,0,0.1);
@@ -103,6 +104,7 @@
         linear-gradient(to right,  rgba(0,0,0,0.55) 0%, transparent 20%);
     }
 
+    /* fade out splash elements when panel opens */
     .s-logo, .s-nav, .s-mobile-nav, .s-socials, #bar-trigger {
       transition: opacity 0.35s ease;
     }
@@ -115,6 +117,7 @@
       pointer-events: none;
     }
 
+    /* logo */
     .s-logo {
       position: absolute;
       top: 36px; left: 50%;
@@ -127,6 +130,7 @@
       display: block;
     }
 
+    /* desktop nav */
     .s-nav {
       position: absolute;
       top: 36px; right: 36px;
@@ -149,6 +153,7 @@
     .s-nav a:hover { color: #fff; }
     .s-nav a:hover em { opacity: 0.9; }
 
+    /* bar trigger */
     #bar-trigger {
       position: absolute; left: 0; top: 0; bottom: 0;
       width: 56px; z-index: 20;
@@ -171,6 +176,7 @@
     }
     #bar-trigger:hover .bar-chevrons { color: rgba(255,255,255,0.85); }
 
+    /* splash socials */
     .s-socials {
       position: absolute; bottom: 24px; right: 28px;
       z-index: 10; display: flex; gap: 14px; align-items: center;
@@ -183,6 +189,7 @@
     .s-socials a:hover { opacity: 0.9; }
     .s-socials a svg { width: 18px; height: 18px; fill: #fff; display: block; }
 
+    /* password field */
     .s-pwd {
       position: absolute;
       top: 50%; left: 50%;
@@ -192,6 +199,7 @@
       align-items: center;
       gap: 0;
     }
+
     .s-pwd input {
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.2);
@@ -207,8 +215,17 @@
       transition: border-color 0.2s, background 0.2s;
       -webkit-text-security: disc;
     }
-    .s-pwd input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0.08em; }
-    .s-pwd input:focus { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.45); }
+
+    .s-pwd input::placeholder {
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.08em;
+    }
+
+    .s-pwd input:focus {
+      background: rgba(255,255,255,0.13);
+      border-color: rgba(255,255,255,0.45);
+    }
+
     .s-pwd button {
       background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.2);
@@ -221,15 +238,24 @@
       transition: background 0.2s, color 0.2s;
       line-height: 1;
     }
-    .s-pwd button:hover { background: rgba(255,255,255,0.22); color: #fff; }
-    .s-pwd.error input { border-color: rgba(255,80,80,0.6); animation: shake 0.3s ease; }
+
+    .s-pwd button:hover {
+      background: rgba(255,255,255,0.22);
+      color: #fff;
+    }
+
+    .s-pwd.error input {
+      border-color: rgba(255,80,80,0.6);
+      animation: shake 0.3s ease;
+    }
+
     @keyframes shake {
       0%,100% { transform: translateX(0); }
       25% { transform: translateX(-4px); }
       75% { transform: translateX(4px); }
     }
 
-    /* ══ PANEL ══ */
+    /* ══ PANEL — near white ══ */
     #panel {
       position: fixed; inset: 0; z-index: 100;
       background: #f0eeec;
@@ -240,7 +266,11 @@
     }
     #panel.open { transform: translateX(0); }
 
-    .panel-inner { max-width: 1280px; margin: 0 auto; padding: 36px 44px 80px; }
+    .panel-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 36px 44px 80px;
+    }
 
     .panel-header {
       display: flex; align-items: center;
@@ -271,7 +301,8 @@
     .section-label {
       font-size: 9px; font-weight: 700;
       letter-spacing: 0.22em; text-transform: uppercase;
-      color: var(--p-muted); margin-bottom: 18px;
+      color: var(--p-muted);
+      margin-bottom: 18px;
     }
 
     .cards-grid {
@@ -290,7 +321,9 @@
       transition: transform 0.22s ease, border-color 0.22s;
     }
     .p-card:hover { transform: translateY(-4px); border-color: var(--p-border-h); }
+
     .p-card__thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+
     .p-card__placeholder {
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.25);
@@ -300,6 +333,7 @@
       font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
       color: rgba(255,220,150,0.15);
     }
+
     .p-card__overlay {
       position: absolute; inset: 0;
       background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 52%);
@@ -313,6 +347,7 @@
     }
     .p-card__title { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
     .p-card__sub { font-size: 10px; color: rgba(255,255,255,0.38); margin-top: 2px; }
+
     .p-card__play {
       position: absolute; top: 10px; right: 10px;
       width: 26px; height: 26px; border-radius: 50%;
@@ -331,15 +366,25 @@
       background: rgba(255,180,50,0.06);
       transition: border-color 0.18s, background 0.18s;
     }
-    .panel-socials a:hover { border-color: var(--p-border-h); background: rgba(255,180,50,0.14); }
-    .panel-socials img { width: 17px; height: 17px; display: block; opacity: 0.75; transition: opacity 0.18s; }
+    .panel-socials a:hover {
+      border-color: var(--p-border-h);
+      background: rgba(255,180,50,0.14);
+    }
+    .panel-socials img {
+      width: 17px; height: 17px; display: block;
+      opacity: 0.75;
+      transition: opacity 0.18s;
+    }
     .panel-socials a:hover img { opacity: 1; }
 
     .panel-footer-links {
       margin-top: 52px; text-align: center;
       font-size: 0.8rem; color: var(--p-muted);
     }
-    .panel-footer-links a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .panel-footer-links a {
+      color: inherit; text-decoration: underline;
+      text-decoration-thickness: 1px; text-underline-offset: 3px;
+    }
     .panel-footer-links a:hover { color: var(--p-text); }
     .panel-footer-links span { margin: 0 6px; opacity: 0.5; }
 
@@ -351,29 +396,17 @@
 
     /* ══ MOBILE ══ */
     @media (max-width: 700px) {
-      /* Allow body to scroll for the panel section below splash */
-      html { height: 100%; }
-      body { height: auto; overflow-y: auto; overflow-x: hidden; }
-
-      /* Splash: fixed fullscreen, goes behind Safari toolbar */
+      html, body { overflow-y: auto; height: auto; }
       #splash {
-        position: fixed;
-        inset: 0;
-        height: 100%;
-        width: 100%;
-      }
-
-      /* Spacer that pushes panel content below the splash */
-      #splash-spacer {
-        display: block;
-        height: 100vh;
+        position: relative;
+        /* 100dvh fills the full display including behind Safari bar */
         height: 100dvh;
+        min-height: 480px;
+        overflow: hidden;
       }
-
       .s-logo { top: 28px; }
       .s-logo img { height: 38px; }
       .s-nav { display: none; }
-
       .s-mobile-nav {
         display: flex !important; position: absolute;
         top: 82px; left: 50%; transform: translateX(-50%);
@@ -385,31 +418,24 @@
         text-decoration: none; letter-spacing: 0.02em;
       }
       .s-mobile-nav a em { font-style: normal; opacity: 0.45; margin-left: 3px; font-size: 10px; }
-
       #bar-trigger { display: none; }
-
-      /* Socials: centrate in basso, sopra la toolbar Safari */
+      #panel {
+        position: relative; transform: none !important;
+        transition: none; overflow: visible;
+      }
+      .panel-close { display: none; }
+      .panel-inner { padding: 32px 18px 64px; }
+      .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .s-socials {
         display: flex;
         right: auto;
         left: 50%;
         transform: translateX(-50%);
         gap: 20px;
-        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        /* sit just above the Safari toolbar using safe area inset */
+        bottom: max(20px, env(safe-area-inset-bottom, 20px));
       }
       .s-socials a svg { width: 20px; height: 20px; }
-
-      /* Panel: normal flow below the spacer */
-      #panel {
-        position: relative;
-        transform: none !important;
-        transition: none;
-        overflow: visible;
-        z-index: 2;
-      }
-      .panel-close { display: none; }
-      .panel-inner { padding: 32px 18px 64px; }
-      .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     }
 
     .s-mobile-nav { display: none; }
@@ -431,6 +457,7 @@
 
     <div class="s-logo"><img src="logo.png" alt="camoufly"></div>
 
+    <!-- password field -->
     <div class="s-pwd" id="s-pwd">
       <input type="password" id="pwd-input" placeholder="password" autocomplete="off" spellcheck="false">
       <button id="pwd-btn">→</button>
@@ -440,14 +467,14 @@
       <a href="/tour">tour <em>«</em></a>
       <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
       <a href="http://tstack.app/camoufly" target="_blank" rel="noopener noreferrer">send music <em>«</em></a>
-      <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
+      <a href="/cdn-cgi/l/email-protection#58333d312a3936183b2c2a343e2a33763b37762d33">contact <em>«</em></a>
     </nav>
 
     <nav class="s-mobile-nav" aria-label="Mobile navigation">
       <a href="/tour">tour <em>«</em></a>
       <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
       <a href="http://tstack.app/camoufly" target="_blank" rel="noopener noreferrer">send music <em>«</em></a>
-      <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
+      <a href="/cdn-cgi/l/email-protection#f19a949883909fb19285839d97839adf929edf849a">contact <em>«</em></a>
     </nav>
 
     <div class="s-socials">
@@ -472,9 +499,6 @@
       </div>
     </div>
   </div>
-
-  <!-- spacer: pushes panel below the fixed splash on mobile -->
-  <div id="splash-spacer"></div>
 
   <!-- ══ PANEL ══ -->
   <div id="panel" role="dialog" aria-label="Latest" aria-modal="true">
@@ -528,6 +552,7 @@
 
       </div>
 
+
       <div class="panel-footer-links">
         <a href="https://camoufly.me/privacy">privacy</a>
         <span>//</span>
@@ -540,7 +565,7 @@
     </div>
   </div>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // ── Password redirect ──
     const SHOW_PASSWORD = false; // ← true per mostrare il campo, false per nasconderlo
 
@@ -552,8 +577,10 @@
     async function checkPassword() {
       const val = pwdInput.value.trim();
       if (!val) return;
+
       pwdBtn.textContent = '…';
       pwdBtn.disabled = true;
+
       try {
         const res = await fetch('/api/unlock', {
           method: 'POST',
@@ -561,6 +588,7 @@
           body: JSON.stringify({ password: val })
         });
         const data = await res.json();
+
         if (data.url) {
           window.location.href = data.url;
         } else {

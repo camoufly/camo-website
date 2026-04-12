@@ -43,7 +43,7 @@
 
   <meta name="description" content="camoufly">
   <meta name="keywords" content="camoufly, music">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, viewport-fit=cover">
 
   <meta property="og:site_name" content="camoufly" />
   <meta property="og:title" content="camoufly" />
@@ -126,6 +126,7 @@
     }
     .s-logo img {
       height: 50px; width: auto;
+      filter: brightness(0) invert(1);
       display: block;
     }
 
@@ -371,7 +372,7 @@
     }
     .panel-socials img {
       width: 17px; height: 17px; display: block;
-      filter: brightness(0); opacity: 0.5;
+      opacity: 0.75;
       transition: opacity 0.18s;
     }
     .panel-socials a:hover img { opacity: 1; }
@@ -396,7 +397,13 @@
     /* ══ MOBILE ══ */
     @media (max-width: 700px) {
       html, body { overflow-y: auto; height: auto; }
-      #splash { position: relative; height: 100svh; min-height: 480px; overflow: hidden; }
+      #splash {
+        position: relative;
+        /* 100dvh fills the full display including behind Safari bar */
+        height: 100dvh;
+        min-height: 480px;
+        overflow: hidden;
+      }
       .s-logo { top: 28px; }
       .s-logo img { height: 38px; }
       .s-nav { display: none; }
@@ -419,7 +426,16 @@
       .panel-close { display: none; }
       .panel-inner { padding: 32px 18px 64px; }
       .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .s-socials { display: none; }
+      .s-socials {
+        display: flex;
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        gap: 20px;
+        /* sit just above the Safari toolbar using safe area inset */
+        bottom: max(20px, env(safe-area-inset-bottom, 20px));
+      }
+      .s-socials a svg { width: 20px; height: 20px; }
     }
 
     .s-mobile-nav { display: none; }
@@ -451,14 +467,14 @@
       <a href="/tour">tour <em>«</em></a>
       <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
       <a href="http://tstack.app/camoufly" target="_blank" rel="noopener noreferrer">send music <em>«</em></a>
-      <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
+      <a href="/cdn-cgi/l/email-protection#58333d312a3936183b2c2a343e2a33763b37762d33">contact <em>«</em></a>
     </nav>
 
     <nav class="s-mobile-nav" aria-label="Mobile navigation">
       <a href="/tour">tour <em>«</em></a>
       <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
-      <a href="http://tstack.app/camoufly">send music <em>«</em></a>
-      <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
+      <a href="http://tstack.app/camoufly" target="_blank" rel="noopener noreferrer">send music <em>«</em></a>
+      <a href="/cdn-cgi/l/email-protection#f19a949883909fb19285839d97839adf929edf849a">contact <em>«</em></a>
     </nav>
 
     <div class="s-socials">
@@ -494,7 +510,7 @@
         </button>
       </div>
 
-      <div class="section-label">Latest releases</div>
+      <div class="section-label">Music</div>
       <div class="cards-grid">
 
         <a href="https://link.camoufly.me/tentone" target="_blank" rel="noopener noreferrer" class="p-card">
@@ -513,14 +529,13 @@
 
       </div>
 
-      <div class="section-label">Videos &amp; sets</div>
+      <div class="section-label">Videos</div>
       <div class="cards-grid">
 
         <a href="https://www.youtube.com/c/camoufly" target="_blank" rel="noopener noreferrer" class="p-card">
           <img src="/images/carradio.png" alt="carRADIO 094" class="p-card__thumb">
           <div class="p-card__play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
           <div class="p-card__overlay">
-            <div class="p-card__type">Live Set</div>
             <div class="p-card__title">camoufly: carRADIO 094</div>
             <div class="p-card__sub">Los Angeles · 2026</div>
           </div>
@@ -530,7 +545,6 @@
           <img src="/images/corsica.jpg" alt="Live @ Corsica Studios" class="p-card__thumb">
           <div class="p-card__play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
           <div class="p-card__overlay">
-            <div class="p-card__type">Live Set</div>
             <div class="p-card__title">Live at Corsica Studios</div>
             <div class="p-card__sub">London · 2025</div>
           </div>
@@ -538,13 +552,6 @@
 
       </div>
 
-      <div class="section-label">Follow</div>
-      <div class="panel-socials">
-        <a href="http://instagram.com/camouflybeats" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/instagram.png" alt="Instagram"></a>
-        <a href="http://soundcloud.com/camouflybeats" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/soundcloud.png" alt="SoundCloud"></a>
-        <a href="https://open.spotify.com/artist/6ZmJg6NCjGmRgC2GEI86pQ" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/spotify.png" alt="Spotify"></a>
-        <a href="https://www.youtube.com/c/camoufly" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/youtube.png" alt="YouTube"></a>
-      </div>
 
       <div class="panel-footer-links">
         <a href="https://camoufly.me/privacy">privacy</a>
@@ -558,7 +565,7 @@
     </div>
   </div>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // ── Password redirect ──
     const SHOW_PASSWORD = false; // ← true per mostrare il campo, false per nasconderlo
 

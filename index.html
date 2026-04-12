@@ -6,58 +6,582 @@
   <meta name="keywords" content="camoufly, music">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
 
-  <!-- OG / Twitter -->
   <meta property="og:site_name" content="camoufly" />
   <meta property="og:title" content="camoufly" />
   <meta property="og:description" content="camo's website" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="http://camoufly.me/" />
   <meta property="og:image" content="http://camoufly.me/image2.jpg" />
-
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="camoufly">
   <meta name="twitter:description" content="camo's website">
   <meta name="twitter:image" content="http://camoufly.me/image2.jpg">
 
-  <link rel="stylesheet" href="style.css">
   <link rel="icon" href="thumbnail_logo.png">
-  <script src="script.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <title>camoufly</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      background: #000;
+      overflow: hidden;
+    }
+
+    /* ══ SPLASH ══ */
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .bg video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      pointer-events: none;
+    }
+
+    .bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.04) 45%, rgba(0,0,0,0.12) 100%),
+        linear-gradient(to right, rgba(0,0,0,0.55) 0%, transparent 20%);
+    }
+
+    /* logo */
+    .s-logo {
+      position: absolute;
+      top: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+
+    .s-logo img {
+      height: 50px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      display: block;
+    }
+
+    /* desktop nav top-right */
+    .s-nav {
+      position: absolute;
+      top: 36px;
+      right: 36px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 7px;
+    }
+
+    .s-nav a {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      transition: color 0.18s;
+    }
+
+    .s-nav a em {
+      font-style: normal;
+      opacity: 0.45;
+      margin-left: 5px;
+      font-size: 11px;
+      letter-spacing: -0.04em;
+    }
+
+    .s-nav a:hover { color: #fff; }
+    .s-nav a:hover em { opacity: 0.9; }
+
+    /* ── LEFT BAR TRIGGER ── */
+    #bar-trigger {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 56px;
+      z-index: 20;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bar-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bar-line {
+      width: 1.5px;
+      height: 72px;
+      background: rgba(255,255,255,0.22);
+      border-radius: 2px;
+      transition: background 0.25s, height 0.25s;
+    }
+
+    #bar-trigger:hover .bar-line {
+      background: rgba(255,255,255,0.65);
+      height: 90px;
+    }
+
+    .bar-chevrons {
+      font-size: 12px;
+      letter-spacing: -0.08em;
+      color: rgba(255,255,255,0.38);
+      line-height: 1;
+      transition: color 0.25s;
+      /* rotate to point right → into the panel */
+      transform: rotate(-90deg);
+      display: block;
+    }
+
+    #bar-trigger:hover .bar-chevrons {
+      color: rgba(255,255,255,0.85);
+    }
+
+    /* ══ PANEL ══ */
+    #panel {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: #fff;
+      transform: translateX(-100%);
+      transition: transform 0.55s cubic-bezier(0.77, 0, 0.175, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #panel.open { transform: translateX(0); }
+
+    .panel-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 36px 44px 80px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 52px;
+    }
+
+    .panel-logo img {
+      height: 26px;
+      width: auto;
+      display: block;
+    }
+
+    .panel-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0;
+      transition: color 0.18s;
+    }
+
+    .panel-close:hover { color: #000; }
+
+    .close-x {
+      width: 16px; height: 16px;
+      position: relative; display: inline-block;
+    }
+    .close-x::before, .close-x::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 0;
+      width: 100%; height: 1px;
+      background: currentColor;
+    }
+    .close-x::before { transform: rotate(45deg); }
+    .close-x::after  { transform: rotate(-45deg); }
+
+    /* section label */
+    .section-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.28);
+      margin-bottom: 18px;
+    }
+
+    /* grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 52px;
+    }
+
+    /* card */
+    .p-card {
+      display: block;
+      text-decoration: none;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      background: #1a1a1a;
+      position: relative;
+      transition: transform 0.22s ease;
+    }
+
+    .p-card:hover { transform: translateY(-4px); }
+
+    .p-card__thumb {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .p-card__placeholder {
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, #181818 0%, #2a2a2a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .p-card__placeholder span {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.12);
+    }
+
+    .p-card__overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 52%);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .p-card__type {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 3px;
+    }
+
+    .p-card__title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .p-card__sub {
+      font-size: 10px;
+      color: rgba(255,255,255,0.38);
+      margin-top: 2px;
+    }
+
+    .p-card__play {
+      position: absolute;
+      top: 10px; right: 10px;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .p-card__play svg {
+      width: 9px; height: 9px;
+      fill: #fff;
+      margin-left: 2px;
+    }
+
+    /* socials */
+    .panel-socials {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .panel-socials a {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px; height: 34px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 6px;
+      transition: border-color 0.18s, background 0.18s;
+    }
+
+    .panel-socials a:hover {
+      border-color: rgba(0,0,0,0.22);
+      background: rgba(0,0,0,0.04);
+    }
+
+    .panel-socials img {
+      width: 17px; height: 17px;
+      display: block;
+    }
+
+    .panel-footer-links {
+      margin-top: 52px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(0,0,0,0.35);
+    }
+    .panel-footer-links a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .panel-footer-links a:hover { color: #000; }
+    .panel-footer-links span { margin: 0 6px; opacity: 0.5; }
+
+    .panel-legal {
+      margin-top: 8px;
+      font-size: 0.58rem;
+      color: rgba(0,0,0,0.2);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* splash social icons — bottom right, inline SVG style */
+    .s-socials {
+      position: absolute;
+      bottom: 24px;
+      right: 28px;
+      z-index: 10;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .s-socials a {
+      opacity: 0.32;
+      transition: opacity 0.25s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .s-socials a:hover { opacity: 0.9; }
+    .s-socials a svg { width: 18px; height: 18px; fill: #fff; display: block; }
+
+    .panel-legal a { color: inherit; }
+
+    /* ══ MOBILE ══ */
+    @media (max-width: 700px) {
+      html, body { overflow-y: auto; height: auto; }
+
+      #splash {
+        position: relative;
+        height: 100svh;
+        min-height: 480px;
+        overflow: hidden;
+      }
+
+      .s-logo { top: 28px; }
+      .s-logo img { height: 38px; }
+
+      /* hide desktop nav */
+      .s-nav { display: none; }
+
+      /* mobile nav row below logo */
+      .s-mobile-nav {
+        display: flex !important;
+        position: absolute;
+        top: 82px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        gap: 22px;
+        white-space: nowrap;
+      }
+
+      .s-mobile-nav a {
+        font-size: 12px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.78);
+        text-decoration: none;
+        letter-spacing: 0.02em;
+      }
+
+      .s-mobile-nav a em {
+        font-style: normal;
+        opacity: 0.45;
+        margin-left: 3px;
+        font-size: 10px;
+      }
+
+      #bar-trigger { display: none; }
+
+      /* panel: static section below splash on mobile */
+      #panel {
+        position: relative;
+        transform: none !important;
+        transition: none;
+        overflow: visible;
+        background: #fff;
+      }
+
+      .panel-close { display: none; }
+
+      .panel-inner { padding: 32px 18px 64px; }
+
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+    }
+
+    /* hide mobile nav on desktop */
+    .s-mobile-nav { display: none; }
+
+    /* medium screens */
+    @media (max-width: 960px) and (min-width: 701px) {
+      .cards-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
 </head>
 <body>
 
-  <main class="wrap">
-    <header class="brand">
-      <a href="https://camoufly.me" aria-label="Home">
-        <img src="logo.png" alt="camoufly" class="logo">
-      </a>
+  <!-- ══ SPLASH ══ -->
+  <div id="splash">
+    <div class="bg">
+      <video autoplay muted loop playsinline preload="auto">
+        <source src="images/websitesplash.mp4" type="video/mp4">
+        <source src="images/websitesplash.webm" type="video/webm">
+      </video>
+    </div>
 
-      <!-- Optional hero image (keep if you like it) -->
-    <a href="https://link.camoufly.me/camo-believe"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="hero-card"
-      aria-label="Believe (link)">
-      <img src="/images/believe_shadow.png" alt="Latest release" class="hero-card__img">
-    </a>
-    </header>
+    <div class="s-logo">
+      <img src="logo.png" alt="camoufly">
+    </div>
 
-    <hr class="hr">
+    <nav class="s-nav" aria-label="Primary navigation">
+      <a href="/tour">tour <em>«</em></a>
+      <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
+      <a href="http://tstack.app/camoufly" target="_blank" rel="noopener noreferrer">send music <em>«</em></a>
+      <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
+    </nav>
 
-    <section class="section">
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="/tour">Tour</a>
-        <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">Shop</a>
-        <a href="/sendmusic">Send music</a>
-        <a href="mailto:keiran@ctrlfrk.co.uk" target="_blank" rel="noopener noreferrer">Contact</a>
-      </nav>
-    </section>
+    <nav class="s-mobile-nav" aria-label="Mobile navigation">
+      <a href="/tour">tour <em>«</em></a>
+      <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
+      <a href="/sendmusic">send <em>«</em></a>
+      <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
+    </nav>
 
-    <hr class="hr">
 
-    <footer class="section">
-      <div class="socials" aria-label="Social links">
+    <div id="bar-trigger" role="button" tabindex="0" aria-label="Open latest releases">
+      <div class="bar-inner">
+        <div class="bar-line"></div>
+        <span class="bar-chevrons">»»»</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL ══ -->
+  <div id="panel" role="dialog" aria-label="Latest" aria-modal="true">
+    <div class="panel-inner">
+
+      <div class="panel-header">
+        <div class="panel-logo">
+          <img src="logo.png" alt="camoufly">
+        </div>
+        <button class="panel-close" id="panel-close-btn" aria-label="Close">
+          close <span class="close-x"></span>
+        </button>
+      </div>
+
+      <!-- RELEASES -->
+      <div class="section-label">Latest releases</div>
+      <div class="cards-grid">
+
+      <a href="https://link.camoufly.me/tentone" target="_blank" rel="noopener noreferrer" class="p-card">
+          <img src="/images/tentone.png" alt="Tentone" class="p-card__thumb">
+          <div class="p-card__overlay">
+            <div class="p-card__title">Tentone (with Ceri Wax)</div>
+          </div>
+        </a>
+
+        <a href="https://link.camoufly.me/camo-believe" target="_blank" rel="noopener noreferrer" class="p-card">
+          <img src="/images/believe.png" alt="Believe" class="p-card__thumb">
+          <div class="p-card__overlay">
+            <div class="p-card__title">Believe</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- VIDEOS & SETS -->
+      <div class="section-label">Videos &amp; sets</div>
+      <div class="cards-grid">
+
+        <a href="https://www.youtube.com/c/camoufly" target="_blank" rel="noopener noreferrer" class="p-card">
+          <img src="/images/carradio.png" alt="Live @ Corsica Studios" class="p-card__thumb">
+          <div class="p-card__play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <div class="p-card__overlay">
+            <div class="p-card__type">Live Set</div>
+            <div class="p-card__title">camoufly: carRADIO 094</div>
+            <div class="p-card__sub">Los Angeles · 2026</div>
+          </div>
+        </a>
+
+        <a href="https://www.youtube.com/watch?v=ztvCK2fC7-Q" target="_blank" rel="noopener noreferrer" class="p-card">
+          <img src="/images/corsica.jpg" alt="Live @ Corsica Studios" class="p-card__thumb">
+          <div class="p-card__play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <div class="p-card__overlay">
+            <div class="p-card__type">Live Set</div>
+            <div class="p-card__title">Live at Corsica Studios</div>
+            <div class="p-card__sub">London · 2025</div>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- SOCIALS -->
+      <div class="section-label">Follow</div>
+      <div class="panel-socials">
         <a href="https://audius.co/camouflybeats" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/audius.png" alt="Audius"></a>
         <a href="https://camouflybeats.bandcamp.com" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/bandcamp.png" alt="Bandcamp"></a>
         <a href="https://beta.catalog.works/camoufly" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/catalog.png" alt="Catalog"></a>
@@ -70,20 +594,44 @@
         <a href="mailto:keiran@ctrlfrk.co.uk" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/mail.png" alt="Email"></a>
       </div>
 
-      <div class="footer-links">
-        <a href="https://camoufly.me/privacy">privacy</a> //
+      <div class="panel-footer-links">
+        <a href="https://camoufly.me/privacy">privacy</a>
+        <span> // </span>
         <a href="#" id="open_preferences_center">update cookies preferences</a>
       </div>
-
-      <div class="legal">
-        © Kawaii Bounce FR. All rights reserved.<br>
-        P. IVA (IT): IT01442860456
+      <div class="panel-legal">
+        © Kawaii Bounce FR. All rights reserved. &nbsp;·&nbsp; P. IVA (IT): IT01442860456
       </div>
 
-    </footer>
-  </main>
+    </div>
+  </div>
 
-  <!-- Cookie Consent by FreePrivacyPolicy.com -->
+  <script>
+    const barTrigger = document.getElementById('bar-trigger');
+    const panel      = document.getElementById('panel');
+    const closeBtn   = document.getElementById('panel-close-btn');
+
+    function openPanel() {
+      panel.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    }
+
+    function closePanel() {
+      panel.classList.remove('open');
+      document.body.style.overflow = '';
+      barTrigger.focus();
+    }
+
+    barTrigger.addEventListener('click', openPanel);
+    barTrigger.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPanel(); }
+    });
+    closeBtn.addEventListener('click', closePanel);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+  </script>
+
+  <!-- Cookie Consent -->
   <script type="text/javascript" src="//www.freeprivacypolicy.com/public/cookie-consent/4.0.0/cookie-consent.js" charset="UTF-8"></script>
   <script type="text/javascript" charset="UTF-8">
     document.addEventListener('DOMContentLoaded', function () {
@@ -104,3 +652,4 @@
   <noscript>Cookie Consent by <a href="https://www.freeprivacypolicy.com/" rel="noopener">Free Privacy Policy Generator</a></noscript>
 
 </body>
+</html>

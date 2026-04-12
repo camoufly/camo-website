@@ -44,7 +44,6 @@
   <meta name="description" content="camoufly">
   <meta name="keywords" content="camoufly, music">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, viewport-fit=cover">
-
   <meta property="og:site_name" content="camoufly" />
   <meta property="og:title" content="camoufly" />
   <meta property="og:description" content="camo's website" />
@@ -68,11 +67,6 @@
 
     :root {
       --font: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-      /* panel warm palette */
-      --p-text:    #111111;
-      --p-muted:   rgba(0,0,0,0.35);
-      --p-border:  rgba(0,0,0,0.1);
-      --p-border-h:rgba(0,0,0,0.22);
     }
 
     html, body {
@@ -83,372 +77,140 @@
       overflow: hidden;
     }
 
-    /* ══ SPLASH ══ */
     #splash { position: fixed; inset: 0; z-index: 1; }
 
     .bg { position: absolute; inset: 0; overflow: hidden; }
-
     .bg video {
       position: absolute; inset: 0;
       width: 100%; height: 100%;
-      object-fit: cover;
-      object-position: center 30%;
+      object-fit: cover; object-position: center 30%;
       pointer-events: none;
     }
-
     .bg::after {
-      content: '';
-      position: absolute; inset: 0;
+      content: ''; position: absolute; inset: 0;
       background:
-        linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.04) 45%, rgba(0,0,0,0.12) 100%),
-        linear-gradient(to right,  rgba(0,0,0,0.55) 0%, transparent 20%);
-    }
-
-    /* fade out splash elements when panel opens */
-    .s-logo, .s-nav, .s-mobile-nav, .s-socials, #bar-trigger {
-      transition: opacity 0.35s ease;
-    }
-    body.panel-open .s-logo,
-    body.panel-open .s-nav,
-    body.panel-open .s-mobile-nav,
-    body.panel-open .s-socials,
-    body.panel-open #bar-trigger {
-      opacity: 0;
-      pointer-events: none;
+        linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.04) 45%, rgba(0,0,0,0.15) 100%),
+        linear-gradient(to right, rgba(0,0,0,0.55) 0%, transparent 20%);
     }
 
     /* logo */
     .s-logo {
-      position: absolute;
-      top: 36px; left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
+      position: absolute; top: 36px; left: 50%;
+      transform: translateX(-50%); z-index: 10;
     }
-    .s-logo img {
-      height: 50px; width: auto;
-      filter: brightness(0) invert(1);
-      display: block;
-    }
+    .s-logo img { height: 50px; width: auto; filter: brightness(0) invert(1); display: block; }
 
-    /* desktop nav */
+    /* desktop nav top-right */
     .s-nav {
-      position: absolute;
-      top: 36px; right: 36px;
-      z-index: 10;
-      display: flex; flex-direction: column;
+      position: absolute; top: 36px; right: 36px;
+      z-index: 10; display: flex; flex-direction: column;
       align-items: flex-end; gap: 7px;
     }
     .s-nav a {
       font-size: 13px; font-weight: 500;
-      color: rgba(255,255,255,0.8);
-      text-decoration: none;
-      letter-spacing: 0.02em; line-height: 1;
-      transition: color 0.18s;
+      color: rgba(255,255,255,0.8); text-decoration: none;
+      letter-spacing: 0.02em; line-height: 1; transition: color 0.18s;
     }
-    .s-nav a em {
-      font-style: normal; opacity: 0.45;
-      margin-left: 5px; font-size: 11px;
-      letter-spacing: -0.04em;
-    }
+    .s-nav a em { font-style: normal; opacity: 0.45; margin-left: 5px; font-size: 11px; letter-spacing: -0.04em; }
     .s-nav a:hover { color: #fff; }
     .s-nav a:hover em { opacity: 0.9; }
 
-    /* bar trigger */
-    #bar-trigger {
-      position: absolute; left: 0; top: 0; bottom: 0;
-      width: 56px; z-index: 20;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .bar-inner { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .bar-line {
-      width: 1.5px; height: 72px;
-      background: rgba(255,255,255,0.22);
-      border-radius: 2px;
-      transition: background 0.25s, height 0.25s;
-    }
-    #bar-trigger:hover .bar-line { background: rgba(255,255,255,0.65); height: 90px; }
-    .bar-chevrons {
-      font-size: 12px; letter-spacing: -0.08em;
-      color: rgba(255,255,255,0.38); line-height: 1;
-      transition: color 0.25s;
-      transform: rotate(-90deg); display: block;
-    }
-    #bar-trigger:hover .bar-chevrons { color: rgba(255,255,255,0.85); }
-
-    /* splash socials */
-    .s-socials {
-      position: absolute; bottom: 24px; right: 28px;
-      z-index: 10; display: flex; gap: 14px; align-items: center;
-    }
-    .s-socials a {
-      opacity: 0.32; transition: opacity 0.25s;
-      text-decoration: none;
-      display: inline-flex; align-items: center; justify-content: center;
-    }
-    .s-socials a:hover { opacity: 0.9; }
-    .s-socials a svg { width: 18px; height: 18px; fill: #fff; display: block; }
-
-    /* password field */
+    /* password field — center screen */
     .s-pwd {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      gap: 0;
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%); z-index: 10;
+      display: flex; align-items: center;
     }
-
     .s-pwd input {
       background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-right: none;
-      border-radius: 6px 0 0 6px;
-      color: #fff;
-      font-family: var(--font);
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      padding: 7px 12px;
-      width: 130px;
-      outline: none;
+      border: 1px solid rgba(255,255,255,0.2); border-right: none;
+      border-radius: 6px 0 0 6px; color: #fff;
+      font-family: var(--font); font-size: 11px; letter-spacing: 0.1em;
+      padding: 7px 12px; width: 130px; outline: none;
       transition: border-color 0.2s, background 0.2s;
       -webkit-text-security: disc;
     }
-
-    .s-pwd input::placeholder {
-      color: rgba(255,255,255,0.3);
-      letter-spacing: 0.08em;
-    }
-
-    .s-pwd input:focus {
-      background: rgba(255,255,255,0.13);
-      border-color: rgba(255,255,255,0.45);
-    }
-
+    .s-pwd input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0.08em; }
+    .s-pwd input:focus { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.45); }
     .s-pwd button {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 0 6px 6px 0;
-      color: rgba(255,255,255,0.55);
-      font-family: var(--font);
-      font-size: 11px;
-      padding: 7px 10px;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      line-height: 1;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 0 6px 6px 0; color: rgba(255,255,255,0.55);
+      font-family: var(--font); font-size: 11px; padding: 7px 10px;
+      cursor: pointer; transition: background 0.2s, color 0.2s; line-height: 1;
     }
-
-    .s-pwd button:hover {
-      background: rgba(255,255,255,0.22);
-      color: #fff;
-    }
-
-    .s-pwd.error input {
-      border-color: rgba(255,80,80,0.6);
-      animation: shake 0.3s ease;
-    }
-
+    .s-pwd button:hover { background: rgba(255,255,255,0.22); color: #fff; }
+    .s-pwd.error input { border-color: rgba(255,80,80,0.6); animation: shake 0.3s ease; }
     @keyframes shake {
       0%,100% { transform: translateX(0); }
       25% { transform: translateX(-4px); }
       75% { transform: translateX(4px); }
     }
 
-    /* ══ PANEL — near white ══ */
-    #panel {
-      position: fixed; inset: 0; z-index: 100;
-      background: #f0eeec;
-      transform: translateX(-100%);
-      transition: transform 0.55s cubic-bezier(0.77, 0, 0.175, 1);
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+    /* socials — bottom right */
+    .s-socials {
+      position: absolute; bottom: 24px; right: 28px;
+      z-index: 10; display: flex; gap: 14px; align-items: center;
     }
-    #panel.open { transform: translateX(0); }
+    .s-socials a { opacity: 0.32; transition: opacity 0.25s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+    .s-socials a:hover { opacity: 0.9; }
+    .s-socials a svg { width: 18px; height: 18px; fill: #fff; display: block; }
 
-    .panel-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 36px 44px 80px;
+    /* legal — bottom left */
+    .s-legal {
+      position: absolute; bottom: 20px; left: 28px;
+      z-index: 10; display: flex; flex-direction: column; gap: 4px;
     }
-
-    .panel-header {
-      display: flex; align-items: center;
-      justify-content: flex-end;
-      margin-bottom: 52px;
+    .s-legal a, .s-legal span {
+      font-size: 9px; letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.28); text-decoration: none;
+      line-height: 1.4; transition: color 0.18s;
     }
-
-    .panel-close {
-      background: none; border: none; cursor: pointer;
-      font-family: var(--font);
-      font-size: 11px; font-weight: 600;
-      letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--p-muted);
-      display: flex; align-items: center; gap: 9px;
-      padding: 0; transition: color 0.18s;
-    }
-    .panel-close:hover { color: var(--p-text); }
-
-    .close-x { width: 16px; height: 16px; position: relative; display: inline-block; }
-    .close-x::before, .close-x::after {
-      content: ''; position: absolute;
-      top: 50%; left: 0; width: 100%; height: 1px;
-      background: currentColor;
-    }
-    .close-x::before { transform: rotate(45deg); }
-    .close-x::after  { transform: rotate(-45deg); }
-
-    .section-label {
-      font-size: 9px; font-weight: 700;
-      letter-spacing: 0.22em; text-transform: uppercase;
-      color: var(--p-muted);
-      margin-bottom: 18px;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px; margin-bottom: 52px;
-    }
-
-    .p-card {
-      display: block; text-decoration: none;
-      border-radius: 8px; overflow: hidden;
-      aspect-ratio: 1 / 1;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--p-border);
-      position: relative;
-      transition: transform 0.22s ease, border-color 0.22s;
-    }
-    .p-card:hover { transform: translateY(-4px); border-color: var(--p-border-h); }
-
-    .p-card__thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    .p-card__placeholder {
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.25);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .p-card__placeholder span {
-      font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
-      color: rgba(255,220,150,0.15);
-    }
-
-    .p-card__overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 52%);
-      padding: 12px;
-      display: flex; flex-direction: column; justify-content: flex-end;
-    }
-    .p-card__type {
-      font-size: 8px; font-weight: 700;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: rgba(0,0,0,0.3); margin-bottom: 3px;
-    }
-    .p-card__title { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
-    .p-card__sub { font-size: 10px; color: rgba(255,255,255,0.38); margin-top: 2px; }
-
-    .p-card__play {
-      position: absolute; top: 10px; right: 10px;
-      width: 26px; height: 26px; border-radius: 50%;
-      background: rgba(255,180,50,0.18);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .p-card__play svg { width: 9px; height: 9px; fill: #fff; margin-left: 2px; }
-
-    .panel-socials { display: flex; flex-wrap: wrap; gap: 7px; }
-    .panel-socials a {
-      text-decoration: none;
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 34px; height: 34px;
-      border: 1px solid var(--p-border);
-      border-radius: 6px;
-      background: rgba(255,180,50,0.06);
-      transition: border-color 0.18s, background 0.18s;
-    }
-    .panel-socials a:hover {
-      border-color: var(--p-border-h);
-      background: rgba(255,180,50,0.14);
-    }
-    .panel-socials img {
-      width: 17px; height: 17px; display: block;
-      opacity: 0.75;
-      transition: opacity 0.18s;
-    }
-    .panel-socials a:hover img { opacity: 1; }
-
-    .panel-footer-links {
-      margin-top: 52px; text-align: center;
-      font-size: 0.8rem; color: var(--p-muted);
-    }
-    .panel-footer-links a {
-      color: inherit; text-decoration: underline;
-      text-decoration-thickness: 1px; text-underline-offset: 3px;
-    }
-    .panel-footer-links a:hover { color: var(--p-text); }
-    .panel-footer-links span { margin: 0 6px; opacity: 0.5; }
-
-    .panel-legal {
-      margin-top: 8px; font-size: 0.58rem;
-      color: rgba(0,0,0,0.2);
-      text-align: center; line-height: 1.6;
-    }
+    .s-legal a:hover { color: rgba(255,255,255,0.7); }
+    .s-legal .sep { opacity: 0.4; }
 
     /* ══ MOBILE ══ */
     @media (max-width: 700px) {
-      html, body { overflow-y: auto; height: auto; }
-      #splash {
-        position: relative;
-        /* 100dvh fills the full display including behind Safari bar */
-        height: 100dvh;
-        min-height: 480px;
-        overflow: hidden;
-      }
+      html, body { overflow: hidden; height: 100%; }
+      #splash { position: fixed; inset: 0; }
+
       .s-logo { top: 28px; }
       .s-logo img { height: 38px; }
+
       .s-nav { display: none; }
       .s-mobile-nav {
         display: flex !important; position: absolute;
         top: 82px; left: 50%; transform: translateX(-50%);
-        z-index: 10; gap: 22px; white-space: nowrap;
+        z-index: 10; gap: 20px; white-space: nowrap;
       }
       .s-mobile-nav a {
         font-size: 12px; font-weight: 500;
-        color: rgba(255,255,255,0.78);
-        text-decoration: none; letter-spacing: 0.02em;
+        color: rgba(255,255,255,0.78); text-decoration: none; letter-spacing: 0.02em;
       }
       .s-mobile-nav a em { font-style: normal; opacity: 0.45; margin-left: 3px; font-size: 10px; }
-      #bar-trigger { display: none; }
-      #panel {
-        position: relative; transform: none !important;
-        transition: none; overflow: visible;
-      }
-      .panel-close { display: none; }
-      .panel-inner { padding: 32px 18px 64px; }
-      .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+      /* socials centrate in basso */
       .s-socials {
-        display: flex;
-        right: auto;
-        left: 50%;
-        transform: translateX(-50%);
-        gap: 20px;
-        /* sit just above the Safari toolbar using safe area inset */
-        bottom: max(20px, env(safe-area-inset-bottom, 20px));
+        right: auto; left: 50%; transform: translateX(-50%);
+        gap: 20px; bottom: calc(52px + env(safe-area-inset-bottom, 0px));
       }
       .s-socials a svg { width: 20px; height: 20px; }
+
+      /* legal sotto le socials */
+      .s-legal {
+        left: 50%; transform: translateX(-50%);
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        align-items: center; flex-direction: row; gap: 6px; white-space: nowrap;
+      }
     }
 
     .s-mobile-nav { display: none; }
-
-    @media (max-width: 960px) and (min-width: 701px) {
-      .cards-grid { grid-template-columns: repeat(3, 1fr); }
-    }
   </style>
 </head>
 <body>
 
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NSSBMPS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
   <div id="splash">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NSSBMPS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="bg">
       <video autoplay muted loop playsinline preload="auto">
         <source src="images/websitesplash.mp4" type="video/mp4">
@@ -457,26 +219,29 @@
 
     <div class="s-logo"><img src="logo.png" alt="camoufly"></div>
 
-    <!-- password field -->
+    <!-- password -->
     <div class="s-pwd" id="s-pwd">
       <input type="password" id="pwd-input" placeholder="password" autocomplete="off" spellcheck="false">
       <button id="pwd-btn">→</button>
     </div>
 
+    <!-- desktop nav -->
     <nav class="s-nav" aria-label="Primary navigation">
       <a href="/tour">tour <em>«</em></a>
       <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
       <a href="http://tstack.app/camoufly" target="_blank" rel="noopener noreferrer">send music <em>«</em></a>
-      <a href="/cdn-cgi/l/email-protection#58333d312a3936183b2c2a343e2a33763b37762d33">contact <em>«</em></a>
+      <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
     </nav>
 
+    <!-- mobile nav -->
     <nav class="s-mobile-nav" aria-label="Mobile navigation">
       <a href="/tour">tour <em>«</em></a>
       <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
       <a href="http://tstack.app/camoufly" target="_blank" rel="noopener noreferrer">send music <em>«</em></a>
-      <a href="/cdn-cgi/l/email-protection#f19a949883909fb19285839d97839adf929edf849a">contact <em>«</em></a>
+      <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
     </nav>
 
+    <!-- socials -->
     <div class="s-socials">
       <a href="http://instagram.com/camouflybeats" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
         <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
@@ -492,82 +257,18 @@
       </a>
     </div>
 
-    <div id="bar-trigger" role="button" tabindex="0" aria-label="Open latest releases">
-      <div class="bar-inner">
-        <div class="bar-line"></div>
-        <span class="bar-chevrons">»»»</span>
-      </div>
+    <!-- legal bottom left -->
+    <div class="s-legal">
+      <a href="https://camoufly.me/privacy">privacy</a>
+      <a href="#" id="open_preferences_center">update cookies preferences</a>
+      <span>© Kawaii Bounce FR · P. IVA IT01442860456</span>
     </div>
+
   </div>
 
-  <!-- ══ PANEL ══ -->
-  <div id="panel" role="dialog" aria-label="Latest" aria-modal="true">
-    <div class="panel-inner">
-
-      <div class="panel-header">
-        <button class="panel-close" id="panel-close-btn" aria-label="Close">
-          close <span class="close-x"></span>
-        </button>
-      </div>
-
-      <div class="section-label">Music</div>
-      <div class="cards-grid">
-
-        <a href="https://link.camoufly.me/tentone" target="_blank" rel="noopener noreferrer" class="p-card">
-          <img src="/images/tentone.png" alt="Tentone" class="p-card__thumb">
-          <div class="p-card__overlay">
-            <div class="p-card__title">Tentone (with Ceri Wax)</div>
-          </div>
-        </a>
-
-        <a href="https://link.camoufly.me/camo-believe" target="_blank" rel="noopener noreferrer" class="p-card">
-          <img src="/images/believe.png" alt="Believe" class="p-card__thumb">
-          <div class="p-card__overlay">
-            <div class="p-card__title">Believe</div>
-          </div>
-        </a>
-
-      </div>
-
-      <div class="section-label">Videos</div>
-      <div class="cards-grid">
-
-        <a href="https://www.youtube.com/watch?v=TxXoWt3mQnI" target="_blank" rel="noopener noreferrer" class="p-card">
-          <img src="/images/carradio.png" alt="carRADIO 094" class="p-card__thumb">
-          <div class="p-card__play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="p-card__overlay">
-            <div class="p-card__title">camoufly: carRADIO 094</div>
-            <div class="p-card__sub">Los Angeles · 2026</div>
-          </div>
-        </a>
-
-        <a href="https://www.youtube.com/watch?v=ztvCK2fC7-Q" target="_blank" rel="noopener noreferrer" class="p-card">
-          <img src="/images/corsica.jpg" alt="Live @ Corsica Studios" class="p-card__thumb">
-          <div class="p-card__play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="p-card__overlay">
-            <div class="p-card__title">Live at Corsica Studios</div>
-            <div class="p-card__sub">London · 2025</div>
-          </div>
-        </a>
-
-      </div>
-
-
-      <div class="panel-footer-links">
-        <a href="https://camoufly.me/privacy">privacy</a>
-        <span>//</span>
-        <a href="#" id="open_preferences_center">update cookies preferences</a>
-      </div>
-      <div class="panel-legal">
-        © Kawaii Bounce FR. All rights reserved. &nbsp;·&nbsp; P. IVA (IT): IT01442860456
-      </div>
-
-    </div>
-  </div>
-
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  <script>
     // ── Password redirect ──
-    const SHOW_PASSWORD = false; // ← true per mostrare il campo, false per nasconderlo
+    const SHOW_PASSWORD = false; // ← true per mostrare, false per nascondere
 
     const pwdWrap  = document.getElementById('s-pwd');
     if (!SHOW_PASSWORD) pwdWrap.style.display = 'none';
@@ -577,10 +278,8 @@
     async function checkPassword() {
       const val = pwdInput.value.trim();
       if (!val) return;
-
       pwdBtn.textContent = '…';
       pwdBtn.disabled = true;
-
       try {
         const res = await fetch('/api/unlock', {
           method: 'POST',
@@ -588,7 +287,6 @@
           body: JSON.stringify({ password: val })
         });
         const data = await res.json();
-
         if (data.url) {
           window.location.href = data.url;
         } else {
@@ -606,30 +304,6 @@
 
     pwdBtn.addEventListener('click', checkPassword);
     pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
-
-    // ── Panel ──
-    const barTrigger = document.getElementById('bar-trigger');
-    const panel      = document.getElementById('panel');
-    const closeBtn   = document.getElementById('panel-close-btn');
-
-    function openPanel() {
-      panel.classList.add('open');
-      document.body.classList.add('panel-open');
-      closeBtn.focus();
-    }
-
-    function closePanel() {
-      panel.classList.remove('open');
-      document.body.classList.remove('panel-open');
-      barTrigger.focus();
-    }
-
-    barTrigger.addEventListener('click', openPanel);
-    barTrigger.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPanel(); }
-    });
-    closeBtn.addEventListener('click', closePanel);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
   </script>
 
   <script type="text/javascript" src="//www.freeprivacypolicy.com/public/cookie-consent/4.0.0/cookie-consent.js" charset="UTF-8"></script>

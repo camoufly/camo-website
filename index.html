@@ -189,7 +189,73 @@
     .s-socials a:hover { opacity: 0.9; }
     .s-socials a svg { width: 18px; height: 18px; fill: #fff; display: block; }
 
-    /* ══ PANEL — warm amber gradient ══ */
+    /* password field */
+    .s-pwd {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .s-pwd input {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-right: none;
+      border-radius: 6px 0 0 6px;
+      color: #fff;
+      font-family: var(--font);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      padding: 7px 12px;
+      width: 130px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      -webkit-text-security: disc;
+    }
+
+    .s-pwd input::placeholder {
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.08em;
+    }
+
+    .s-pwd input:focus {
+      background: rgba(255,255,255,0.13);
+      border-color: rgba(255,255,255,0.45);
+    }
+
+    .s-pwd button {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 0 6px 6px 0;
+      color: rgba(255,255,255,0.55);
+      font-family: var(--font);
+      font-size: 11px;
+      padding: 7px 10px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      line-height: 1;
+    }
+
+    .s-pwd button:hover {
+      background: rgba(255,255,255,0.22);
+      color: #fff;
+    }
+
+    .s-pwd.error input {
+      border-color: rgba(255,80,80,0.6);
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    /* ══ PANEL — near white ══ */
     #panel {
       position: fixed; inset: 0; z-index: 100;
       background: #f0eeec;
@@ -376,6 +442,12 @@
 
     <div class="s-logo"><img src="logo.png" alt="camoufly"></div>
 
+    <!-- password field -->
+    <div class="s-pwd" id="s-pwd">
+      <input type="password" id="pwd-input" placeholder="password" autocomplete="off" spellcheck="false">
+      <button id="pwd-btn">→</button>
+    </div>
+
     <nav class="s-nav" aria-label="Primary navigation">
       <a href="/tour">tour <em>«</em></a>
       <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
@@ -386,7 +458,7 @@
     <nav class="s-mobile-nav" aria-label="Mobile navigation">
       <a href="/tour">tour <em>«</em></a>
       <a href="https://shop.camoufly.me/" target="_blank" rel="noopener noreferrer">shop <em>«</em></a>
-      <a href="/sendmusic">send <em>«</em></a>
+      <a href="http://tstack.app/camoufly">send music <em>«</em></a>
       <a href="mailto:keiran@ctrlfrk.co.uk">contact <em>«</em></a>
     </nav>
 
@@ -423,6 +495,7 @@
         </button>
       </div>
 
+      <div class="section-label">Latest releases</div>
       <div class="cards-grid">
 
         <a href="https://link.camoufly.me/tentone" target="_blank" rel="noopener noreferrer" class="p-card">
@@ -441,12 +514,14 @@
 
       </div>
 
+      <div class="section-label">Videos &amp; sets</div>
       <div class="cards-grid">
 
         <a href="https://www.youtube.com/c/camoufly" target="_blank" rel="noopener noreferrer" class="p-card">
           <img src="/images/carradio.png" alt="carRADIO 094" class="p-card__thumb">
           <div class="p-card__play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
           <div class="p-card__overlay">
+            <div class="p-card__type">Live Set</div>
             <div class="p-card__title">camoufly: carRADIO 094</div>
             <div class="p-card__sub">Los Angeles · 2026</div>
           </div>
@@ -456,6 +531,7 @@
           <img src="/images/corsica.jpg" alt="Live @ Corsica Studios" class="p-card__thumb">
           <div class="p-card__play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
           <div class="p-card__overlay">
+            <div class="p-card__type">Live Set</div>
             <div class="p-card__title">Live at Corsica Studios</div>
             <div class="p-card__sub">London · 2025</div>
           </div>
@@ -463,6 +539,13 @@
 
       </div>
 
+      <div class="section-label">Follow</div>
+      <div class="panel-socials">
+        <a href="http://instagram.com/camouflybeats" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/instagram.png" alt="Instagram"></a>
+        <a href="http://soundcloud.com/camouflybeats" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/soundcloud.png" alt="SoundCloud"></a>
+        <a href="https://open.spotify.com/artist/6ZmJg6NCjGmRgC2GEI86pQ" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/spotify.png" alt="Spotify"></a>
+        <a href="https://www.youtube.com/c/camoufly" rel="noopener noreferrer" target="_blank"><img src="https://raw.githubusercontent.com/camoufly/camo-website/main/images/youtube.png" alt="YouTube"></a>
+      </div>
 
       <div class="panel-footer-links">
         <a href="https://camoufly.me/privacy">privacy</a>
@@ -477,6 +560,48 @@
   </div>
 
   <script>
+    // ── Password redirect ──
+    const SHOW_PASSWORD = false; // ← true per mostrare il campo, false per nasconderlo
+
+    const pwdWrap  = document.getElementById('s-pwd');
+    if (!SHOW_PASSWORD) pwdWrap.style.display = 'none';
+    const pwdInput = document.getElementById('pwd-input');
+    const pwdBtn   = document.getElementById('pwd-btn');
+
+    async function checkPassword() {
+      const val = pwdInput.value.trim();
+      if (!val) return;
+
+      pwdBtn.textContent = '…';
+      pwdBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/unlock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: val })
+        });
+        const data = await res.json();
+
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error('wrong');
+        }
+      } catch {
+        pwdWrap.classList.add('error');
+        pwdInput.value = '';
+        pwdBtn.textContent = '→';
+        pwdBtn.disabled = false;
+        setTimeout(() => pwdWrap.classList.remove('error'), 600);
+        pwdInput.focus();
+      }
+    }
+
+    pwdBtn.addEventListener('click', checkPassword);
+    pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+
+    // ── Panel ──
     const barTrigger = document.getElementById('bar-trigger');
     const panel      = document.getElementById('panel');
     const closeBtn   = document.getElementById('panel-close-btn');

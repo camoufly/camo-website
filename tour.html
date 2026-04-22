@@ -235,7 +235,7 @@
       { date: 'JUL 2', venue: 'Bergtattfestivalen', city: 'Luster, NO', lat: 61.5189, lng: 7.5692, url: 'https://bergtattfestivalen.ticketco.events/no/en/e/bergtattfestivalen_2026' },
       { date: 'JUL 11', venue: 'Club Opp', city: 'Bristol, UK', lat: 51.4538, lng: -2.5973, url: 'https://www.skiddle.com/e/42344098/?skcampaign=landingpage' },
       { date: 'JUL 17', venue: 'Breakaway Under the K', city: 'New York, US', lat: 40.7127, lng: -74.006, url: 'https://www.axs.com/events/1372373/breakaway-festival-ft-tiesto-tickets?skin=underthek' },
-      { date: 'JUL 31', venue: 'Mind Festival', city: 'Montecosaro, IT', lat: 43.2761, lng: 13.6002, url: 'http://mindfestival.ciaotickets.com/ecommerce' },
+      { date: 'JUL 31', venue: 'Mind Festival', city: 'Montecorsaro, IT', lat: 43.2761, lng: 13.6002, url: 'http://mindfestival.ciaotickets.com/ecommerce' },
       { date: 'AUG 08', venue: 'Outside Lands', city: 'San Francisco, US', lat: 37.7879, lng: -122.4075, url: 'https://outsidelands.frontgatetickets.com/?_gl=1*ftg8rp*_gcl_au*MTc5NzA4MDc2MC4xNzc1MTMwMDcw' },
       { date: 'AUG 28', venue: 'Touquet Music Beach', city: 'Le Touquet, FR', lat: 50.52, lng: 1.5865, url: 'https://tickets.touquetmusicbeach.com/f5cfd932e7d4469ea2f0cb519cea39c6/' },
       { date: 'OCT 10', venue: 'The Racket Space', city: 'Dublin, IE', lat: 53.3494, lng: -6.2606, url: 'https://the-racket-space.com/event/racket-space-presents-camoufly/' }
@@ -611,8 +611,28 @@
       previousMouse.y = e.touches[0].clientY;
     }
 
-    function onTouchEnd() {
+    function onTouchEnd(e) {
       isDragging = false;
+      // detect tap: if finger barely moved, treat as pin click
+      if (e.changedTouches.length === 1) {
+        const cx = e.changedTouches[0].clientX;
+        const cy = e.changedTouches[0].clientY;
+        const dist = Math.abs(cx - touchStartPos.x) + Math.abs(cy - touchStartPos.y);
+        if (dist < 12) {
+          mouse.x = (cx / innerWidth) * 2 - 1;
+          mouse.y = -(cy / innerHeight) * 2 + 1;
+          raycaster.setFromCamera(mouse, camera);
+          const hits = raycaster.intersectObjects([...hitMeshes, ...pinMeshes]);
+          if (hits.length > 0) {
+            selectPin(hits[0].object.userData.index);
+          } else {
+            clearTimeout(tooltipFreezeTimer);
+            tooltipFrozen = false;
+            if (hoveredPin !== null) { unhighlightPin(hoveredPin); hoveredPin = null; }
+            tooltip.classList.remove('visible');
+          }
+        }
+      }
       if (!tooltipFrozen)
         setTimeout(() => { if (!isDragging && !tooltipFrozen && hoveredPin === null) autoRotate = true; }, 2000);
     }

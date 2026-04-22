@@ -231,7 +231,7 @@
       { date: 'MAY 16', venue: 'Invincible Festival', city: 'Roma, IT', lat: 41.9028, lng: 12.4964, url: 'https://xceed.me/en/roma/event/invincible-festival-sab-16-maggio/213253/channel/invincibile-festival' },
       { date: 'MAY 30', venue: 'CTRL+F', city: 'Toulouse, FR', lat: 43.6045, lng: 1.4442, url: 'https://shotgun.live/fr/events/crtl-f-festival-pass-2-jours' },
       { date: 'JUN 26', venue: 'Culture', city: 'Washington, DC', lat: 38.8951, lng: -77.0364, url: 'https://shotgun.live/en/events/camoufly0626?utm_source=spotify&clickref=1101lDfYfAPP' },
-      { date: 'JUN 27', venue: 'Day Trip Festival', city: 'Long Beach, CA', lat: 33.769, lng: -118.1916, url: 'https://www.daytripfest.com/tickets/' }, 
+      { date: 'JUN 27', venue: 'Day Trip Festival', city: 'Long Beach, CA', lat: 33.769, lng: -118.1916, url: 'https://www.daytripfest.com/tickets/' },
       { date: 'JUL 2', venue: 'Bergtattfestivalen', city: 'Luster, NO', lat: 61.5189, lng: 7.5692, url: 'https://bergtattfestivalen.ticketco.events/no/en/e/bergtattfestivalen_2026' },
       { date: 'JUL 11', venue: 'Club Opp', city: 'Bristol, UK', lat: 51.4538, lng: -2.5973, url: 'https://www.skiddle.com/e/42344098/?skcampaign=landingpage' },
       { date: 'JUL 17', venue: 'Breakaway Under the K', city: 'New York, US', lat: 40.7127, lng: -74.006, url: 'https://www.axs.com/events/1372373/breakaway-festival-ft-tiesto-tickets?skin=underthek' },
@@ -249,14 +249,23 @@
     let autoRotate = true;
     let hoveredPin = null;
     let pinMeshes = [];
-    // FIX 1: invisible larger hit meshes for easier tapping
     let hitMeshes = [];
     const tooltip = document.getElementById('tooltip');
     const GLOBE_R = 1.5;
+    const CAM_DEFAULT_Z = 4.2;
 
-    // FIX 2: timer for 5-second freeze after pin selection
     let tooltipFreezeTimer = null;
     let tooltipFrozen = false;
+
+    // pinch zoom
+    let pinchStartDist = 0;
+    let pinchStartZ = 0;
+
+    function getTouchDist(e) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      return Math.sqrt(dx*dx + dy*dy);
+    }
 
     function latLngToVec3(lat, lng, r) {
       const phi = (90 - lat) * Math.PI / 180;
@@ -269,18 +278,13 @@
     }
 
     function freezeGlobe() {
-      // Stop rotation, show tooltip for 5 seconds
-      // unless user interacts (drag resumes, new pin resumes)
       autoRotate = false;
       rotationVelocity = { x: 0, y: 0 };
       tooltipFrozen = true;
       clearTimeout(tooltipFreezeTimer);
       tooltipFreezeTimer = setTimeout(() => {
         tooltipFrozen = false;
-        if (hoveredPin !== null) {
-          unhighlightPin(hoveredPin);
-          hoveredPin = null;
-        }
+        if (hoveredPin !== null) { unhighlightPin(hoveredPin); hoveredPin = null; }
         tooltip.classList.remove('visible');
         autoRotate = true;
       }, 5000);
@@ -289,7 +293,7 @@
     function init() {
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 1000);
-      camera.position.z = 4.2;
+      camera.position.z = CAM_DEFAULT_Z;
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
       renderer.setSize(innerWidth, innerHeight);
@@ -309,7 +313,6 @@
         new THREE.SphereGeometry(GLOBE_R, 64, 64),
         new THREE.MeshPhongMaterial({ color: 0x080808, shininess: 5 })
       ));
-
       globe.add(new THREE.Mesh(
         new THREE.SphereGeometry(GLOBE_R + 0.04, 64, 64),
         new THREE.MeshBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.06, side: THREE.BackSide })
@@ -335,7 +338,6 @@
       buildDateList();
 
       raycaster = new THREE.Raycaster();
-      // FIX 2: increase raycaster threshold for easier picking
       raycaster.params.Points = { threshold: 0.1 };
       mouse = new THREE.Vector2();
 
@@ -390,7 +392,6 @@
         stem.position.y = stemHeight / 2;
         pin.add(stem);
 
-        // Visible head (small)
         const head = new THREE.Mesh(
           new THREE.SphereGeometry(0.025, 16, 16),
           new THREE.MeshPhongMaterial({ color: 0xe74c3c, emissive: 0xe74c3c, emissiveIntensity: 0.35, shininess: 80 })
@@ -398,7 +399,7 @@
         head.position.y = stemHeight + 0.02;
         pin.add(head);
 
-        // FIX: invisible larger hit sphere for easier tapping (3x bigger, fully transparent)
+        // invisible hit sphere — larger for easier tapping
         const hitSphere = new THREE.Mesh(
           new THREE.SphereGeometry(0.08, 12, 12),
           new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
@@ -431,36 +432,27 @@
       TOUR_DATES.forEach((td, i) => {
         const li = document.createElement('li');
         li.textContent = `${td.date} — ${td.city}`;
-        li.addEventListener('click', () => {
-          flyToPin(i);
-        });
+        li.addEventListener('click', () => flyToPin(i));
         li.addEventListener('mouseenter', () => highlightPin(i));
-        li.addEventListener('mouseleave', () => {
-          if (hoveredPin !== i) unhighlightPin(i);
-        });
+        li.addEventListener('mouseleave', () => { if (hoveredPin !== i) unhighlightPin(i); });
         list.appendChild(li);
       });
     }
 
     function flyToPin(index) {
-      const td = TOUR_DATES[index];
       autoRotate = false;
       rotationVelocity = { x: 0, y: 0 };
+      const td = TOUR_DATES[index];
       const pinLocal = latLngToVec3(td.lat, td.lng, GLOBE_R).normalize();
-      const target = new THREE.Vector3(0, 0, 1);
-      const targetQuat = new THREE.Quaternion().setFromUnitVectors(pinLocal, target);
+      const targetQuat = new THREE.Quaternion().setFromUnitVectors(pinLocal, new THREE.Vector3(0, 0, 1));
       const startQuat = new THREE.Quaternion().copy(globe.quaternion);
-      const endQuat = targetQuat.clone();
       const dur = 1200, t0 = Date.now();
       (function tick() {
         const t = Math.min((Date.now() - t0) / dur, 1);
         const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
-        const q = new THREE.Quaternion();
-        THREE.Quaternion.slerp(startQuat, endQuat, q, ease);
-        globe.quaternion.copy(q);
-        if (t < 1) {
-          requestAnimationFrame(tick);
-        } else {
+        THREE.Quaternion.slerp(startQuat, targetQuat, globe.quaternion, ease);
+        if (t < 1) { requestAnimationFrame(tick); }
+        else {
           if (hoveredPin !== null && hoveredPin !== index) unhighlightPin(hoveredPin);
           hoveredPin = index;
           highlightPin(index);
@@ -480,13 +472,13 @@
 
     function highlightPin(index) {
       const head = pinMeshes[index];
-      if (head) { head.scale.set(1.6,1.6,1.6); head.material.emissiveIntensity = 0.9; }
+      if (head) head.material.emissiveIntensity = 0.9;
       document.querySelectorAll('#dateList li').forEach((li,i) => li.classList.toggle('active', i===index));
     }
 
     function unhighlightPin(index) {
       const head = pinMeshes[index];
-      if (head) { head.scale.set(1,1,1); head.material.emissiveIntensity = 0.35; }
+      if (head) head.material.emissiveIntensity = 0.35;
       document.querySelectorAll('#dateList li')[index]?.classList.remove('active');
     }
 
@@ -523,7 +515,6 @@
 
     function onMouseDown(e) {
       isDragging = true;
-      // FIX: dragging cancels freeze and resumes rotation intent
       clearTimeout(tooltipFreezeTimer);
       tooltipFrozen = false;
       autoRotate = false;
@@ -539,10 +530,8 @@
       if (isDragging) {
         const dx = e.clientX - previousMouse.x;
         const dy = e.clientY - previousMouse.y;
-        const qx = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.005);
-        const qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.005);
-        globe.quaternion.premultiply(qx);
-        globe.quaternion.premultiply(qy);
+        globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.005));
+        globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.005));
         rotationVelocity.x = dy * 0.005;
         rotationVelocity.y = dx * 0.005;
         previousMouse.x = e.clientX;
@@ -551,13 +540,10 @@
         return;
       }
 
-      // Don't change hover state while frozen
       if (tooltipFrozen) return;
 
       raycaster.setFromCamera(mouse, camera);
-      // Check hit meshes (larger) for easier hover
       const hits = raycaster.intersectObjects([...hitMeshes, ...pinMeshes]);
-
       if (hits.length > 0) {
         const idx = hits[0].object.userData.index;
         if (hoveredPin !== idx) {
@@ -578,21 +564,26 @@
 
     function onMouseUp() {
       isDragging = false;
-      if (!tooltipFrozen && hoveredPin === null) {
-        setTimeout(() => { if (hoveredPin === null && !isDragging && !tooltipFrozen) autoRotate = true; }, 1500);
-      }
+      if (!tooltipFrozen && hoveredPin === null)
+        setTimeout(() => { if (!isDragging && !tooltipFrozen && hoveredPin === null) autoRotate = true; }, 1500);
     }
 
     function onMouseLeave() {
       isDragging = false;
-      if (!tooltipFrozen && hoveredPin === null) {
-        setTimeout(() => { if (hoveredPin === null && !isDragging && !tooltipFrozen) autoRotate = true; }, 1500);
-      }
+      if (!tooltipFrozen && hoveredPin === null)
+        setTimeout(() => { if (!isDragging && !tooltipFrozen && hoveredPin === null) autoRotate = true; }, 1500);
     }
 
-    // Touch
     let touchStartPos = { x: 0, y: 0 };
+
     function onTouchStart(e) {
+      e.preventDefault();
+      if (e.touches.length === 2) {
+        isDragging = false;
+        pinchStartDist = getTouchDist(e);
+        pinchStartZ = camera.position.z;
+        return;
+      }
       if (e.touches.length !== 1) return;
       isDragging = true;
       clearTimeout(tooltipFreezeTimer);
@@ -601,23 +592,28 @@
       touchStartPos.x = previousMouse.x = e.touches[0].clientX;
       touchStartPos.y = previousMouse.y = e.touches[0].clientY;
     }
+
     function onTouchMove(e) {
-      if (!isDragging || e.touches.length !== 1) return;
       e.preventDefault();
+      if (e.touches.length === 2) {
+        // pinch zoom — moves camera, not browser
+        const dist = getTouchDist(e);
+        camera.position.z = Math.max(2.5, Math.min(8, pinchStartZ * (pinchStartDist / dist)));
+        return;
+      }
+      if (!isDragging || e.touches.length !== 1) return;
       const dx = e.touches[0].clientX - previousMouse.x;
       const dy = e.touches[0].clientY - previousMouse.y;
-      const qx = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.005);
-      const qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.005);
-      globe.quaternion.premultiply(qx);
-      globe.quaternion.premultiply(qy);
+      globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.005));
+      globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.005));
       previousMouse.x = e.touches[0].clientX;
       previousMouse.y = e.touches[0].clientY;
     }
+
     function onTouchEnd() {
       isDragging = false;
-      if (!tooltipFrozen) {
-        setTimeout(() => { if (hoveredPin === null && !isDragging && !tooltipFrozen) autoRotate = true; }, 2000);
-      }
+      if (!tooltipFrozen)
+        setTimeout(() => { if (!isDragging && !tooltipFrozen && hoveredPin === null) autoRotate = true; }, 2000);
     }
 
     function onWheel(e) {
@@ -631,27 +627,22 @@
       renderer.setSize(innerWidth, innerHeight);
     }
 
-    // Tap (click) — uses hit meshes for better touch accuracy
     document.getElementById('globe-container').addEventListener('click', (e) => {
       const dist = Math.abs(e.clientX - (touchStartPos.x || dragStartPos.x))
                  + Math.abs(e.clientY - (touchStartPos.y || dragStartPos.y));
       if (dist > 10) return;
-
       mouse.x = (e.clientX / innerWidth) * 2 - 1;
       mouse.y = -(e.clientY / innerHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
       const hits = raycaster.intersectObjects([...hitMeshes, ...pinMeshes]);
-
       if (hits.length > 0) {
-        const idx = hits[0].object.userData.index;
-        selectPin(idx);
+        selectPin(hits[0].object.userData.index);
       } else {
-        // Tapped globe but not a pin — cancel freeze and resume
         clearTimeout(tooltipFreezeTimer);
         tooltipFrozen = false;
         if (hoveredPin !== null) { unhighlightPin(hoveredPin); hoveredPin = null; }
         tooltip.classList.remove('visible');
-        setTimeout(() => { if (hoveredPin === null && !tooltipFrozen) autoRotate = true; }, 1500);
+        setTimeout(() => { if (!tooltipFrozen && hoveredPin === null) autoRotate = true; }, 1500);
       }
     });
 
@@ -661,16 +652,15 @@
         tooltipFrozen = false;
         tooltip.classList.remove('visible');
         if (hoveredPin !== null) { unhighlightPin(hoveredPin); hoveredPin = null; }
-        setTimeout(() => { if (hoveredPin === null && !tooltipFrozen) autoRotate = true; }, 1500);
+        setTimeout(() => { if (!tooltipFrozen && hoveredPin === null) autoRotate = true; }, 1500);
       }
     });
 
     function animate() {
       requestAnimationFrame(animate);
 
-      if (autoRotate && !isDragging && hoveredPin === null && !tooltipFrozen) {
+      if (autoRotate && !isDragging && hoveredPin === null && !tooltipFrozen)
         globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0.0008));
-      }
 
       if (!isDragging && hoveredPin === null && !tooltipFrozen) {
         rotationVelocity.x *= 0.94;
@@ -682,12 +672,18 @@
       }
 
       const t = Date.now() * 0.003;
+      // Scale pins to stay constant screen size as camera zooms
+      const zoomScale = camera.position.z / CAM_DEFAULT_Z;
       pinMeshes.forEach((head, i) => {
         const ring = head.userData.ring;
+        const hoverMult = (hoveredPin === i) ? 1.6 : 1.0;
+        const s = zoomScale * hoverMult;
+        head.scale.set(s, s, s);
+        if (hitMeshes[i]) hitMeshes[i].scale.set(zoomScale, zoomScale, zoomScale);
         if (ring) {
           ring.material.opacity = 0.3 + Math.sin(t + i * 0.7) * 0.15;
-          const s = 1 + Math.sin(t + i * 0.7) * 0.15;
-          ring.scale.set(s, s, s);
+          const rs = zoomScale * (1 + Math.sin(t + i * 0.7) * 0.15);
+          ring.scale.set(rs, rs, rs);
         }
       });
 

@@ -517,12 +517,11 @@
       const my = -(clientY / innerHeight) * 2 + 1;
       const tempMouse = new THREE.Vector2(mx, my);
       raycaster.setFromCamera(tempMouse, camera);
-      const hits = raycaster.intersectObject(globe.children[0]); // main sphere
+      const hits = raycaster.intersectObject(globe.children[0]);
       return hits.length > 0;
     }
 
     function onMouseDown(e) {
-      // Only start drag if clicking on the globe sphere itself
       if (!isOnGlobe(e.clientX, e.clientY)) return;
 
       isDragging = true;
@@ -542,10 +541,11 @@
       if (isDragging) {
         const dx = e.clientX - previousMouse.x;
         const dy = e.clientY - previousMouse.y;
-        globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.005));
-        globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.005));
-        rotationVelocity.x = dy * 0.005;
-        rotationVelocity.y = dx * 0.005;
+        const zoomScale = camera.position.z / CAM_DEFAULT_Z;
+        globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.004 * zoomScale));
+        globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.004 * zoomScale));
+        rotationVelocity.x = dy * 0.004 * zoomScale;
+        rotationVelocity.y = dx * 0.004 * zoomScale;
         previousMouse.x = e.clientX;
         previousMouse.y = e.clientY;
         tooltip.classList.remove('visible');
@@ -608,7 +608,6 @@
       }
       if (e.touches.length !== 1) return;
 
-      // Only start drag if touch is on the globe sphere itself
       if (!isOnGlobe(e.touches[0].clientX, e.touches[0].clientY)) return;
 
       isDragging = true;
@@ -629,10 +628,9 @@
       if (!isDragging || e.touches.length !== 1) return;
       const dx = e.touches[0].clientX - previousMouse.x;
       const dy = e.touches[0].clientY - previousMouse.y;
-      // normalize rotation speed by zoom level so it feels consistent
       const zoomScale = camera.position.z / CAM_DEFAULT_Z;
-      globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.005 * zoomScale));
-      globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.005 * zoomScale));
+      globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy * 0.004 * zoomScale));
+      globe.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx * 0.004 * zoomScale));
       previousMouse.x = e.touches[0].clientX;
       previousMouse.y = e.touches[0].clientY;
     }

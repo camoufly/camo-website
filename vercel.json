@@ -1,24 +1,11 @@
 {
   "rewrites": [
     { "source": "/tour", "destination": "/tour.html" },
-    { "source": "/about", "destination": "/about.html" },
-    { "source": "/send", "destination": "/sendmusic.html" },
-    { "source": "/contact", "destination": "/contact.html" },
-    { "source": "/music", "destination": "/music.html" },
-    { "source": "/store", "destination": "/store.html" },
-    { "source": "/videos", "destination": "/videos.html" },
-    { "source": "/newskin", "destination": "/newskin.html" },
-    { "source": "/press", "destination": "/press.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/codes", "destination": "/codes.html" },
-    { "source": "/eutour", "destination": "/eutour.html" },
     { "source": "/himalaya", "destination": "/himalaya.html" },
     { "source": "/ustour", "destination": "/ustour.html" },
-    { "source": "/floorfilla", "destination": "/floorfilla.html" },
+    { "source": "/ultramoon", "destination": "/ultramoon.html" },
     { "source": "/believe", "destination": "/believe.html" },
-    { "source": "/believe_download", "destination": "/believe_download.html" },
-    { "source": "/carradio", "destination": "/carradio.html" },
-    { "source": "/sendmusic", "destination": "/sendmusic.html" },
-    { "source": "/terms", "destination": "/terms.html" }
+    { "source": "/carradio", "destination": "/carradio.html" }
   ]
 }

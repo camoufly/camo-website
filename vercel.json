@@ -6,6 +6,7 @@
     { "source": "/ustour", "destination": "/ustour.html" },
     { "source": "/ultramoon", "destination": "/ultramoon.html" },
     { "source": "/believe", "destination": "/believe.html" },
+    { "source": "/cookies", "destination": "/cookies.html" },
     { "source": "/carradio", "destination": "/carradio.html" }
   ]
 }

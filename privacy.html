@@ -5,7 +5,7 @@
   <meta name="description" content="camoufly — privacy policy">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
 
-  <!-- TikTok Pixel -->
+  <!-- TikTok Pixel (consent-gated: targeting) -->
   <script type="text/plain" cookie-consent="targeting">
   !function (w, d, t) {
     w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
@@ -14,24 +14,24 @@
   }(window, document, 'ttq');
   </script>
 
-  <!-- Meta Pixel -->
-  <script>
+  <!-- Meta Pixel (consent-gated: targeting) -->
+  <script type="text/plain" cookie-consent="targeting">
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', '706718730484074');
   fbq('track', 'PageView');
   </script>
-  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=706718730484074&ev=PageView&noscript=1"/></noscript>
+  <!-- Note: the Meta <noscript> fallback pixel was removed because it fires unconditionally and cannot be consent-gated. -->
 
-  <!-- GA -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NX8KBPPLEB"></script>
-  <script>
+  <!-- Google Analytics (consent-gated: tracking) -->
+  <script type="text/plain" cookie-consent="tracking" async src="https://www.googletagmanager.com/gtag/js?id=G-NX8KBPPLEB"></script>
+  <script type="text/plain" cookie-consent="tracking">
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-NX8KBPPLEB');
   </script>
 
-  <!-- GTM -->
+  <!-- GTM (consent-gated: tracking) -->
   <script type="text/plain" cookie-consent="tracking">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-NSSBMPS');</script>
 
   <link rel="icon" href="thumbnail_logo.png">
@@ -42,7 +42,7 @@
   <meta property="og:site_name" content="camoufly" />
   <meta property="og:title" content="camoufly — privacy policy" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="http://camoufly.me/privacy" />
+  <meta property="og:url" content="https://camoufly.me/privacy" />
 
   <title>camoufly — privacy policy</title>
 
@@ -168,6 +168,12 @@
 
     .privacy-body a:hover { color: var(--text); }
 
+    .updated {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
     /* footer */
     .socials {
       display: flex;
@@ -247,71 +253,100 @@
 
       <h1>Privacy Policy<br>for camoufly</h1>
 
-      <p>At camoufly, accessible from <a href="https://camoufly.me">camoufly.me</a>, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by camoufly and how we use it.</p>
+      <p class="updated">Last updated: 20 June 2026</p>
 
-      <p>If you have additional questions or require more information about our Privacy Policy, do not hesitate to contact us at <a href="mailto:contact@camoufly.me">contact@camoufly.me</a>.</p>
+      <p>This Privacy Policy explains how we collect, use, and protect your personal information when you visit <a href="https://camoufly.me">camoufly.me</a> (the "Website"). Please read it carefully. If you have any questions, contact us at <a href="mailto:contact@camoufly.me">contact@camoufly.me</a>.</p>
 
-      <p>This Privacy Policy applies only to our online activities and is valid for visitors to our website with regards to the information that they shared and/or collect on camoufly. This policy is not applicable to any information collected offline or via channels other than this website.</p>
-
-      <h2>Consent</h2>
-      <p>By using our website, you hereby consent to our Privacy Policy and agree to its terms.</p>
-
-      <h2>Information we collect</h2>
-      <p>The personal information that you are asked to provide, and the reasons why you are asked to provide it, will be made clear to you at the point we ask you to provide your personal information.</p>
-      <p>If you contact us directly, we may receive additional information about you such as your name, email address, phone number, the contents of the message and/or attachments you may send us, and any other information you may choose to provide.</p>
-      <p>When you register for an Account, we may ask for your contact information, including items such as name, company name, address, email address, and telephone number.</p>
-
-      <h2>How we use your information</h2>
-      <p>We use the information we collect in various ways, including to:</p>
+      <h2>Data Controller</h2>
+      <p>This Website is operated by <strong>Kawaii Bounce F.R.</strong> (the "data controller" / <em>titolare del trattamento</em>).</p>
       <ul>
-        <li>Provide, operate, and maintain our website</li>
-        <li>Improve, personalize, and expand our website</li>
-        <li>Understand and analyze how you use our website</li>
-        <li>Develop new products, services, features, and functionality</li>
-        <li>Communicate with you, either directly or through one of our partners, including for customer service, to provide you with updates and other information relating to the website, and for marketing and promotional purposes</li>
-        <li>Send you emails</li>
-        <li>Find and prevent fraud</li>
+        <li>VAT no. (P.IVA): IT01442860456</li>
+        <li>Registered address: Via Rismondo 65, Fivizzano (MS), Italy</li>
+        <li>Contact: <a href="mailto:contact@camoufly.me">contact@camoufly.me</a></li>
+      </ul>
+      <p>For the purposes of applicable data protection law, including the EU General Data Protection Regulation ("GDPR"), we are the data controller of your personal information.</p>
+
+      <h2>Scope</h2>
+      <p>This Privacy Policy applies to personal information collected through this Website. It does not apply to information collected offline, or through our separate online store (shop.camoufly.me) or other channels, which are covered by their own notices.</p>
+
+      <h2>Information We Collect</h2>
+      <p>Depending on how you use the Website, we may collect:</p>
+      <ul>
+        <li><strong>Information you provide directly</strong> — if you contact us by email or form, we collect your name, email address, and the contents of your message. If you subscribe to our newsletter, we collect your email address. If you create an account, we collect the contact details you supply.</li>
+        <li><strong>Information collected automatically</strong> — when you visit the Website, technical information such as your IP address, browser and device type, operating system, referring and exit pages, and date and time of access is recorded through server log files and through cookies and similar technologies.</li>
+      </ul>
+      <p>Under the GDPR, some of this data — including IP addresses — qualifies as personal data even where it is not linked to your name. We do not deliberately collect special categories of personal data through the Website.</p>
+
+      <h2>How We Use Your Information and Legal Bases</h2>
+      <p>We process your personal information only where we have a valid legal basis under the GDPR:</p>
+      <ul>
+        <li><strong>To operate and maintain the Website and respond to your enquiries</strong> — on the basis of our legitimate interests (Art. 6(1)(f)), or to take steps at your request.</li>
+        <li><strong>To send newsletters and marketing communications</strong> — on the basis of your consent (Art. 6(1)(a)), which you can withdraw at any time via the unsubscribe link.</li>
+        <li><strong>To analyse Website usage and measure marketing</strong> — on the basis of your consent for analytics and advertising cookies (Art. 6(1)(a)), managed through our cookie banner.</li>
+        <li><strong>To secure the Website and prevent fraud or abuse</strong> — on the basis of our legitimate interests (Art. 6(1)(f)).</li>
+        <li><strong>To comply with legal obligations</strong> — on the basis of Art. 6(1)(c), where applicable.</li>
+      </ul>
+      <p>We do not carry out automated decision-making that produces legal or similarly significant effects on you within the meaning of Art. 22 GDPR.</p>
+
+      <h2>Cookies and Similar Technologies</h2>
+      <p>We use cookies and similar technologies to operate the Website, remember your preferences, analyse usage, and support marketing. Cookies that are not strictly necessary — including analytics and advertising cookies — are only set <strong>with your prior consent</strong>, given through the cookie banner shown on your first visit. You can change or withdraw your choices at any time through the cookie preferences link in the banner. Strictly necessary cookies do not require consent.</p>
+
+      <h2>Analytics and Advertising</h2>
+      <p>Subject to your consent, we use the following third-party tools, which set their own cookies and may receive your IP address and interaction data:</p>
+      <ul>
+        <li><strong>Google Analytics 4</strong> and <strong>Google Tag Manager</strong> (Google) — to understand how the Website is used.</li>
+        <li><strong>Meta Pixel</strong> (Meta/Facebook) and <strong>TikTok Pixel</strong> (TikTok) — to measure and personalise advertising on those platforms.</li>
+      </ul>
+      <p>These tools load only after you consent through the cookie banner, and you can withdraw consent at any time. Each provider processes data in accordance with its own privacy policy. We also use <strong>Google Fonts</strong> to display the Website's typography, which involves a connection to Google's servers.</p>
+
+      <h2>How We Share Your Information</h2>
+      <p>We do not sell your personal information for money. We may share it with:</p>
+      <ul>
+        <li><strong>Service providers (processors)</strong> who help us run the Website and our communications, including our hosting provider, our email/newsletter provider, and the analytics providers listed above, which process data on our instructions.</li>
+        <li><strong>Advertising platforms</strong> (Meta, TikTok, Google), which receive data through their pixels and act as independent or joint controllers under their own policies.</li>
+        <li><strong>Authorities or other parties</strong> where necessary to comply with the law, respond to valid legal requests, or protect our rights and safety.</li>
       </ul>
 
-      <h2>Log Files</h2>
-      <p>camoufly follows a standard procedure of using log files. These files log visitors when they visit websites. All hosting companies do this as part of hosting services' analytics. The information collected by log files includes internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date and time stamp, referring/exit pages, and possibly the number of clicks. These are not linked to any information that is personally identifiable. The purpose of the information is for analyzing trends, administering the site, tracking users' movement on the website, and gathering demographic information.</p>
+      <h2>International Transfers</h2>
+      <p>Some of our service providers (including Google, Meta, and TikTok) are based outside the European Economic Area, such as in the United States. Where we transfer your personal information outside the EEA, we rely on a recognised transfer mechanism — such as the European Commission's Standard Contractual Clauses — unless the destination country has been recognised as providing an adequate level of protection.</p>
 
-      <h2>Cookies and Web Beacons</h2>
-      <p>Like any other website, camoufly uses cookies. These cookies are used to store information including visitors' preferences, and the pages on the website that the visitor accessed or visited. The information is used to optimize the users' experience by customizing our web page content based on visitors' browser type and/or other information.</p>
-
-      <h2>Advertising Partners Privacy Policies</h2>
-      <p>You may consult this list to find the Privacy Policy for each of the advertising partners of camoufly.</p>
-      <p>Third-party ad servers or ad networks use technologies like cookies, JavaScript, or Web Beacons that are used in their respective advertisements and links that appear on camoufly, which are sent directly to users' browsers. They automatically receive your IP address when this occurs. These technologies are used to measure the effectiveness of their advertising campaigns and/or to personalize the advertising content that you see on websites that you visit.</p>
-      <p>Note that camoufly has no access to or control over these cookies that are used by third-party advertisers.</p>
-
-      <h2>Third Party Privacy Policies</h2>
-      <p>camoufly's Privacy Policy does not apply to other advertisers or websites. Thus, we advise you to consult the respective Privacy Policies of these third-party ad servers for more detailed information. It may include their practices and instructions about how to opt-out of certain options.</p>
-      <p>You can choose to disable cookies through your individual browser options. To find more detailed information about cookie management with specific web browsers, it can be found at the browsers' respective websites.</p>
-
-      <h2>CCPA Privacy Rights</h2>
-      <p>Under the CCPA, among other rights, California consumers have the right to:</p>
+      <h2>Data Retention</h2>
+      <p>We keep your personal information only as long as necessary:</p>
       <ul>
-        <li>Request that a business that collects a consumer's personal data disclose the categories and specific pieces of personal data that a business has collected about consumers.</li>
-        <li>Request that a business delete any personal data about the consumer that a business has collected.</li>
-        <li>Request that a business that sells a consumer's personal data, not sell the consumer's personal data.</li>
+        <li>Enquiry/contact data — for a limited period after your query is resolved.</li>
+        <li>Newsletter data — until you unsubscribe or withdraw consent.</li>
+        <li>Analytics and cookie data — for the durations set by the relevant tools and described in our cookie banner.</li>
+        <li>Log files — for a limited period for security and diagnostic purposes.</li>
       </ul>
-      <p>If you make a request, we have one month to respond to you. If you would like to exercise any of these rights, please contact us.</p>
+      <p>When we no longer need your personal information, we delete or anonymise it.</p>
 
-      <h2>GDPR Data Protection Rights</h2>
-      <p>We would like to make sure you are fully aware of all of your data protection rights. Every user is entitled to the following:</p>
+      <h2>Your Rights</h2>
+      <p>If the GDPR applies to you, you have the right to:</p>
       <ul>
-        <li><strong>The right to access</strong> – You have the right to request copies of your personal data. We may charge you a small fee for this service.</li>
-        <li><strong>The right to rectification</strong> – You have the right to request that we correct any information you believe is inaccurate. You also have the right to request that we complete information you believe is incomplete.</li>
-        <li><strong>The right to erasure</strong> – You have the right to request that we erase your personal data, under certain conditions.</li>
-        <li><strong>The right to restrict processing</strong> – You have the right to request that we restrict the processing of your personal data, under certain conditions.</li>
-        <li><strong>The right to object to processing</strong> – You have the right to object to our processing of your personal data, under certain conditions.</li>
-        <li><strong>The right to data portability</strong> – You have the right to request that we transfer the data that we have collected to another organization, or directly to you, under certain conditions.</li>
+        <li><strong>Access</strong> the personal information we hold about you, <strong>free of charge</strong>.</li>
+        <li><strong>Rectify</strong> inaccurate or incomplete information.</li>
+        <li><strong>Erase</strong> your personal information, in certain circumstances.</li>
+        <li><strong>Restrict</strong> our processing, in certain circumstances.</li>
+        <li><strong>Object</strong> to processing based on legitimate interests, and to direct marketing at any time.</li>
+        <li><strong>Data portability</strong> — receive your data in a structured, machine-readable format, in certain circumstances.</li>
+        <li><strong>Withdraw consent</strong> at any time, where we rely on consent, without affecting prior processing.</li>
       </ul>
-      <p>If you make a request, we have one month to respond to you. If you would like to exercise any of these rights, please contact us.</p>
+      <p>To exercise any of these rights, contact us at <a href="mailto:contact@camoufly.me">contact@camoufly.me</a>. We will respond within one month, extendable by two further months for complex requests. We do not charge a fee unless a request is manifestly unfounded or excessive. You also have the right to lodge a complaint with your local data protection authority; in Italy this is the <strong>Garante per la protezione dei dati personali</strong> (<a href="https://www.garanteprivacy.it">garanteprivacy.it</a>).</p>
 
-      <h2>Children's Information</h2>
-      <p>Another part of our priority is adding protection for children while using the internet. We encourage parents and guardians to observe, participate in, and/or monitor and guide their online activity.</p>
-      <p>camoufly does not knowingly collect any Personal Identifiable Information from children under the age of 13. If you think that your child provided this kind of information on our website, we strongly encourage you to contact us immediately and we will do our best to promptly remove such information from our records.</p>
+      <h2>Notice for California Residents</h2>
+      <p>If you are a California resident, you may have the right to request access to or deletion of your personal information. We do not sell your personal information for money; however, our use of advertising cookies may be considered "sharing" for cross-context behavioural advertising under California law, which you can opt out of by rejecting advertising cookies in our banner. To make a request, contact us at <a href="mailto:contact@camoufly.me">contact@camoufly.me</a>.</p>
+
+      <h2>Children's Privacy</h2>
+      <p>The Website is not directed to children, and we do not knowingly collect personal information from children under the age of 14 (the age of digital consent in Italy). If you believe a child has provided us with personal information, contact us at <a href="mailto:contact@camoufly.me">contact@camoufly.me</a> and we will delete it.</p>
+
+      <h2>Security</h2>
+      <p>We take reasonable technical and organisational measures to protect your personal information. However, no method of transmission over the internet is completely secure, and we cannot guarantee absolute security. Please avoid sending sensitive information through unsecured channels.</p>
+
+      <h2>Changes to This Privacy Policy</h2>
+      <p>We may update this Privacy Policy from time to time to reflect changes in our practices or for legal or operational reasons. We will post the updated version on this page and revise the "Last updated" date above.</p>
+
+      <h2>Contact</h2>
+      <p>For any questions about this Privacy Policy or to exercise your rights, contact us at <a href="mailto:contact@camoufly.me">contact@camoufly.me</a>.</p>
 
     </div>
 

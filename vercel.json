@@ -1,5 +1,15 @@
 {
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "TDM-Reservation", "value": "1" },
+        { "key": "TDM-Policy", "value": "https://camoufly.me/tdm-policy" }
+      ]
+    }
+  ],
   "rewrites": [
+    { "source": "/tdm-policy", "destination": "/tdm-policy.html" },
     { "source": "/tour", "destination": "/tour.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/himalaya", "destination": "/himalaya.html" },
@@ -8,5 +18,6 @@
     { "source": "/believe", "destination": "/believe.html" },
     { "source": "/cookies", "destination": "/cookies.html" },
     { "source": "/carradio", "destination": "/carradio.html" }
+
   ]
 }

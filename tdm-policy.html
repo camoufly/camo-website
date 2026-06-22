@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="camoufly — text & data mining / AI training policy">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+
+  <!-- This page reserves its own TDM rights -->
+  <meta name="tdm-reservation" content="1">
+  <meta name="tdm-policy" content="https://camoufly.me/tdm-policy">
+  <meta name="robots" content="noai, noimageai">
+
+  <!-- Machine-readable policy (ODRL/JSON-LD) so a TDM agent can parse the
+       conditions, not just the human text below. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://www.w3.org/ns/odrl.jsonld",
+    "@type": "Policy",
+    "uid": "https://camoufly.me/tdm-policy",
+    "profile": "https://www.w3.org/community/tdmrep/",
+    "permission": [],
+    "prohibition": [
+      {
+        "target": "https://camoufly.me/",
+        "action": "tdm:mine",
+        "assigner": "https://camoufly.me"
+      }
+    ],
+    "rightsHolder": "Kawaii Bounce F.R. (Francesco Romei / Camoufly)",
+    "contact": "contact@camoufly.me"
+  }
+  </script>
+
+  <link rel="icon" href="thumbnail_logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <meta property="og:site_name" content="camoufly" />
+  <meta property="og:title" content="camoufly — text & data mining policy" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://camoufly.me/tdm-policy" />
+
+  <title>camoufly — text &amp; data mining policy</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:    #0a0a0a;
+      --bg2:   #111111;
+      --text:  #f0f0f0;
+      --muted: rgba(255,255,255,0.38);
+      --border: rgba(255,255,255,0.09);
+      --max:   680px;
+      --pad:   20px;
+      --radius: 12px;
+      --font: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 36px var(--pad) 56px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      display: block;
+      width: min(260px, 72vw);
+      height: auto;
+      filter: brightness(0) invert(1);
+    }
+
+    .hr {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 32px;
+      transition: color 0.18s;
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    .page-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .privacy-body h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    .privacy-body h2 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 32px 0 10px;
+    }
+
+    .privacy-body p {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .privacy-body ul {
+      margin: 0 0 12px 20px;
+    }
+
+    .privacy-body li {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+      margin-bottom: 4px;
+    }
+
+    .privacy-body a {
+      color: rgba(255,255,255,0.55);
+      text-underline-offset: 3px;
+    }
+
+    .privacy-body a:hover { color: var(--text); }
+
+    .privacy-body code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.82em;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 5px;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .updated {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .footer-links {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .footer-links a { color: inherit; text-underline-offset: 3px; }
+    .footer-links a:hover { color: var(--text); }
+
+    .legal {
+      margin-top: 12px;
+      font-size: 0.58rem;
+      color: rgba(255,255,255,0.18);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 420px) {
+      :root { --pad: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="wrap">
+
+    <header class="brand">
+      <a href="https://camoufly.me" aria-label="Home">
+        <img src="/images/logo.png" alt="camoufly" class="logo">
+      </a>
+    </header>
+
+    <a href="/" class="back-link">← back</a>
+
+    <div class="page-title">TDM / AI Training Policy</div>
+
+    <div class="privacy-body">
+
+      <h1>Text &amp; Data Mining<br>and AI Training Policy</h1>
+
+      <p class="updated">Last updated: 22 June 2026</p>
+
+      <p>This policy sets out the reservation of rights for text and data mining ("TDM") and artificial-intelligence training applied to the content of <a href="https://camoufly.me">camoufly.me</a> and its subdomains. For any questions, contact us at <a href="mailto:contact@camoufly.me">contact@camoufly.me</a>.</p>
+
+      <h2>Rightsholder</h2>
+      <p>The content on this Website is owned by <strong>Kawaii Bounce F.R.</strong> (Francesco Romei, performing as Camoufly), or its licensors.</p>
+      <ul>
+        <li>VAT no. (P.IVA): IT01442860456</li>
+        <li>Registered address: Via Rismondo 65, Fivizzano (MS), Italy</li>
+        <li>Contact: <a href="mailto:contact@camoufly.me">contact@camoufly.me</a></li>
+      </ul>
+
+      <h2>Reservation of Rights</h2>
+      <p>All works made available on this Website and its subdomains — including but not limited to sound recordings, musical compositions, audiovisual works, artwork, images, and text — are protected by copyright and related rights.</p>
+      <p>The rightsholder <strong>expressly reserves all rights</strong> in these works for the purposes of text and data mining, within the meaning of <strong>Article 4(3) of Directive (EU) 2019/790</strong> (the CDSM Directive). This reservation is made in machine-readable form — through the TDM Reservation Protocol (<a href="https://camoufly.me/.well-known/tdmrep.json">/.well-known/tdmrep.json</a>), the <code>TDM-Reservation</code> HTTP response header, and HTML meta directives — as well as in this human-readable statement and in our website terms.</p>
+
+      <h2>What This Means</h2>
+      <p>No reproduction or extraction of these works for text and data mining purposes is authorised without a prior written licence from the rightsholder. This includes, without limitation, the use of the works to <strong>train, fine-tune, or develop any artificial-intelligence or machine-learning model</strong>, including general-purpose AI models and generative AI systems as defined in Regulation (EU) 2024/1689 (the AI Act).</p>
+      <p>Under <strong>Article 53(1)(c) of the AI Act</strong>, providers of general-purpose AI models placing models on the EU market are required to identify and comply with this reservation, regardless of the jurisdiction in which the training takes place.</p>
+
+      <h2>Scope</h2>
+      <p>This reservation does <em>not</em> restrict ordinary search-engine indexing and discovery, nor any use covered by a mandatory exception that cannot be reserved — such as text and data mining for scientific research by eligible research organisations under Article 3 of the CDSM Directive. It applies to all commercial and general-purpose AI-training uses falling under Article 4.</p>
+
+      <h2>Lawful Access</h2>
+      <p>The TDM exception under Article 4 applies only to works that are <strong>lawfully accessed</strong>. Any acquisition of the works through circumvention of technical protection measures, unauthorised downloading, or other unlawful means falls outside the exception entirely, irrespective of this reservation.</p>
+
+      <h2>Licensing &amp; Contact</h2>
+      <p>Licences for TDM or AI-training use may be available. To request a licence, or for any question about this policy, contact <a href="mailto:contact@camoufly.me">contact@camoufly.me</a>.</p>
+
+    </div>
+
+    <hr class="hr">
+
+    <div class="footer-links">
+      <a href="/privacy">privacy</a> · <a href="/cookies">cookies</a> · <a href="/tdm-policy">tdm</a>
+    </div>
+
+    <div class="legal">
+      © 2026 Kawaii Bounce F.R. — P.IVA IT01442860456. Rights reserved for text &amp; data mining under Art. 4(3) Directive (EU) 2019/790.
+    </div>
+
+  </main>
+
+</body>
+</html>

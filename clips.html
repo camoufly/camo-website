@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="description" content="camoufly — send your clips">
+  <meta name="description" content="camoufly - send your clips">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
   <meta name="tdm-reservation" content="1">
   <meta name="tdm-policy" content="https://camoufly.me/tdm-policy">
@@ -42,7 +42,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
-  <title>camoufly — send your clips</title>
+  <title>camoufly - send your clips</title>
 
   <style>
     /* back link */
@@ -68,24 +68,8 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       text-align: center;
-    }
-
-    .page-heading {
-      font-size: 1.4rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    .page-sub {
-      font-size: 0.92rem;
-      color: var(--muted);
-      text-align: center;
-      line-height: 1.5;
-      max-width: 460px;
-      margin: 0 auto 28px;
     }
 
     /* clip box */
@@ -98,21 +82,23 @@
       border-radius: var(--radius);
     }
 
-    .clip-box-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
     .clip-list {
       list-style: none;
-      padding: 0;
+      padding: 0 4px 0 0;
       margin: 0;
       display: grid;
       gap: 8px;
+      max-height: 340px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-h) transparent;
+    }
+
+    .clip-list::-webkit-scrollbar { width: 6px; }
+    .clip-list::-webkit-scrollbar-track { background: transparent; }
+    .clip-list::-webkit-scrollbar-thumb {
+      background: var(--border-h);
+      border-radius: 10px;
     }
 
     .clip-list a {
@@ -179,21 +165,20 @@
     <a href="/" class="back-link">← back</a>
 
     <div class="page-title">Send your clips</div>
-    <div class="page-heading">Got footage from the show?</div>
-    <p class="page-sub">Pick the date below and drop your videos straight into the folder — no account needed.</p>
 
     <div class="clip-box">
-      <div class="clip-box-label">Choose a date</div>
       <ul class="clip-list">
-        <li><a href="#" target="_blank" rel="noopener noreferrer">Breakaway NYC</a></li>
-        <li><a href="#" target="_blank" rel="noopener noreferrer">Daytrip LA</a></li>
-        <li><a href="#" target="_blank" rel="noopener noreferrer">Washington D.C.</a></li>
-        <li><a href="#" target="_blank" rel="noopener noreferrer">Tokyo</a></li>
-        <li><a href="#" target="_blank" rel="noopener noreferrer">Osaka</a></li>
+        <li><a href="https://www.dropbox.com/request/djcb0njopp257l3q71gw" target="_blank" rel="noopener noreferrer">Breakaway NYC</a></li>
+        <li><a href="https://www.dropbox.com/request/ee171sxi1lim0sg2jlnh" target="_blank" rel="noopener noreferrer">Madame Loyal</a></li>
+        <li><a href="https://www.dropbox.com/request/gtu9i3o3u0esyn58xdat" target="_blank" rel="noopener noreferrer">Bergtattfestivalen</a></li>
+        <li><a href="https://www.dropbox.com/request/71y49q29ewtu97krrh03" target="_blank" rel="noopener noreferrer">Daytrip LA</a></li>
+        <li><a href="https://www.dropbox.com/request/79qf5l05lqus0aknw79u" target="_blank" rel="noopener noreferrer">Washington D.C.</a></li>
+        <li><a href="https://www.dropbox.com/request/ej3jp5im63ym1786fwil" target="_blank" rel="noopener noreferrer">Tokyo</a></li>
+        <li><a href="https://www.dropbox.com/request/qqbmbsufuq6twmaecgve" target="_blank" rel="noopener noreferrer">Osaka</a></li>
       </ul>
     </div>
 
-    <p class="clip-note">Thank you for sharing — your clips might end up in a future edit.</p>
+    <p class="clip-note">By submitting a video, you confirm you have the right to share it and grant Kawaii Bounce F.R. permission to use it for promotional purposes.</p>
 
   </main>
 

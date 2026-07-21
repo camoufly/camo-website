@@ -7,7 +7,7 @@
   <meta name="tdm-reservation" content="1">
   <meta name="tdm-policy" content="https://camoufly.me/tdm-policy">
   <meta name="robots" content="noai, noimageai">
- 
+
   <!-- TikTok Pixel (consent-gated: targeting) -->
   <script type="text/plain" cookie-consent="targeting">
   !function (w, d, t) {
@@ -16,14 +16,14 @@
     ttq.page();
   }(window, document, 'ttq');
   </script>
- 
+
   <!-- Meta Pixel (consent-gated: targeting) -->
   <script type="text/plain" cookie-consent="targeting">
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', '706718730484074');
   fbq('track', 'PageView');
   </script>
- 
+
   <!-- Google Analytics (consent-gated: tracking) -->
   <script type="text/plain" cookie-consent="tracking" async src="https://www.googletagmanager.com/gtag/js?id=G-NX8KBPPLEB"></script>
   <script type="text/plain" cookie-consent="tracking">
@@ -32,18 +32,18 @@
     gtag('js', new Date());
     gtag('config', 'G-NX8KBPPLEB');
   </script>
- 
+
   <!-- GTM (consent-gated: tracking) -->
   <script type="text/plain" cookie-consent="tracking">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-NSSBMPS');</script>
- 
+
   <link rel="icon" href="thumbnail_logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
- 
+
   <title>camoufly - send your clips</title>
- 
+
   <style>
     /* back link */
     .back-link {
@@ -60,7 +60,7 @@
       transition: color 0.18s;
     }
     .back-link:hover { color: var(--text); }
- 
+
     /* page title */
     .page-title {
       font-size: 2rem;
@@ -71,7 +71,7 @@
       margin-bottom: 24px;
       text-align: center;
     }
- 
+
     /* clip box */
     .clip-box {
       width: 100%;
@@ -81,26 +81,21 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
     }
- 
+
     .clip-list {
       list-style: none;
-      padding: 0 4px 0 0;
+      padding: 0;
       margin: 0;
       display: grid;
       gap: 8px;
-      max-height: 340px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border-h) transparent;
     }
- 
-    .clip-list::-webkit-scrollbar { width: 6px; }
-    .clip-list::-webkit-scrollbar-track { background: transparent; }
-    .clip-list::-webkit-scrollbar-thumb {
-      background: var(--border-h);
-      border-radius: 10px;
-    }
- 
+
+    .clip-list li { display: list-item; }
+
+    .clip-list li:nth-child(n+6) { display: none; }
+
+    .clip-list.expanded li { display: list-item; }
+
     .clip-list a {
       text-decoration: none;
       display: flex;
@@ -116,31 +111,57 @@
       color: var(--text);
       transition: border-color 0.2s, background 0.2s;
     }
- 
+
     .clip-list a::after {
       content: '↑';
       font-size: 0.85rem;
       color: var(--muted);
       transition: transform 0.2s, color 0.2s;
     }
- 
+
     .clip-list a:hover {
       border-color: var(--border-h);
       background: #202020;
     }
- 
+
     .clip-list a:hover::after {
       transform: translateY(-3px);
       color: var(--text);
     }
- 
+
     .clip-list a:active { transform: translateY(1px); }
- 
+
     .clip-list a:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
- 
+
+    .load-more {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px 18px;
+      background: transparent;
+      border: 1px dashed var(--border-h);
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      font-family: var(--font);
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+
+    .load-more:hover {
+      color: var(--text);
+      border-color: var(--text);
+      background: var(--bg3);
+    }
+
+    .load-more.is-hidden { display: none; }
+
     .clip-note {
       margin-top: 16px;
       font-size: 0.78rem;
@@ -151,23 +172,23 @@
   </style>
 </head>
 <body>
- 
+
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NSSBMPS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
- 
+
   <main class="wrap">
- 
+
     <header class="brand">
       <a href="https://camoufly.me" aria-label="Home">
         <img src="/images/logo.png" alt="camoufly" class="logo">
       </a>
     </header>
- 
+
     <a href="/" class="back-link">← back</a>
- 
+
     <div class="page-title">Send your clips</div>
- 
+
     <div class="clip-box">
-      <ul class="clip-list">
+      <ul class="clip-list" id="clipList">
         <li><a href="https://www.dropbox.com/request/djcb0njopp257l3q71gw" target="_blank" rel="noopener noreferrer">Breakaway NYC</a></li>
         <li><a href="https://www.dropbox.com/request/ee171sxi1lim0sg2jlnh" target="_blank" rel="noopener noreferrer">Madame Loyal</a></li>
         <li><a href="https://www.dropbox.com/request/gtu9i3o3u0esyn58xdat" target="_blank" rel="noopener noreferrer">Bergtattfestivalen</a></li>
@@ -176,11 +197,27 @@
         <li><a href="https://www.dropbox.com/request/ej3jp5im63ym1786fwil" target="_blank" rel="noopener noreferrer">Tokyo</a></li>
         <li><a href="https://www.dropbox.com/request/qqbmbsufuq6twmaecgve" target="_blank" rel="noopener noreferrer">Osaka</a></li>
       </ul>
+      <button type="button" class="load-more" id="loadMoreBtn">Load more gigs</button>
     </div>
 
     <p class="clip-note">By submitting a video, you confirm you have the right to share it and grant Kawaii Bounce F.R. permission to use it for promotional purposes.</p>
 
   </main>
+
+  <script>
+    (function () {
+      var list = document.getElementById('clipList');
+      var btn = document.getElementById('loadMoreBtn');
+      if (list.children.length <= 5) {
+        btn.classList.add('is-hidden');
+        return;
+      }
+      btn.addEventListener('click', function () {
+        list.classList.add('expanded');
+        btn.classList.add('is-hidden');
+      });
+    })();
+  </script>
 
   <script type="text/javascript" src="//www.freeprivacypolicy.com/public/cookie-consent/4.0.0/cookie-consent.js" charset="UTF-8"></script>
   <script type="text/javascript" charset="UTF-8">

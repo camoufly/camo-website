@@ -225,14 +225,13 @@
 
   <script>
     const TOUR_DATES = [
-      { date: 'JUL 11', venue: 'Club Opp', city: 'Bristol, UK', lat: 51.4538, lng: -2.5973, url: 'https://www.skiddle.com/e/42344098/?skcampaign=landingpage' },
-      { date: 'JUL 17', venue: 'Breakaway Under the K', city: 'New York, US', lat: 40.7127, lng: -74.006, url: 'https://www.axs.com/events/1372373/breakaway-festival-ft-tiesto-tickets?skin=underthek' },
-      { date: 'JUL 18', venue: 'The Music Yard', city: 'Charlotte, US', lat: 35.2272, lng: -80.8431, url: 'https://dice.fm/event/xeo5oa-camoufly-18th-jul-the-music-yard-charlotte-tickets' },
-      { date: 'JUL 31', venue: 'Mind Festival', city: 'Montecosaro, IT', lat: 43.2761, lng: 13.6002, url: 'http://mindfestival.ciaotickets.com/ecommerce' },
       { date: 'AUG 6', venue: 'Q Nightclub', city: 'Seattle, US', lat: 47.6038, lng: -122.3301, url: 'https://www.tixr.com/groups/qnightclub/events/camoufly-184156' },
       { date: 'AUG 7', venue: 'The Loft at Skyway Theatre', city: 'Minneapolis, MN', lat: 44.9773, lng: -93.2655, url: 'https://skywaytheatre.com/event/camoufly/' },
       { date: 'AUG 8', venue: 'Outside Lands Afters at The Great Northern', city: 'San Francisco, CA', lat: 37.7879, lng: -122.4075, url: 'https://www.ticketmaster.com/event/1C0064D2EBD581A2' },
+      { date: 'AUG 16', venue: 'LullaBay', city: 'Baia di Ostuni, IT', lat: 40.7873, lng: 17.5974, url: 'https://xceed.me/brindisi/event/camoufly-the-secret-of-sea/239339' },
+      { date: 'AUG 21', venue: 'Soleggiata Sound', city: 'Lugano, CH', lat: 46.0038, lng: 8.9512, url: 'https://www.soleggiatasound.ch/' },
       { date: 'AUG 28', venue: 'Touquet Music Beach', city: 'Le Touquet, FR', lat: 50.52, lng: 1.5865, url: 'https://tickets.touquetmusicbeach.com/f5cfd932e7d4469ea2f0cb519cea39c6/' },
+      { date: 'SEP 6', venue: 'The Music Yard', city: 'Charlotte, NC', lat: 35.2272, lng: -80.8431, url: 'https://dice.fm/event/xeo5oa-camoufly-new-date-6th-sep-the-music-yard-charlotte-tickets' },
       { date: 'SEP 10', venue: 'Realm PDX', city: 'Portland, OR', lat: 45.5202, lng: -122.6742, url: 'https://wl.eventim.us/event/camoufly/696108?afflky=RealmNightclub' },
       { date: 'SEP 11', venue: 'Club Vinyl', city: 'Denver, CO', lat: 39.7392, lng: -104.9849, url: 'https://www.ticketweb.com/event/camoufly-the-basement-at-club-vinyl-tickets/14206884' },
       { date: 'SEP 12', venue: 'Soundwell', city: 'Salt Lake City, UT', lat: 40.7596, lng: -111.8868, url: 'https://www.eventliveus.com/event/10439/camoufly' },
@@ -243,7 +242,8 @@
       { date: 'SEP 26', venue: 'Arora', city: 'New Orleans, LA', lat: 29.9561, lng: -90.0734, url: 'https://www.tixr.com/groups/republic/events/camoufly-195550' },
       { date: 'OCT 2', venue: 'Commonwealth', city: 'Calgary, AB', lat: 51.0456, lng: -114.0575, url: 'https://www.ticketweb.ca/event/camoufly-commonundrgrd-tickets/14206574?pl=blueprint-' },
       { date: 'OCT 3', venue: 'Village Studios', city: 'Vancouver, BC', lat: 49.2609, lng: -123.114, url: 'https://www.ticketweb.ca/event/stacked-pres-camoufly-village-studios-tickets/14206644?pl=blueprint' },
-      { date: 'OCT 10', venue: 'The Racket Space', city: 'Dublin, IE', lat: 53.3494, lng: -6.2606, url: 'https://the-racket-space.com/event/racket-space-presents-camoufly/' }
+      { date: 'OCT 10', venue: 'The Racket Space', city: 'Dublin, IE', lat: 53.3494, lng: -6.2606, url: 'https://the-racket-space.com/event/racket-space-presents-camoufly/' },
+      { date: 'OCT 24', venue: 'Skin On Skin Invites', city: 'Amstedam, NL', lat: 52.3731, lng: 4.8925, url: 'https://shop.celebratix.io/?c=2g83w&eventId=e_gacvw' }
     ];
 
     let scene, camera, renderer, globe, pinGroup;

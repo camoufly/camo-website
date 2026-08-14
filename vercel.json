@@ -17,6 +17,8 @@
     { "source": "/ultramoon", "destination": "/ultramoon.html" },
     { "source": "/clips", "destination": "/clips.html" },
     { "source": "/believe", "destination": "/believe.html" },
+    { "source": "/tentone", "destination": "/tentone.html" },
+    { "source": "/tekit", "destination": "/tekit.html" },
     { "source": "/cookies", "destination": "/cookies.html" },
     { "source": "/carradio", "destination": "/carradio.html" }
 

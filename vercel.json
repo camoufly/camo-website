@@ -13,6 +13,7 @@
     { "source": "/tour", "destination": "/tour.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/himalaya", "destination": "/himalaya.html" },
+    { "source": "/sweetdreams", "destination": "/sweetdreams.html" },
     { "source": "/odyssey", "destination": "/odyssey.html" },
     { "source": "/eutour", "destination": "/eutour.html" },
     { "source": "/ustour", "destination": "/ustour.html" },
